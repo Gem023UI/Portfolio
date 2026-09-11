@@ -1,0 +1,177 @@
+.home {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.hero {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 8%;
+  box-sizing: border-box;
+}
+
+.hero__content {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 100px;
+}
+
+.hero__card {
+  flex: 0 0 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero__text {
+  flex: 1;
+  max-width: 600px;
+}
+
+.hero__greeting {
+  margin: 0 0 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+.hero__name {
+  margin-bottom: 24px;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.hero__description {
+  max-width: 560px;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.8;
+  opacity: 0.75;
+}
+
+.hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.hero__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  padding: 13px 24px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease,
+    background-color 0.25s ease;
+  box-sizing: border-box;
+}
+
+.hero__button:hover {
+  transform: translateY(-3px);
+}
+
+.hero__button--primary {
+  color: white;
+  background: #111;
+}
+
+.hero__button--primary:hover {
+  opacity: 0.85;
+}
+
+.hero__button--secondary {
+  color: #111;
+  border: 1px solid #111;
+  background: transparent;
+}
+
+.hero__button--secondary:hover {
+  background: #111;
+  color: white;
+}
+
+/* TiltedCard overlay */
+.tilted-card-demo-text {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .hero {
+    padding: 80px 6%;
+  }
+
+  .hero__content {
+    gap: 50px;
+  }
+
+  .hero__card {
+    flex-basis: 330px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .hero {
+    min-height: auto;
+    padding: 100px 24px 60px;
+  }
+
+  .hero__content {
+    flex-direction: column;
+    gap: 40px;
+    text-align: center;
+  }
+
+  .hero__card {
+    flex: none;
+    width: 100%;
+  }
+
+  .hero__text {
+    width: 100%;
+  }
+
+  .hero__greeting {
+    font-size: 1rem;
+  }
+
+  .hero__name {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+
+  .hero__description {
+    margin: 0 auto;
+    font-size: 0.95rem;
+  }
+
+  .hero__actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}

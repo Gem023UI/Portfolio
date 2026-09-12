@@ -6,25 +6,52 @@ import "../styles/Home.css";
 const HERO_IMAGE =
   "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789182469/2e4c2c05-beaf-459c-a455-81f05e2012cf.png";
 
-// Parallax "depth" for each layer — bigger number = moves more.
-const DEPTH = {
-  greeting: 12,
-  bigText: 10,
-  photo: 22,
-  surname: 16,
-  role: 8,
-  tags: [26, 30, 28, 24], // product-design, full-stack, ai/ml, ui/ux
+type TagKey = "productDesign" | "fullStack" | "aiMl" | "uiUx";
+const TAG_ORDER: TagKey[] = ["productDesign", "fullStack", "aiMl", "uiUx"];
+
+// Parallax "depth" — only elements that should move with the cursor are listed here.
+// Greeting / JEMUEL / Malaga are intentionally excluded from parallax.
+const TAG_DEPTH: Record<TagKey, number> = {
+  productDesign: 26,
+  fullStack: 30,
+  aiMl: 28,
+  uiUx: 24,
 };
+const PHOTO_DEPTH = 22;
+const ROLE_DEPTH = 8;
 
 function Home() {
   const heroRef = useRef<HTMLElement | null>(null);
-  const greetingRef = useRef<HTMLDivElement | null>(null);
-  const bigTextRef = useRef<HTMLDivElement | null>(null);
-  const photoRef = useRef<HTMLDivElement | null>(null);
-  const surnameRef = useRef<HTMLDivElement | null>(null);
-  const roleRef = useRef<HTMLDivElement | null>(null);
-  const tagRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
+  const stageRef = useRef<HTMLDivElement | null>(null);
 
+  const bigTextRef = useRef<HTMLDivElement | null>(null);
+  const bigTextInnerRef = useRef<HTMLDivElement | null>(null);
+
+  const photoRef = useRef<HTMLDivElement | null>(null);
+  const roleRef = useRef<HTMLDivElement | null>(null);
+
+  const tagRefs = useRef<Record<TagKey, HTMLDivElement | null>>({
+    productDesign: null,
+    fullStack: null,
+    aiMl: null,
+    uiUx: null,
+  });
+  const anchorRefs = useRef<Record<TagKey, HTMLDivElement | null>>({
+    productDesign: null,
+    fullStack: null,
+    aiMl: null,
+    uiUx: null,
+  });
+  const lineRefs = useRef<Record<TagKey, SVGLineElement | null>>({
+    productDesign: null,
+    fullStack: null,
+    aiMl: null,
+    uiUx: null,
+  });
+
+  const linesSvgRef = useRef<SVGSVGElement | null>(null);
+
+  // ---- Parallax: cursor-follow motion for photo, tags, role only ----
   useEffect(() => {
     const hero = heroRef.current;
     if (!hero) return;
@@ -37,38 +64,40 @@ function Home() {
           }
         : null;
 
-    const setters = {
-      photo: makeSetter(photoRef.current),
-      role: makeSetter(roleRef.current),
-      tags: tagRefs.current.map((el) => makeSetter(el)),
-    };
+    const photoSetter = makeSetter(photoRef.current);
+    const roleSetter = makeSetter(roleRef.current);
+    const tagSetters = TAG_ORDER.map((key) => ({
+      key,
+      setter: makeSetter(tagRefs.current[key]),
+    }));
 
     const handlePointerMove = (event: PointerEvent) => {
       const rect = hero.getBoundingClientRect();
-      const relX = (event.clientX - rect.left) / rect.width - 0.5; // -0.5 .. 0.5
+      const relX = (event.clientX - rect.left) / rect.width - 0.5;
       const relY = (event.clientY - rect.top) / rect.height - 0.5;
 
-      // background text drifts opposite to the cursor for depth
-      setters.photo?.x(relX * DEPTH.photo);
-      setters.photo?.y(relY * DEPTH.photo);
+      photoSetter?.x(relX * PHOTO_DEPTH);
+      photoSetter?.y(relY * PHOTO_DEPTH);
 
-      setters.role?.x(relX * DEPTH.role);
-      setters.role?.y(relY * DEPTH.role * 0.6);
+      roleSetter?.x(relX * ROLE_DEPTH);
+      roleSetter?.y(relY * ROLE_DEPTH * 0.6);
 
-      setters.tags.forEach((setter, i) => {
-        const depth = DEPTH.tags[i] ?? 26;
+      tagSetters.forEach(({ key, setter }) => {
+        const depth = TAG_DEPTH[key];
         setter?.x(relX * depth);
         setter?.y(relY * depth);
       });
     };
 
     const resetParallax = () => {
-      [setters.photo, setters.role, ...setters.tags].forEach(
-        (setter) => {
-          setter?.x(0);
-          setter?.y(0);
-        }
-      );
+      photoSetter?.x(0);
+      photoSetter?.y(0);
+      roleSetter?.x(0);
+      roleSetter?.y(0);
+      tagSetters.forEach(({ setter }) => {
+        setter?.x(0);
+        setter?.y(0);
+      });
     };
 
     window.addEventListener("pointermove", handlePointerMove);
@@ -80,68 +109,202 @@ function Home() {
     };
   }, []);
 
-  const setTagRef = (index: number) => (el: HTMLDivElement | null) => {
-    tagRefs.current[index] = el;
-  };
+  // ---- Connector lines: always recomputed from real element positions ----
+  useEffect(() => {
+    const stage = stageRef.current;
+    const svg = linesSvgRef.current;
+    if (!stage || !svg) return;
+
+    const updateLines = () => {
+      const stageRect = stage.getBoundingClientRect();
+      if (!stageRect.width || !stageRect.height) return;
+
+      svg.setAttribute("viewBox", `0 0 ${stageRect.width} ${stageRect.height}`);
+
+      TAG_ORDER.forEach((key) => {
+        const tagEl = tagRefs.current[key];
+        const anchorEl = anchorRefs.current[key];
+        const lineEl = lineRefs.current[key];
+        if (!tagEl || !anchorEl || !lineEl) return;
+
+        const tagRect = tagEl.getBoundingClientRect();
+        const anchorRect = anchorEl.getBoundingClientRect();
+
+        const tagX = tagRect.left + tagRect.width / 2 - stageRect.left;
+        const tagY = tagRect.top + tagRect.height / 2 - stageRect.top;
+        const anchorX = anchorRect.left + anchorRect.width / 2 - stageRect.left;
+        const anchorY = anchorRect.top + anchorRect.height / 2 - stageRect.top;
+
+        lineEl.setAttribute("x1", String(tagX));
+        lineEl.setAttribute("y1", String(tagY));
+        lineEl.setAttribute("x2", String(anchorX));
+        lineEl.setAttribute("y2", String(anchorY));
+      });
+    };
+
+    updateLines();
+
+    const resizeObserver = new ResizeObserver(updateLines);
+    resizeObserver.observe(stage);
+
+    // Runs every animation frame so lines stay attached while parallax animates
+    gsap.ticker.add(updateLines);
+
+    return () => {
+      resizeObserver.disconnect();
+      gsap.ticker.remove(updateLines);
+    };
+  }, []);
+
+  // ---- Fit the FoldText "JEMUEL" to span the stage width, no parallax ----
+  useEffect(() => {
+    const stage = stageRef.current;
+    const inner = bigTextInnerRef.current;
+    if (!stage || !inner) return;
+
+    const fitText = () => {
+      const stageWidth = stage.getBoundingClientRect().width;
+      if (!stageWidth) return;
+
+      inner.style.transform = "scale(1)";
+      const naturalWidth = inner.scrollWidth;
+      if (!naturalWidth) return;
+
+      const targetWidth = stageWidth * 0.94;
+      const scale = targetWidth / naturalWidth;
+      inner.style.transform = `scale(${scale})`;
+    };
+
+    fitText();
+    const resizeObserver = new ResizeObserver(fitText);
+    resizeObserver.observe(stage);
+
+    // Re-fit shortly after mount in case the font/FoldText layout settles late
+    const timeout = window.setTimeout(fitText, 300);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.clearTimeout(timeout);
+    };
+  }, []);
 
   return (
     <main className="home">
       <section className="hero" ref={heroRef}>
-        <div className="hero__stage">
-          <div className="hero__greeting" ref={greetingRef}>
-            Hi! My name is
+        <div className="hero__stage" ref={stageRef}>
+          <div className="hero__text">
+            <div className="hero__greeting">Hi! My name is</div>
+
+            <div className="hero__bigtext" ref={bigTextRef} aria-hidden="true">
+                <div className="hero__bigtext-inner" ref={bigTextInnerRef}>
+                <FoldText
+                    text="JEMUEL"
+                    splitBy="char"
+                    hinge="top"
+                    trigger="mount"
+                    duration={0.85}
+                    stagger={0.045}
+                    ease="power3.out"
+                    perspective={500}
+                    creaseShading={0.55}
+                    fontSize={170}
+                    fontWeight={550}
+                    color="#5b2eff"
+                />
+                </div>
+            </div>
+
+            <div className="hero__surname">MALAGA</div>
           </div>
 
-          <div className="hero__bigtext" ref={bigTextRef} aria-hidden="true">
-            <FoldText
-              text="JEMUEL"
-              splitBy="char"
-              hinge="top"
-              trigger="mount"
-              duration={0.85}
-              stagger={0.045}
-              ease="power3.out"
-              perspective={700}
-              creaseShading={0.55}
-              fontSize={140}
-              fontWeight={800}
-              color="#5b2eff"
+          {/* Parallax */}
+          <div className="hero__photo" ref={photoRef}>
+            <img src={HERO_IMAGE} alt="Jemuel Malaga" draggable={false} />
+
+            <div
+              className="hero__anchor hero__anchor--product-design"
+              ref={(el) => {
+                anchorRefs.current.productDesign = el;
+              }}
+            />
+            <div
+              className="hero__anchor hero__anchor--full-stack"
+              ref={(el) => {
+                anchorRefs.current.fullStack = el;
+              }}
+            />
+            <div
+              className="hero__anchor hero__anchor--ai-ml"
+              ref={(el) => {
+                anchorRefs.current.aiMl = el;
+              }}
+            />
+            <div
+              className="hero__anchor hero__anchor--ui-ux"
+              ref={(el) => {
+                anchorRefs.current.uiUx = el;
+              }}
             />
           </div>
 
-          <div className="hero__photo" ref={photoRef}>
-            <img src={HERO_IMAGE} alt="Jemuel Malaga" draggable={false} />
-          </div>
-
-          <div className="hero__surname" ref={surnameRef}>
-            Malaga
-          </div>
-
-          <svg
-            className="hero__lines"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <line x1="26" y1="40" x2="44" y2="54" />
-            <line x1="64" y1="29" x2="54" y2="34" />
-            <line x1="76" y1="50" x2="60" y2="55" />
-            <line x1="30" y1="69" x2="44" y2="62" />
+          <svg className="hero__lines" ref={linesSvgRef} aria-hidden="true">
+            <line
+              ref={(el) => {
+                lineRefs.current.productDesign = el;
+              }}
+            />
+            <line
+              ref={(el) => {
+                lineRefs.current.fullStack = el;
+              }}
+            />
+            <line
+              ref={(el) => {
+                lineRefs.current.aiMl = el;
+              }}
+            />
+            <line
+              ref={(el) => {
+                lineRefs.current.uiUx = el;
+              }}
+            />
           </svg>
 
-          <div className="hero__tag hero__tag--product-design" ref={setTagRef(0)}>
+          {/* Parallax */}
+          <div
+            className="hero__tag hero__tag--product-design"
+            ref={(el) => {
+              tagRefs.current.productDesign = el;
+            }}
+          >
             PRODUCT DESIGN
           </div>
-          <div className="hero__tag hero__tag--full-stack" ref={setTagRef(1)}>
+          <div
+            className="hero__tag hero__tag--full-stack"
+            ref={(el) => {
+              tagRefs.current.fullStack = el;
+            }}
+          >
             FULL STACK
           </div>
-          <div className="hero__tag hero__tag--ai-ml" ref={setTagRef(2)}>
+          <div
+            className="hero__tag hero__tag--ai-ml"
+            ref={(el) => {
+              tagRefs.current.aiMl = el;
+            }}
+          >
             AI / ML
           </div>
-          <div className="hero__tag hero__tag--ui-ux" ref={setTagRef(3)}>
+          <div
+            className="hero__tag hero__tag--ui-ux"
+            ref={(el) => {
+              tagRefs.current.uiUx = el;
+            }}
+          >
             UI / UX
           </div>
 
+          {/* Parallax */}
           <div className="hero__role" ref={roleRef}>
             FRONT END DEVELOPER&nbsp;&nbsp;|&nbsp;&nbsp;UI/UX DESIGN
           </div>

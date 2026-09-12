@@ -10,7 +10,7 @@ const LAPTOP_IMAGE =
 const PEN_IMAGE =
   "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789195779/d8890c4e-afc7-44dc-8381-7d779c24f009.png";
 const PAPER_IMAGE =
-  "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789195807/22de8275-9c0b-4d3c-b569-e0f29948c460.png";
+  "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789199117/615dc822-98de-47d7-a84b-3c3cc2ed3b33.png";
 
 type TagKey = "productDesign" | "fullStack" | "aiMl" | "uiUx";
 const TAG_ORDER: TagKey[] = ["productDesign", "fullStack", "aiMl", "uiUx"];
@@ -272,7 +272,7 @@ function Home() {
                     creaseShading={0.55}
                     fontSize={170}
                     fontWeight={550}
-                    color="#5b2eff"
+                    color="#6442df"
                 />
                 </div>
             </div>

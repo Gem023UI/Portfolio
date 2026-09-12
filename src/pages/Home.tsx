@@ -5,12 +5,16 @@ import "../styles/Home.css";
 
 const HERO_IMAGE =
   "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789182469/2e4c2c05-beaf-459c-a455-81f05e2012cf.png";
+const LAPTOP_IMAGE =
+  "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789194662/53d5ae24-94e5-4fb1-a683-f662978abc13.png";
+const PEN_IMAGE =
+  "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789195779/d8890c4e-afc7-44dc-8381-7d779c24f009.png";
+const PAPER_IMAGE =
+  "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789195807/22de8275-9c0b-4d3c-b569-e0f29948c460.png";
 
 type TagKey = "productDesign" | "fullStack" | "aiMl" | "uiUx";
 const TAG_ORDER: TagKey[] = ["productDesign", "fullStack", "aiMl", "uiUx"];
 
-// Parallax "depth" — only elements that should move with the cursor are listed here.
-// Greeting / JEMUEL / Malaga are intentionally excluded from parallax.
 const TAG_DEPTH: Record<TagKey, number> = {
   productDesign: 26,
   fullStack: 30,
@@ -29,6 +33,11 @@ function Home() {
 
   const photoRef = useRef<HTMLDivElement | null>(null);
   const roleRef = useRef<HTMLDivElement | null>(null);
+
+  const aboutRef = useRef<HTMLElement | null>(null);
+  const paperMouseRef = useRef<HTMLDivElement | null>(null);
+  const penMouseRef = useRef<HTMLDivElement | null>(null);
+  const laptopMouseRef = useRef<HTMLDivElement | null>(null);
 
   const tagRefs = useRef<Record<TagKey, HTMLDivElement | null>>({
     productDesign: null,
@@ -188,6 +197,60 @@ function Home() {
     };
   }, []);
 
+  // ---- About section mouse parallax: paper, pen, laptop ----
+  useEffect(() => {
+  const about = aboutRef.current;
+  if (!about) return;
+
+  const makeSetter = (el: HTMLElement | null) =>
+    el
+      ? {
+          x: gsap.quickTo(el, "x", { duration: 0.8, ease: "power3.out" }),
+          y: gsap.quickTo(el, "y", { duration: 0.8, ease: "power3.out" }),
+        }
+      : null;
+
+  const paperSetter = makeSetter(paperMouseRef.current);
+  const penSetter = makeSetter(penMouseRef.current);
+  const laptopSetter = makeSetter(laptopMouseRef.current);
+
+  const PAPER_DEPTH = 14;
+  const PEN_DEPTH = 26;
+  const LAPTOP_DEPTH = 18;
+
+  const handlePointerMove = (event: PointerEvent) => {
+    const rect = about.getBoundingClientRect();
+    const relX = (event.clientX - rect.left) / rect.width - 0.5;
+    const relY = (event.clientY - rect.top) / rect.height - 0.5;
+
+    paperSetter?.x(relX * -PAPER_DEPTH);
+    paperSetter?.y(relY * -PAPER_DEPTH);
+
+    penSetter?.x(relX * PEN_DEPTH);
+    penSetter?.y(relY * PEN_DEPTH);
+
+    laptopSetter?.x(relX * -LAPTOP_DEPTH);
+    laptopSetter?.y(relY * -LAPTOP_DEPTH);
+  };
+
+  const resetParallax = () => {
+    paperSetter?.x(0);
+    paperSetter?.y(0);
+    penSetter?.x(0);
+    penSetter?.y(0);
+    laptopSetter?.x(0);
+    laptopSetter?.y(0);
+  };
+
+  window.addEventListener("pointermove", handlePointerMove);
+  about.addEventListener("pointerleave", resetParallax);
+
+  return () => {
+    window.removeEventListener("pointermove", handlePointerMove);
+    about.removeEventListener("pointerleave", resetParallax);
+  };
+  }, []);
+
   return (
     <main className="home">
       <section className="hero" ref={heroRef}>
@@ -311,7 +374,68 @@ function Home() {
         </div>
       </section>
 
-      <section className="home__next"></section>
+      <section className="about" ref={aboutRef}>
+        <div className="about__stage">
+            <div className="about__paper" ref={paperMouseRef}>
+            <img src={PAPER_IMAGE} alt="" draggable={false} />
+            </div>
+
+            <div className="about__pen" ref={penMouseRef}>
+            <img src={PEN_IMAGE} alt="" draggable={false} />
+            </div>
+
+            <div className="about__laptop" ref={laptopMouseRef}>
+            <img src={LAPTOP_IMAGE} alt="" draggable={false} />
+            </div>
+
+            <div className="about__text">
+            <p>
+                Aspires and takes into practice the desire to materialize my ideas, bridging the gap
+                between{" "}
+                <span className="about__highlight about__highlight--purple">
+                real-world problems
+                </span>{" "}
+                and{" "}
+                <span className="about__highlight about__highlight--green">
+                aesthetic, functional tech solutions.
+                </span>
+            </p>
+            <p>
+                Right now I&apos;m focused on learning hard skills via{" "}
+                <span className="about__highlight about__highlight--purple">certifications</span>{" "}
+                and establishing meaningful connections with the{" "}
+                <span className="about__highlight about__highlight--green">professionals</span> I
+                aim to become.
+            </p>
+            <div className="about__links">
+                <a
+                href="https://www.linkedin.com/in/jemuel-malaga-870740287"
+                target="_blank"
+                rel="noopener noreferrer"
+                >
+                LinkedIn
+                </a>
+                <a href="https://github.com/Gem023UI" target="_blank" rel="noopener noreferrer">
+                Github
+                </a>
+                <a
+                href="https://www.instagram.com/chase.jml/?hl=en"
+                target="_blank"
+                rel="noopener noreferrer"
+                >
+                Instagram
+                </a>
+                <a
+                href="https://www.facebook.com/jemuel.malaga.023/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >
+                Facebook
+                </a>
+            </div>
+            </div>
+        </div>
+      </section>
     </main>
   );
 }

@@ -6,118 +6,227 @@
 }
 
 .hero {
-  min-height: 80vh;
+  --hero-purple: #5b2eff;
+  --hero-green: #5fcb3c;
+
+  min-height: 90vh;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px 8%;
-  background-color: rgb(0, 0, 0);
+  padding: 100px 6% 140px;
+  background-color: #e8e8e6;
+  overflow: hidden;
 }
 
-.hero__content {
+.hero__stage {
+  position: relative;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  max-width: 1100px;
+  aspect-ratio: 1110 / 624;
+  margin: 0 auto;
 }
 
-.hero__card {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.hero__text {
-  flex: 1;
-  max-width: 600px;
-  align-items: center;
-  color: #e9e9ef;
-}
-
+/* ---- Greeting ---- */
 .hero__greeting {
-  margin: 0 0 8px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 1.2rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  opacity: 0.7;
-}
-
-.hero__name {
-  margin-bottom: 24px;
-  font-family: 'Anton', sans-serif;
-  font-size: 35px;
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
-  display: flex;
-  flex-direction: flex-start;
-}
-
-.hero__description {
-  max-width: 100%;
-  margin: 0;
+  position: absolute;
+  top: 6%;
+  left: 6%;
   font-family: 'Montserrat', sans-serif;
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 1.8;
-  opacity: 0.75;
-  text-align: left;
+  font-weight: 800;
+  font-style: italic;
+  font-size: clamp(1rem, 1.4vw, 1.3rem);
+  color: var(--hero-purple);
+  z-index: 6;
+  will-change: transform;
+}
+
+/* ---- Big background name ---- */
+.hero__bigtext {
+  position: absolute;
+  top: 12%;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(4.5rem, 15vw, 12.5rem);
+  line-height: 0.85;
+  letter-spacing: 0.5rem;
+  color: var(--hero-purple);
+  z-index: 1;
+  will-change: transform;
+  user-select: none;
+}
+
+/* ---- Photo ---- */
+.hero__photo {
+  position: absolute;
+  top: 9%;
+  left: 50%;
+  height: 85%;
+  transform: translateX(-50%);
+  z-index: 5;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.hero__photo img {
+  height: 100%;
+  width: auto;
+  display: block;
+  object-fit: contain;
+  user-select: none;
+}
+
+/* ---- Surname ---- */
+.hero__surname {
+  position: absolute;
+  top: 73%;
+  right: 4%;
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  color: var(--hero-purple);
+  z-index: 6;
+  will-change: transform;
+}
+
+/* ---- Connector lines ---- */
+.hero__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.hero__lines line {
+  stroke: var(--hero-green);
+  stroke-width: 0.25;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ---- Tags ---- */
+.hero__tag {
+  position: absolute;
+  z-index: 7;
+  background: var(--hero-green);
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: clamp(0.65rem, 0.85vw, 0.85rem);
+  letter-spacing: 0.02em;
+  padding: 0.4em 0.9em;
+  border-radius: 4px;
+  white-space: nowrap;
+  will-change: transform;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.hero__tag--product-design {
+  top: 36%;
+  left: 12%;
+}
+
+.hero__tag--full-stack {
+  top: 24%;
+  left: 64%;
+}
+
+.hero__tag--ai-ml {
+  top: 47%;
+  left: 76%;
+}
+
+.hero__tag--ui-ux {
+  top: 69%;
+  left: 18%;
+}
+
+/* ---- Role line ---- */
+.hero__role {
+  position: absolute;
+  top: 98%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  font-size: clamp(0.75rem, 1.1vw, 1rem);
+  color: var(--hero-purple);
+  z-index: 6;
+  will-change: transform;
 }
 
 /* Tablet */
 @media (max-width: 900px) {
   .hero {
-    padding: 80px 6%;
+    padding: 90px 5% 150px;
   }
 
-  .hero__content {
-    gap: 50px;
-  }
-
-  .hero__card {
-    flex-basis: 330px;
+  .hero__bigtext {
+    font-size: clamp(3.5rem, 16vw, 9rem);
   }
 }
 
-/* Mobile */
+/* Mobile — collapse to a simple stacked layout */
 @media (max-width: 700px) {
   .hero {
     min-height: auto;
-    padding: 100px 24px 60px;
+    padding: 110px 24px 70px;
   }
 
-  .hero__content {
+  .hero__stage {
+    aspect-ratio: unset;
+    display: flex;
     flex-direction: column;
-    gap: 40px;
-    text-align: center;
+    align-items: center;
+    gap: 14px;
+    max-width: 420px;
   }
 
-  .hero__card {
-    flex: none;
-    width: 100%;
+  .hero__greeting,
+  .hero__bigtext,
+  .hero__photo,
+  .hero__surname,
+  .hero__role,
+  .hero__tag {
+    position: static;
+    transform: none !important;
   }
 
-  .hero__text {
-    width: 100%;
+  .hero__lines {
+    display: none;
   }
 
   .hero__greeting {
-    font-size: 1rem;
+    align-self: flex-start;
   }
 
-  .hero__name {
-    font-size: clamp(2.5rem, 12vw, 4rem);
+  .hero__bigtext {
+    font-size: clamp(2.75rem, 18vw, 5.5rem);
+    line-height: 0.9;
   }
 
-  .hero__description {
-    margin: 0 auto;
-    font-size: 0.95rem;
+  .hero__photo {
+    height: auto;
   }
 
-  .hero__actions {
-    justify-content: center;
-    flex-wrap: wrap;
+  .hero__photo img {
+    height: auto;
+    width: min(70vw, 260px);
+  }
+
+  .hero__surname {
+    align-self: flex-end;
+  }
+
+  .hero__tag {
+    align-self: center;
+  }
+
+  .hero__role {
+    text-align: center;
   }
 }

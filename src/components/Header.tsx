@@ -49,11 +49,7 @@ const socialItems = [
 function Header() {
   return (
     <header className="header">
-      <div className="header__backdrop" />
-
-      <a href="/" className="header__logo" aria-label="Jemuel Malaga">
-        Jemuel Malaga
-      </a>
+      <a href="/" className="header__logo" aria-label="Jemuel Malaga"></a>
 
       <div className="header__menu">
         <StaggeredMenu
@@ -65,7 +61,7 @@ function Header() {
           menuButtonColor="#111111"
           openMenuButtonColor="#111111"
           changeMenuColorOnOpen
-          colors={['#B497CF', '#5227FF']}
+          colors={['#8400ff', '#6fff00']}
           accentColor="#7C3AED"
           isFixed
         />

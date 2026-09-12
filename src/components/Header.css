@@ -2,46 +2,16 @@
   position: fixed;
   top: 0;
   left: 0;
-
   width: 100%;
-  height: 80px;
-
+  height: min-content;
   display: flex;
   align-items: center;
-
-  padding: 0 6%;
-
+  padding: 20px;
   z-index: 1000;
-}
-
-/* Blurry translucent header background */
-.header__backdrop {
-  position: absolute;
-  inset: 0;
-
-  background: rgba(255, 255, 255, 0.55);
-
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-
-  z-index: -1;
 }
 
 .header__logo {
   position: relative;
-
-  color: #111;
-  text-decoration: none;
-
-  font-family: 'Anton', sans-serif;
-  font-size: 2rem;
-  line-height: 1;
-
-  cursor: pointer;
-
-  transition: opacity 0.25s ease;
 }
 
 .header__logo:hover {

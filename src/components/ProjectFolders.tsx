@@ -15,7 +15,6 @@ interface TabShape {
 interface ProjectFolder {
   id: string;
   label: string;
-  date: string;
   title: string;
   description: string;
   tags: string[];
@@ -32,40 +31,37 @@ const PROJECTS: ProjectFolder[] = [
   {
     id: "wayline",
     label: "PROJECT 01",
-    date: "MAR 19, 2026",
-    title: "Wayline",
-    description: "Making a whole city's transit app feel less like decoding a puzzle.",
-    tags: ["MOBILITY", "CONSUMER APP"],
+    title: "TOMATOGUARD",
+    description: "Sample Frontend Interface for AI/ML Project.",
+    tags: ["FRONTEND", "DESIGN", "UX/UI"],
     color: "#7ed957",
     textColor: "#141414",
-    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1783659435/foodhub/stalls/bswqxuquruvabphkntdw.png",
-    link: "https://github.com/Gem023UI/wayline",
+    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789283498/38125e49-76c9-4b76-950b-1f0ee1e0e4ee.png",
+    link: "https://tomatoguard.vercel.app/",
     tab: { tabStart: 0, peakStart: 0, peakEnd: 20, tabEnd: 28, flushLeft: true },   // wayline (green)
   },
   {
     id: "tandem",
     label: "PROJECT 02",
-    date: "MAR 2, 2026",
-    title: "Tandem",
-    description: "From 'who owes who' to money that finally feels shared.",
-    tags: ["FINTECH", "CONSUMER APP"],
+    title: "TYPEVENTURE",
+    description: "Gamified Learning Hub for Design Principles and Theory.",
+    tags: ["DESIGN THEORY", "GAMIFIED", "WORKSPACE"],
     color: "#5e1de0",
     textColor: "#ffffff",
-    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1783659435/foodhub/stalls/bswqxuquruvabphkntdw.png",
-    link: "https://github.com/Gem023UI/tandem",
+    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789282925/a2e452f5-4172-4919-9474-0ce63d8c1ab4.png",
+    link: "https://type-venture.vercel.app/",
     tab: { tabStart: 20, peakStart: 28, peakEnd: 52, tabEnd: 60 },   // tandem (violet)
   },
   {
     id: "forge",
     label: "PROJECT 03",
-    date: "JAN 2, 2026",
-    title: "Forge",
-    description: "Getting a new engineer from day one to shipping without the panic.",
-    tags: ["DEV TOOLS", "ONBOARDING"],
+    title: "CSPT",
+    description: "Report Compilation and Learning Hub for CSPT Lessons and Materials.",
+    tags: ["GOOGLE SLIDES", "QUIZZES", "VIDEO LESSONS"],
     color: "#0a0a0a",
     textColor: "#ffffff",
-    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1783659435/foodhub/stalls/bswqxuquruvabphkntdw.png",
-    link: "https://github.com/Gem023UI/forge",
+    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789282381/f1f14e81-f96d-49fc-85aa-a130fb804a93.png",
+    link: "https://github.com/Gem023UI/CSPT",
     tab: { tabStart: 52, peakStart: 60, peakEnd: 84, tabEnd: 92 },   // forge (black)
   },
 ];
@@ -176,10 +172,6 @@ function ProjectFolders() {
 
                 <div className="project-panel__inner">
                   <div className="project-panel__text">
-                    <div className="project-panel__date">
-                      <span className="project-panel__dot" />
-                      {project.date}
-                    </div>
                     <h3 className="project-panel__title">{project.title}</h3>
                     <p className="project-panel__desc">{project.description}</p>
                     <a href={project.link} target="_blank" rel="noopener noreferrer" className="project-panel__link">

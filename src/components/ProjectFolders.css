@@ -3,7 +3,6 @@
   width: 100%;
   background-color: #e8e8e6;
   margin: 0 auto;
-  padding-bottom: 40px;
 }
 
 .project-folders__sticky {
@@ -13,7 +12,6 @@
   box-sizing: border-box; /* keeps total height at exactly 100vh with padding included */
   overflow: hidden;
   background-color: #e8e8e6;
-  padding-top: 10px; /* clears the fixed 80px site header */
 }
 
 .project-folders__center {
@@ -71,26 +69,6 @@
   max-width: 520px;
 }
 
-.project-panel__date {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  font-size: 0.85rem;
-  margin-bottom: 24px;
-  opacity: 0.85;
-}
-
-.project-panel__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: currentColor;
-  display: inline-block;
-}
-
 .project-panel__title {
   font-family: 'Anton', sans-serif;
   font-size: clamp(2.5rem, 6vw, 4.5rem);
@@ -136,7 +114,7 @@
 
 .project-panel__media {
   flex: 1;
-  max-width: 520px;
+  min-width: 550px;
 }
 
 .project-panel__media img {
@@ -145,7 +123,7 @@
   border: 6px solid #ffffff;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
   user-select: none;
-  rotate: 6deg;
+  rotate: 2deg;
 }
 
 /* Mobile — drop the pin/clip-path effect entirely, stack panels in normal flow */

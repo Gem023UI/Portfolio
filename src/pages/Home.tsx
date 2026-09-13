@@ -271,7 +271,7 @@ function Home() {
                     ease="power3.out"
                     perspective={500}
                     creaseShading={0.55}
-                    fontSize={170}
+                    fontSize={250}
                     fontWeight={550}
                     color="#6442df"
                 />

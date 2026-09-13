@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import FoldText from "../components/FoldText";
+import ProjectFolders from "../components/ProjectFolders";
 import "../styles/Home.css";
 
 const HERO_IMAGE =
@@ -265,7 +266,7 @@ function Home() {
                     splitBy="char"
                     hinge="top"
                     trigger="mount"
-                    duration={0.85}
+                    duration={1.85}
                     stagger={0.045}
                     ease="power3.out"
                     perspective={500}
@@ -436,6 +437,12 @@ function Home() {
             </div>
         </div>
       </section>
+
+      <section className="projects-heading-wrap">
+        <h2 className="projects__heading">PROJECTS</h2>
+      </section>
+
+      <ProjectFolders />
     </main>
   );
 }

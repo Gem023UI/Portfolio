@@ -22,10 +22,11 @@ interface ProjectFolder {
   color: string;
   textColor: string;
   image: string;
+  link: string;
   tab: TabShape;
 }
 
-const TAB_HEIGHT = 70; // px — fixed regardless of viewport width
+const TAB_HEIGHT = 9; // px — fixed regardless of viewport width
 
 const PROJECTS: ProjectFolder[] = [
   {
@@ -38,6 +39,7 @@ const PROJECTS: ProjectFolder[] = [
     color: "#7ed957",
     textColor: "#141414",
     image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1783659435/foodhub/stalls/bswqxuquruvabphkntdw.png",
+    link: "https://github.com/Gem023UI/wayline",
     tab: { tabStart: 0, peakStart: 0, peakEnd: 20, tabEnd: 28, flushLeft: true },   // wayline (green)
   },
   {
@@ -50,6 +52,7 @@ const PROJECTS: ProjectFolder[] = [
     color: "#5e1de0",
     textColor: "#ffffff",
     image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1783659435/foodhub/stalls/bswqxuquruvabphkntdw.png",
+    link: "https://github.com/Gem023UI/tandem",
     tab: { tabStart: 20, peakStart: 28, peakEnd: 52, tabEnd: 60 },   // tandem (violet)
   },
   {
@@ -62,12 +65,13 @@ const PROJECTS: ProjectFolder[] = [
     color: "#0a0a0a",
     textColor: "#ffffff",
     image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1783659435/foodhub/stalls/bswqxuquruvabphkntdw.png",
-    tab: { tabStart: 52, peakStart: 60, peakEnd: 100, tabEnd: 100, flushRight: true },   // forge (black)
+    link: "https://github.com/Gem023UI/forge",
+    tab: { tabStart: 52, peakStart: 60, peakEnd: 84, tabEnd: 92 },   // forge (black)
   },
 ];
 
 function buildClipPath(tab: TabShape): string {
-  const h = `${TAB_HEIGHT}px`;
+  const h = `${TAB_HEIGHT}vh`;
 
   if (tab.flushLeft && tab.flushRight) {
     return `polygon(0 0, 100% 0, 100% 100%, 0 100%)`;
@@ -178,7 +182,7 @@ function ProjectFolders() {
                     </div>
                     <h3 className="project-panel__title">{project.title}</h3>
                     <p className="project-panel__desc">{project.description}</p>
-                    <a href="#" className="project-panel__link">
+                    <a href={project.link} target="_blank" rel="noopener noreferrer" className="project-panel__link">
                       VIEW PROJECT ↗
                     </a>
                     <div className="project-panel__tags">

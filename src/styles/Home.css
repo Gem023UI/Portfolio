@@ -10,9 +10,6 @@
 }
 
 .hero {
-  --hero-purple: #734dff;
-  --hero-green: #5fcb3c;
-
   max-height: 90vh;
   padding: 5%;
   width: 100%;
@@ -347,6 +344,7 @@
   padding: 10px 0 0;
   background-color: #e8e8e6;
   overflow: hidden;
+  padding-bottom: 100px;
 }
 
 .projects__heading {

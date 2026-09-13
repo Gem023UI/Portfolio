@@ -28,6 +28,15 @@
   font-family: 'Montserrat', sans-serif;
 }
 
+body.staggered-menu-open .app__page {
+  filter: blur(10px);
+  pointer-events: none;
+  transition:
+    filter 0.4s ease,
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (max-width: 700px) {
   .header {
     height: 70px;

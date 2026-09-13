@@ -1,4 +1,5 @@
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { gsap } from 'gsap';
 import './StaggeredMenu.css';
 
@@ -9,7 +10,8 @@ export interface StaggeredMenuItem {
 }
 
 export interface StaggeredMenuSocialItem {
-  label: string;
+  label: string; // used for aria-label / title, not rendered as visible text
+  icon: string;  // Flaticon class string, e.g. 'fi fi-brands-facebook'
   link: string;
 }
 
@@ -32,7 +34,28 @@ export interface StaggeredMenuProps {
   isFixed?: boolean;
 }
 
-export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
+const VISITOR_COUNT_STORAGE_KEY = 'jm-portfolio-visitor-count';
+
+// NOTE: this counts visits from THIS browser only (localStorage is per-device).
+// It is not a true cross-visitor global counter — that requires a backend/API.
+function getAndIncrementVisitorCount(): number {
+  if (typeof window === 'undefined') return 0;
+  try {
+    const stored = window.localStorage.getItem(VISITOR_COUNT_STORAGE_KEY);
+    const current = stored ? parseInt(stored, 10) : 0;
+    const next = Number.isFinite(current) ? current + 1 : 1;
+    window.localStorage.setItem(VISITOR_COUNT_STORAGE_KEY, String(next));
+    return next;
+  } catch {
+    return 0;
+  }
+}
+
+export const StaggeredMenuItemComponent = null; // (unused placeholder kept out of exports)
+
+export const StaggeredMenuItem = null as unknown as never; // no-op, ignore
+
+const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   position = 'right',
   colors = ['#B497CF', '#5227FF'],
   items = [],
@@ -70,6 +93,31 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   const toggleBtnRef = useRef<HTMLButtonElement | null>(null);
   const busyRef = useRef(false);
   const itemEntranceTweenRef = useRef<gsap.core.Tween | null>(null);
+
+  // ---- Visitor counter ----
+  const visitorCountElRef = useRef<HTMLSpanElement | null>(null);
+  const visitorTotalRef = useRef(0);
+  const visitorTweenRef = useRef<gsap.core.Tween | null>(null);
+
+  useEffect(() => {
+    visitorTotalRef.current = getAndIncrementVisitorCount();
+  }, []);
+
+  const animateVisitorCount = useCallback(() => {
+    const el = visitorCountElRef.current;
+    if (!el) return;
+    visitorTweenRef.current?.kill();
+    const counter = { value: 0 };
+    el.textContent = '0';
+    visitorTweenRef.current = gsap.to(counter, {
+      value: visitorTotalRef.current,
+      duration: 1.4,
+      ease: 'power2.out',
+      onUpdate: () => {
+        el.textContent = Math.round(counter.value).toLocaleString();
+      }
+    });
+  }, []);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -240,7 +288,9 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
 
     const all: HTMLElement[] = [...layers, panel];
     closeTweenRef.current?.kill();
+
     const offscreen = position === 'left' ? -100 : 100;
+
     closeTweenRef.current = gsap.to(all, {
       xPercent: offscreen,
       duration: 0.32,
@@ -343,6 +393,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
     if (target) {
       onMenuOpen?.();
       playOpen();
+      animateVisitorCount();
     } else {
       onMenuClose?.();
       playClose();
@@ -350,7 +401,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
     animateIcon(target);
     animateColor(target);
     animateText(target);
-  }, [playOpen, playClose, animateIcon, animateColor, animateText]);
+  }, [playOpen, playClose, animateIcon, animateColor, animateText, onMenuOpen, onMenuClose, animateVisitorCount]);
 
   const closeMenu = useCallback(() => {
     if (openRef.current) {
@@ -457,20 +508,38 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
               </li>
             )}
           </ul>
-          {displaySocials && socialItems && socialItems.length > 0 && (
-            <div className="sm-socials" aria-label="Social links">
-              <h3 className="sm-socials-title">Socials</h3>
-              <ul className="sm-socials-list" role="list">
-                {socialItems.map((s, i) => (
-                  <li key={s.label + i} className="sm-socials-item">
-                    <a href={s.link} target="_blank" rel="noopener noreferrer" className="sm-socials-link">
-                      {s.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+
+          <div className="sm-bottom">
+            <div className="sm-visitor" aria-label="Visitor count">
+              <i className="fi fi-sr-vision sm-visitor-icon" aria-hidden="true" />
+              <span className="sm-visitor-count" ref={visitorCountElRef} aria-live="polite">
+                0
+              </span>
+              <span className="sm-visitor-label">Visitors</span>
             </div>
-          )}
+
+            {displaySocials && socialItems && socialItems.length > 0 && (
+              <div className="sm-socials" aria-label="Social links">
+                <h3 className="sm-socials-title">Socials</h3>
+                <ul className="sm-socials-list" role="list">
+                  {socialItems.map((s, i) => (
+                    <li key={s.label + i} className="sm-socials-item">
+                      <a
+                        href={s.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="sm-socials-link"
+                        aria-label={s.label}
+                        title={s.label}
+                      >
+                        <i className={s.icon} aria-hidden="true"></i>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
       </aside>
     </div>

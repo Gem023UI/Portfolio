@@ -1,5 +1,4 @@
 import React, { useCallback, useLayoutEffect, useRef, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
 import { gsap } from 'gsap';
 import './StaggeredMenu.css';
 

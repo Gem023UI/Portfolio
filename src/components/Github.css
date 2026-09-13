@@ -1,0 +1,117 @@
+.github-contrib {
+  width: 100%;
+  padding: 100px 6%;
+  background-color: #e8e8e6;
+  display: flex;
+  justify-content: center;
+}
+
+.github-contrib__stage {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.github-contrib__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: #8a8a86;
+}
+
+.github-contrib__handle {
+  color: var(--hero-purple, #5b2eff);
+  text-decoration: none;
+}
+
+.github-contrib__handle:hover {
+  text-decoration: underline;
+}
+
+.github-contrib__grid {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.github-contrib__col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.github-contrib__cell {
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.github-contrib__dot {
+  border-radius: 50%;
+  display: block;
+}
+
+.github-contrib__dot--lvl0 {
+  width: 4px;
+  height: 4px;
+  background: #c9c9c5;
+}
+
+.github-contrib__dot--lvl1 {
+  width: 6px;
+  height: 6px;
+  background: var(--hero-purple, #5b2eff);
+  opacity: 0.5;
+}
+
+.github-contrib__dot--lvl2 {
+  width: 8px;
+  height: 8px;
+  background: var(--hero-purple, #5b2eff);
+  opacity: 0.7;
+}
+
+.github-contrib__dot--lvl3 {
+  width: 10px;
+  height: 10px;
+  background: var(--hero-purple, #5b2eff);
+  opacity: 0.9;
+}
+
+.github-contrib__dot--lvl4 {
+  width: 12px;
+  height: 12px;
+  background: var(--hero-purple, #5b2eff);
+}
+
+.github-contrib__total {
+  margin: 28px 0 0;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: #8a8a86;
+}
+
+@media (max-width: 700px) {
+  .github-contrib {
+    padding: 70px 24px;
+  }
+
+  .github-contrib__grid {
+    gap: 3px;
+  }
+
+  .github-contrib__col {
+    gap: 3px;
+  }
+}

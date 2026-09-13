@@ -98,6 +98,8 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   const visitorTotalRef = useRef(0);
   const visitorTweenRef = useRef<gsap.core.Tween | null>(null);
 
+  const [themeMode, setThemeMode] = useState<'light' | 'system' | 'dark'>('system');
+
   useEffect(() => {
     visitorTotalRef.current = getAndIncrementVisitorCount();
   }, []);
@@ -362,13 +364,13 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
     if (!inner) return;
     textCycleAnimRef.current?.kill();
 
-    const currentLabel = opening ? 'Menu' : 'Close';
-    const targetLabel = opening ? 'Close' : 'Menu';
+    const currentLabel = opening ? 'MENU' : 'CLOSE';
+    const targetLabel = opening ? 'CLOSE' : 'MENU';
     const cycles = 3;
     const seq: string[] = [currentLabel];
     let last = currentLabel;
     for (let i = 0; i < cycles; i++) {
-      last = last === 'Menu' ? 'Close' : 'Menu';
+      last = last === 'MENU' ? 'CLOSE' : 'MENU';
       seq.push(last);
     }
     if (last !== targetLabel) seq.push(targetLabel);
@@ -510,11 +512,39 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
 
           <div className="sm-bottom">
             <div className="sm-visitor" aria-label="Visitor count">
-              <i className="fi fi-sr-vision sm-visitor-icon" aria-hidden="true" />
+              <i className="fi fi-sr-eye sm-visitor-icon" aria-hidden="true" />
               <span className="sm-visitor-count" ref={visitorCountElRef} aria-live="polite">
                 0
               </span>
               <span className="sm-visitor-label">Visitors</span>
+            </div>
+
+            {/* Visual only for now — wiring this up to actually change the site theme comes later */}
+            <div className="sm-theme-toggle" role="group" aria-label="Color mode (not yet functional)">
+              <button
+                type="button"
+                className={`sm-theme-option${themeMode === 'light' ? ' is-active' : ''}`}
+                aria-pressed={themeMode === 'light'}
+                onClick={() => setThemeMode('light')}
+              >
+                <i className="fi fi-sr-sun" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={`sm-theme-option${themeMode === 'system' ? ' is-active' : ''}`}
+                aria-pressed={themeMode === 'system'}
+                onClick={() => setThemeMode('system')}
+              >
+                <i className="fi fi-sr-computer" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={`sm-theme-option${themeMode === 'dark' ? ' is-active' : ''}`}
+                aria-pressed={themeMode === 'dark'}
+                onClick={() => setThemeMode('dark')}
+              >
+                <i className="fi fi-sr-moon" aria-hidden="true" />
+              </button>
             </div>
 
             {displaySocials && socialItems && socialItems.length > 0 && (
@@ -523,15 +553,8 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                 <ul className="sm-socials-list" role="list">
                   {socialItems.map((s, i) => (
                     <li key={s.label + i} className="sm-socials-item">
-                      <a
-                        href={s.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="sm-socials-link"
-                        aria-label={s.label}
-                        title={s.label}
-                      >
-                        <i className={s.icon} aria-hidden="true"></i>
+                      <a href={s.link} target="_blank" rel="noopener noreferrer" className="sm-socials-link">
+                        {s.label}
                       </a>
                     </li>
                   ))}

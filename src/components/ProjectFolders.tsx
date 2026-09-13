@@ -26,6 +26,7 @@ interface ProjectFolder {
 }
 
 const TAB_HEIGHT = 9; // px — fixed regardless of viewport width
+const SCROLL_LENGTH_PER_PROJECT_VH = 180; // higher = slower, more scroll distance per folder
 
 const PROJECTS: ProjectFolder[] = [
   {
@@ -137,7 +138,7 @@ function ProjectFolders() {
     <div
       className="project-folders"
       ref={sectionRef}
-      style={{ height: `${PROJECTS.length * 100}vh` }}
+      style={{ height: `${PROJECTS.length * SCROLL_LENGTH_PER_PROJECT_VH}vh` }}
     >
       <div className="project-folders__sticky">
         <div className="project-folders__center">

@@ -27,6 +27,11 @@ const menuItems = [
     ariaLabel: 'Read my blogs',
     link: '/blogs',
   },
+  {
+    label: 'Contact',
+    ariaLabel: 'Contact me',
+    link: '/contact',
+  },
 ];
 
 const socialItems = [

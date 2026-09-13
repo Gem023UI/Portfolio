@@ -8,17 +8,12 @@ const menuItems = [
     link: '/',
   },
   {
-    label: 'About',
-    ariaLabel: 'Learn about me',
-    link: '/about',
-  },
-  {
     label: 'Projects',
     ariaLabel: 'View my projects',
     link: '/projects',
   },
   {
-    label: 'Tech Stack',
+    label: 'Stack',
     ariaLabel: 'View my technology stack',
     link: '/tech-stack',
   },
@@ -60,8 +55,8 @@ function Header() {
           menuButtonColor="#111111"
           openMenuButtonColor="#111111"
           changeMenuColorOnOpen
-          colors={['#8400ff', '#6fff00']}
-          accentColor="#7C3AED"
+          colors={['#734dff', '#5fcb3c']}
+          accentColor="#734dff"
           isFixed
         />
       </div>

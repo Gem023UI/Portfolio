@@ -20,14 +20,12 @@
 
 .header__menu {
   position: relative;
-
   margin-left: auto;
-
   height: 100%;
   display: flex;
   align-items: center;
-
   z-index: 1001;
+  font-family: 'Montserrat', sans-serif;
 }
 
 @media (max-width: 700px) {

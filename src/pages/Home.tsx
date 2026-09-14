@@ -460,6 +460,25 @@ function Home() {
         <ProjectFolders />
       </section>
 
+      <section className="projects-heading-wrap">
+        <h2 className="projects__heading">
+          <FoldText
+            text="CERTIFICATIONS"
+            splitBy="char"
+            hinge="bottom"
+            trigger="hover"
+            duration={0.65}
+            stagger={0.045}
+            ease="power3.out"
+            perspective={700}
+            creaseShading={0.55}
+            fontSize={100}
+            fontWeight={500}
+            color="#734dff"
+          />
+        </h2>
+      </section>
+
       <GithubContributions />
     </main>
   );

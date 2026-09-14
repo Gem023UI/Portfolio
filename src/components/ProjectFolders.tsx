@@ -46,7 +46,7 @@ const PROJECTS: ProjectFolder[] = [
     label: "PROJECT 02",
     title: "TYPEVENTURE",
     description: "Gamified Learning Hub for Design Principles and Theory.",
-    tags: ["DESIGN THEORY", "GAMIFIED", "WORKSPACE"],
+    tags: ["LEADERBOARDS", "GAMIFIED", "WORKSPACE"],
     color: "#5e1de0",
     textColor: "#ffffff",
     image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789282925/a2e452f5-4172-4919-9474-0ce63d8c1ab4.png",

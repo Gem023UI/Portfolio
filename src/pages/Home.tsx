@@ -496,15 +496,15 @@ function Home() {
             shape="wave"
             speed={70}
             separator="✦"
-            curviness={55}
-            fontSize={44}
+            curviness={25}
+            fontSize={24}
             fontWeight={800}
             letterSpacing={2}
             color="#ffffff"
             ribbon
             ribbonColor="#5b2eff"
-            ribbonWidth={90}
-            pauseOnHover
+            ribbonWidth={70}
+            pauseOnHover={false}
           />
         </div>
 

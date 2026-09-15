@@ -6,7 +6,7 @@ import ClickSpark from './components/ClickSpark';
 function App() {
   return (
     <ClickSpark
-      sparkColor="#ffffff"
+      sparkColor="#0dff00"
       sparkSize={10}
       sparkRadius={15}
       sparkCount={8}

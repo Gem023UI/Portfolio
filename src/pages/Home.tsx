@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import FoldText from "../components/FoldText";
 import ProjectFolders from "../components/ProjectFolders";
+import TextLoop from "../components/TextLoop";
 import GithubContributions from "../components/Github";
 import "../styles/Home.css";
 
@@ -25,6 +26,34 @@ const TAG_DEPTH: Record<TagKey, number> = {
 };
 const PHOTO_DEPTH = 22;
 const ROLE_DEPTH = 8;
+
+const CERTIFICATIONS: CertificationItem[] = [
+  {
+    id: "cert-1",
+    image: "https://placehold.co/360x440/ffffff/1a1a1a?text=Certificate+1",
+    alt: "Certification 1",
+    link: "#",
+  },
+  {
+    id: "cert-2",
+    image: "https://placehold.co/360x440/ffffff/1a1a1a?text=Certificate+2",
+    alt: "Certification 2",
+    link: "#",
+  },
+  {
+    id: "cert-3",
+    image: "https://placehold.co/360x440/ffffff/1a1a1a?text=Certificate+3",
+    alt: "Certification 3",
+    link: "#",
+  },
+];
+
+interface CertificationItem {
+  id: string;
+  image: string;
+  alt: string;
+  link: string;
+}
 
 function Home() {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -460,23 +489,44 @@ function Home() {
         <ProjectFolders />
       </section>
 
-      <section className="projects-heading-wrap">
-        <h2 className="projects__heading">
-          <FoldText
-            text="CERTIFICATIONS"
-            splitBy="char"
-            hinge="bottom"
-            trigger="hover"
-            duration={0.65}
-            stagger={0.045}
-            ease="power3.out"
-            perspective={700}
-            creaseShading={0.55}
-            fontSize={100}
-            fontWeight={500}
-            color="#734dff"
+      <section className="certifications">
+        <div className="certifications__loop">
+          <TextLoop
+            text="Certifications"
+            shape="wave"
+            speed={70}
+            separator="✦"
+            curviness={55}
+            fontSize={44}
+            fontWeight={800}
+            letterSpacing={2}
+            color="#ffffff"
+            ribbon
+            ribbonColor="#5b2eff"
+            ribbonWidth={90}
+            pauseOnHover
           />
-        </h2>
+        </div>
+
+        <div className="certifications__panel">
+          <div className="certifications__cards">
+            {CERTIFICATIONS.map((cert) => (
+              <a
+                key={cert.id}
+                href={cert.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="certifications__card"
+              >
+                <img src={cert.image} alt={cert.alt} draggable={false} />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <a href="/certifications" className="certifications__all-link">
+          All Certifications&nbsp;&nbsp;--&gt;
+        </a>
       </section>
 
       <GithubContributions />

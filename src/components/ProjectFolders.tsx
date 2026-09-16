@@ -62,7 +62,7 @@ const PROJECTS: ProjectFolder[] = [
     color: "#0a0a0a",
     textColor: "#ffffff",
     image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789282381/f1f14e81-f96d-49fc-85aa-a130fb804a93.png",
-    link: "https://github.com/Gem023UI/CSPT",
+    link: "https://bsit-s3a-cspt-web.vercel.app/",
     tab: { tabStart: 52, peakStart: 60, peakEnd: 84, tabEnd: 92 },   // forge (black)
   },
 ];

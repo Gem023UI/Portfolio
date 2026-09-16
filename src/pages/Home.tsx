@@ -30,20 +30,32 @@ const ROLE_DEPTH = 8;
 const CERTIFICATIONS: CertificationItem[] = [
   {
     id: "cert-1",
-    image: "https://placehold.co/360x440/ffffff/1a1a1a?text=Certificate+1",
+    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789282381/f1f14e81-f96d-49fc-85aa-a130fb804a93.png",
     alt: "Certification 1",
     link: "#",
   },
   {
     id: "cert-2",
-    image: "https://placehold.co/360x440/ffffff/1a1a1a?text=Certificate+2",
+    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789282925/a2e452f5-4172-4919-9474-0ce63d8c1ab4.png",
     alt: "Certification 2",
     link: "#",
   },
   {
     id: "cert-3",
-    image: "https://placehold.co/360x440/ffffff/1a1a1a?text=Certificate+3",
+    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789283498/38125e49-76c9-4b76-950b-1f0ee1e0e4ee.png",
     alt: "Certification 3",
+    link: "#",
+  },
+  {
+    id: "cert-4",
+    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1783659434/foodhub/stalls/vvsbpg1scf5jyvfca17v.jpg",
+    alt: "Certification 4",
+    link: "#",
+  }, 
+  {
+    id: "cert-5",
+    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789283498/38125e49-76c9-4b76-950b-1f0ee1e0e4ee.png",
+    alt: "Certification 5",
     link: "#",
   },
 ];
@@ -497,13 +509,13 @@ function Home() {
             speed={70}
             separator="✦"
             curviness={25}
-            fontSize={24}
+            fontSize={20}
             fontWeight={800}
             letterSpacing={2}
             color="#ffffff"
             ribbon
             ribbonColor="#5b2eff"
-            ribbonWidth={70}
+            ribbonWidth={50}
             pauseOnHover={false}
           />
         </div>
@@ -525,7 +537,7 @@ function Home() {
         </div>
 
         <a href="/certifications" className="certifications__all-link">
-          All Certifications&nbsp;&nbsp;--&gt;
+          All Certifications  ↗
         </a>
       </section>
 

@@ -99,7 +99,7 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   const visitorTotalRef = useRef(0);
   const visitorTweenRef = useRef<gsap.core.Tween | null>(null);
 
-  const { mode: themeMode, setMode: setThemeMode } = useTheme();
+  const { mode: themeMode, setModeAtPoint } = useTheme();
 
   useEffect(() => {
     visitorTotalRef.current = getAndIncrementVisitorCount();
@@ -526,7 +526,7 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                 type="button"
                 className={`sm-theme-option${themeMode === 'light' ? ' is-active' : ''}`}
                 aria-pressed={themeMode === 'light'}
-                onClick={() => setThemeMode('light')}
+                onClick={(e) => setModeAtPoint('light', e.clientX, e.clientY)}
               >
                 <i className="fi fi-sr-sun" aria-hidden="true" />
               </button>
@@ -534,7 +534,7 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                 type="button"
                 className={`sm-theme-option${themeMode === 'system' ? ' is-active' : ''}`}
                 aria-pressed={themeMode === 'system'}
-                onClick={() => setThemeMode('system')}
+                onClick={(e) => setModeAtPoint('system', e.clientX, e.clientY)}
               >
                 <i className="fi fi-sr-computer" aria-hidden="true" />
               </button>
@@ -542,7 +542,7 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                 type="button"
                 className={`sm-theme-option${themeMode === 'dark' ? ' is-active' : ''}`}
                 aria-pressed={themeMode === 'dark'}
-                onClick={() => setThemeMode('dark')}
+                onClick={(e) => setModeAtPoint('dark', e.clientX, e.clientY)}
               >
                 <i className="fi fi-sr-moon" aria-hidden="true" />
               </button>

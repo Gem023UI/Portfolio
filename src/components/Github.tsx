@@ -83,7 +83,6 @@ function GithubContributions() {
     <section className="github-contrib">
       <div className="github-contrib__stage">
         <div className="github-contrib__header">
-          <span className="github-contrib__index">07 — github</span>
           <a
             href={GITHUB_PROFILE_URL}
             target="_blank"

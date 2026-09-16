@@ -7,6 +7,23 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons@3.3.1/css/brands/all.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jemuel Malaga</title>
+
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('jm-portfolio-theme-mode');
+          var resolved =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+          document.documentElement.setAttribute('data-theme', resolved);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

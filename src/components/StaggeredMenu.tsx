@@ -1,5 +1,6 @@
 import React, { useCallback, useLayoutEffect, useRef, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
+import { useTheme } from '../components/ThemeContext';
 import './StaggeredMenu.css';
 
 export interface StaggeredMenuItem {
@@ -98,7 +99,7 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   const visitorTotalRef = useRef(0);
   const visitorTweenRef = useRef<gsap.core.Tween | null>(null);
 
-  const [themeMode, setThemeMode] = useState<'light' | 'system' | 'dark'>('system');
+  const { mode: themeMode, setMode: setThemeMode } = useTheme();
 
   useEffect(() => {
     visitorTotalRef.current = getAndIncrementVisitorCount();

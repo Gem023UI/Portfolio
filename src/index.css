@@ -15,3 +15,45 @@ body,
 body {
   overflow-x: hidden;
 }
+
+/* ---- Theme tokens ----
+   `data-theme` is set on <html> by the blocking script in index.html (prevents
+   a flash of the wrong theme on load) and kept in sync at runtime by ThemeProvider. */
+:root,
+:root[data-theme='light'] {
+  --bg-primary: #e8e8e6;
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --overlay-soft: rgba(0, 0, 0, 0.05);
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b68;
+  --hero-purple: #734dff;
+  --hero-purple-strong: #3b1aa8;
+  --hero-green: #5fcb3c;
+  --contrib-dot-empty: #c9c9c5;
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg-primary: #131316;
+  --bg-surface: #1c1c21;
+  --bg-elevated: #26262c;
+  --overlay-soft: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --text-primary: #f3f3f1;
+  --text-secondary: #a3a3a0;
+  --hero-purple: #9c85ff;
+  --hero-purple-strong: #c9bbff;
+  --hero-green: #7ed957;
+  --contrib-dot-empty: #3a3a40;
+
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

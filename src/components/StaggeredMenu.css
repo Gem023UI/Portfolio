@@ -52,11 +52,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  background: #5fcb3c; 
+  background: #5fcb3c;
   border: none;
-  padding: 0.6rem 1.15rem; 
-  border-radius: 999px;      
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15); 
+  padding: 0.6rem 1.15rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   color: #e9e9ef;
   font-weight: 800;
@@ -67,8 +67,8 @@
 }
 
 .sm-toggle:hover {
-  transform: translateY(-1px);     
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);    
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
 .sm-toggle:focus-visible {
@@ -142,7 +142,7 @@
   right: 0;
   width: clamp(260px, 38vw, 420px);
   height: 100%;
-  background: white;
+  background: var(--bg-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: flex;
@@ -152,6 +152,7 @@
   z-index: 10;
   pointer-events: auto;
   opacity: 0;
+  transition: background-color 0.3s ease;
 }
 
 [data-position='left'] .staggered-menu-panel {
@@ -245,7 +246,7 @@
 .sm-socials-link {
   font-size: 0.8rem;
   font-weight: 500;
-  color: #111;
+  color: var(--text-primary);
   text-decoration: none;
   position: relative;
   padding: 2px 0;
@@ -270,7 +271,7 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: #111;
+  color: var(--text-primary);
 }
 
 .sm-visitor-icon {
@@ -282,7 +283,7 @@
 .sm-visitor-count {
   font-size: 1.1rem;
   font-weight: 700;
-  font-variant-numeric: tabular-nums; /* keeps digits from jittering in width while counting up */
+  font-variant-numeric: tabular-nums;
 }
 
 .sm-visitor-label {
@@ -297,7 +298,7 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-primary);
   text-transform: uppercase;
 }
 
@@ -312,7 +313,7 @@
 
 .sm-panel-item {
   position: relative;
-  color: #000;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 2.5rem;
   cursor: pointer;
@@ -379,7 +380,7 @@
   align-items: center;
   gap: 2px;
   padding: 4px;
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--overlay-soft);
   border-radius: 999px;
   width: fit-content;
 }
@@ -393,18 +394,18 @@
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.95rem;
   cursor: pointer;
   transition: background 0.25s ease, color 0.25s ease;
 }
 
 .sm-theme-option:hover {
-  color: #111;
+  color: var(--text-primary);
 }
 
 .sm-theme-option.is-active {
-  background: #fff;
+  background: var(--bg-elevated);
   color: var(--sm-accent, #5227ff);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }

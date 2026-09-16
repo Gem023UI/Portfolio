@@ -1,7 +1,7 @@
 .github-contrib {
   width: 100%;
   padding: 100px 15%;
-  background-color: #e8e8e6;
+  background-color: var(--bg-primary);
   display: flex;
   justify-content: center;
 }
@@ -21,11 +21,11 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   font-size: 0.85rem;
-  color: #8a8a86;
+  color: var(--text-secondary);
 }
 
 .github-contrib__handle {
-  color: var(--hero-purple, #5b2eff);
+  color: var(--hero-purple);
   text-decoration: none;
 }
 
@@ -62,34 +62,34 @@
 .github-contrib__dot--lvl0 {
   width: 4px;
   height: 4px;
-  background: #c9c9c5;
+  background: var(--contrib-dot-empty);
 }
 
 .github-contrib__dot--lvl1 {
   width: 6px;
   height: 6px;
-  background: var(--hero-purple, #5b2eff);
+  background: var(--hero-purple);
   opacity: 0.5;
 }
 
 .github-contrib__dot--lvl2 {
   width: 8px;
   height: 8px;
-  background: var(--hero-purple, #5b2eff);
+  background: var(--hero-purple);
   opacity: 0.7;
 }
 
 .github-contrib__dot--lvl3 {
   width: 10px;
   height: 10px;
-  background: var(--hero-purple, #5b2eff);
+  background: var(--hero-purple);
   opacity: 0.9;
 }
 
 .github-contrib__dot--lvl4 {
   width: 12px;
   height: 12px;
-  background: var(--hero-purple, #5b2eff);
+  background: var(--hero-purple);
 }
 
 .github-contrib__total {
@@ -99,7 +99,7 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   font-size: 0.85rem;
-  color: #8a8a86;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 700px) {

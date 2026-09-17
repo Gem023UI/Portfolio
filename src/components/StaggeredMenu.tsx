@@ -55,6 +55,13 @@ export const StaggeredMenuItemComponent = null; // (unused placeholder kept out 
 
 export const StaggeredMenuItem = null as unknown as never; // no-op, ignore
 
+export interface StaggeredMenuItem {
+  label: string;
+  ariaLabel: string;
+  link: string;
+  onClick?: () => void; // ADD — when present, intercepts navigation and runs this instead
+}
+
 const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   position = 'right',
   colors = ['#B497CF', '#5227FF'],
@@ -497,7 +504,19 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
             {items && items.length ? (
               items.map((it, idx) => (
                 <li className="sm-panel-itemWrap" key={it.label + idx}>
-                  <a className="sm-panel-item" href={it.link} aria-label={it.ariaLabel} data-index={idx + 1}>
+                  <a
+                    className="sm-panel-item"
+                    href={it.link}
+                    aria-label={it.ariaLabel}
+                    data-index={idx + 1}
+                    onClick={(e) => {
+                      if (it.onClick) {
+                        e.preventDefault();
+                        it.onClick();
+                        closeMenu();
+                      }
+                    }}
+                  >
                     <span className="sm-panel-itemLabel">{it.label}</span>
                   </a>
                 </li>

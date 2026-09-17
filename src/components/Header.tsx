@@ -1,38 +1,7 @@
+import { useState } from 'react';
 import './Header.css';
 import StaggeredMenu from './StaggeredMenu';
-
-const menuItems = [
-  {
-    label: 'Home',
-    ariaLabel: 'Go to home page',
-    link: '/',
-  },
-  {
-    label: 'Projects',
-    ariaLabel: 'View my projects',
-    link: '/projects',
-  },
-  {
-    label: 'Stack',
-    ariaLabel: 'View my technology stack',
-    link: '/tech-stack',
-  },
-  {
-    label: 'Certifications',
-    ariaLabel: 'View my certifications',
-    link: '/certifications',
-  },
-  {
-    label: 'Blogs',
-    ariaLabel: 'Read my blogs',
-    link: '/blogs',
-  },
-  {
-    label: 'Contact',
-    ariaLabel: 'Contact me',
-    link: '/contact',
-  },
-];
+import ContactModal from './ContactModal';
 
 const socialItems = [
   {
@@ -58,6 +27,8 @@ const socialItems = [
 ];
 
 function Header() {
+  const [contactOpen, setContactOpen] = useState(false);
+
   const handleMenuOpen = () => {
     document.body.classList.add('staggered-menu-open');
   };
@@ -65,6 +36,40 @@ function Header() {
   const handleMenuClose = () => {
     document.body.classList.remove('staggered-menu-open');
   };
+
+  const menuItems = [
+    {
+      label: 'Home',
+      ariaLabel: 'Go to home page',
+      link: '/',
+    },
+    {
+      label: 'Projects',
+      ariaLabel: 'View my projects',
+      link: '/projects',
+    },
+    {
+      label: 'Stack',
+      ariaLabel: 'View my technology stack',
+      link: '/tech-stack',
+    },
+    {
+      label: 'Certifications',
+      ariaLabel: 'View my certifications',
+      link: '/certifications',
+    },
+    {
+      label: 'Blogs',
+      ariaLabel: 'Read my blogs',
+      link: '/blogs',
+    },
+    {
+      label: 'Contact',
+      ariaLabel: 'Open the contact form',
+      link: '#contact',
+      onClick: () => setContactOpen(true),
+    },
+  ];
 
   return (
     <header className="header">
@@ -87,6 +92,8 @@ function Header() {
           onMenuClose={handleMenuClose}
         />
       </div>
+
+      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </header>
   );
 }

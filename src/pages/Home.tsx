@@ -7,8 +7,6 @@ import GithubContributions from "../components/Github";
 import Lanyard from "../components/Lanyard";
 import "../styles/Home.css";
 
-const HERO_IMAGE =
-  "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789182469/2e4c2c05-beaf-459c-a455-81f05e2012cf.png";
 const LAPTOP_IMAGE =
   "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789194662/53d5ae24-94e5-4fb1-a683-f662978abc13.png";
 const PEN_IMAGE =
@@ -150,7 +148,6 @@ function Home() {
   const heroRef = useRef<HTMLElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
 
-  const bigTextRef = useRef<HTMLDivElement | null>(null);
   const bigTextInnerRef = useRef<HTMLDivElement | null>(null);
 
   const photoRef = useRef<HTMLDivElement | null>(null);

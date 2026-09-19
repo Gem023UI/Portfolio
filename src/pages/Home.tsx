@@ -91,6 +91,61 @@ const TILE_SLIDE: Record<number, TileSlideConfig> = {
   8: { axis: "x", from: 100 },
 };
 
+// Grid geometry: 4 columns × 2 rows, all percentages relative to .hero-tiles__grid
+const CELL_W = 25;
+const CELL_H = 50;
+
+type Rect = { left: number; top: number };
+
+// Path each traveling clone hops through, one grid cell at a time.
+// cloneA: tile1 -> tile5 -> tile6 -> tile2 (ends exactly in tile2's cell)
+const CLONE_A_PATH: Rect[] = [
+  { left: 0, top: 0 },
+  { left: 0, top: 50 },
+  { left: 25, top: 50 },
+  { left: 25, top: 0 },
+];
+
+// cloneB: tile8 -> tile4 -> tile3 -> tile7 (ends exactly in tile7's cell)
+const CLONE_B_PATH: Rect[] = [
+  { left: 75, top: 50 },
+  { left: 75, top: 0 },
+  { left: 50, top: 0 },
+  { left: 50, top: 50 },
+];
+
+const HERO_TRANSITION_SCROLL_VH = 320;
+
+// Renders one hop: collapses the clone toward the shared edge between `from`
+// and `to`, then expands it back out from that same edge into the next cell.
+function applyFoldHop(el: HTMLElement, from: Rect, to: Rect, t: number) {
+  const vertical = from.left === to.left;
+  const collapsing = t < 0.5;
+  const local = collapsing ? t / 0.5 : (t - 0.5) / 0.5;
+  const rect = collapsing ? from : to;
+
+  el.style.left = `${rect.left}%`;
+  el.style.top = `${rect.top}%`;
+  el.style.width = `${CELL_W}%`;
+  el.style.height = `${CELL_H}%`;
+
+  if (vertical) {
+    const movingDown = to.top > from.top;
+    const origin = collapsing
+      ? movingDown ? '50% 100%' : '50% 0%'
+      : movingDown ? '50% 0%' : '50% 100%';
+    el.style.transformOrigin = origin;
+    el.style.transform = `scaleY(${collapsing ? 1 - local : local})`;
+  } else {
+    const movingRight = to.left > from.left;
+    const origin = collapsing
+      ? movingRight ? '100% 50%' : '0% 50%'
+      : movingRight ? '0% 50%' : '100% 50%';
+    el.style.transformOrigin = origin;
+    el.style.transform = `scaleX(${collapsing ? 1 - local : local})`;
+  }
+}
+
 function Home() {
   const heroRef = useRef<HTMLElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -369,11 +424,88 @@ function Home() {
     }
   };
 
+  const heroTransitionRef = useRef<HTMLDivElement | null>(null);
+  const cloneARef = useRef<HTMLDivElement | null>(null);
+  const cloneBRef = useRef<HTMLDivElement | null>(null);
+  const lanyardWrapRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const section = heroTransitionRef.current;
+    const cloneA = cloneARef.current;
+    const cloneB = cloneBRef.current;
+    if (!section || !cloneA || !cloneB) return;
+
+    let frame = 0;
+    const HIDE_IMMEDIATELY = [0, 2, 3, 4, 5, 7]; // tile1,3,4,5,6,8 (0-indexed)
+    const HIDE_AT_STAGE3 = [1, 6]; // tile2, tile7
+
+    const update = () => {
+      const rect = section.getBoundingClientRect();
+      const scrollable = section.offsetHeight - window.innerHeight;
+      const scrolled = -rect.top;
+      const p = scrollable > 0 ? Math.min(Math.max(scrolled / scrollable, 0), 1) : 0;
+
+      const raw = p * 4;
+      const stage = Math.min(Math.floor(raw), 3);
+      const localT = Math.min(Math.max(raw - stage, 0), 1);
+
+      heroTileRefs.current.forEach((el, idx) => {
+        if (!el) return;
+        if (HIDE_IMMEDIATELY.includes(idx)) {
+          el.style.opacity = p > 0.0001 ? '0' : '1';
+        } else if (HIDE_AT_STAGE3.includes(idx)) {
+          el.style.opacity = p >= 0.75 - 0.0001 ? '0' : '1';
+        }
+      });
+
+      if (lanyardWrapRef.current) {
+        const fade = Math.min(Math.max(p / 0.2, 0), 1);
+        lanyardWrapRef.current.style.opacity = String(1 - fade);
+      }
+
+      const showClones = p > 0.0001 && p < 1;
+      cloneA.style.opacity = showClones ? '1' : '0';
+      cloneB.style.opacity = showClones ? '1' : '0';
+
+      if (stage < 3) {
+        applyFoldHop(cloneA, CLONE_A_PATH[stage], CLONE_A_PATH[stage + 1], localT);
+        applyFoldHop(cloneB, CLONE_B_PATH[stage], CLONE_B_PATH[stage + 1], localT);
+      } else {
+        const endA = CLONE_A_PATH[3];
+        const endB = CLONE_B_PATH[3];
+
+        cloneA.style.left = `${endA.left}%`;
+        cloneA.style.top = `${endA.top}%`;
+        cloneA.style.width = `${CELL_W}%`;
+        cloneA.style.height = `${CELL_H}%`;
+        cloneA.style.transformOrigin = '50% 50%';
+        cloneA.style.transform = `translateX(${-100 * localT}vw)`;
+
+        cloneB.style.left = `${endB.left}%`;
+        cloneB.style.top = `${endB.top}%`;
+        cloneB.style.width = `${CELL_W}%`;
+        cloneB.style.height = `${CELL_H}%`;
+        cloneB.style.transformOrigin = '50% 50%';
+        cloneB.style.transform = `translateX(${100 * localT}vw)`;
+      }
+
+      frame = requestAnimationFrame(update);
+    };
+
+    frame = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
   return (
     <main className="home">
+      <div
+        className="hero-transition"
+        ref={heroTransitionRef}
+        style={{ height: `${HERO_TRANSITION_SCROLL_VH}vh` }}
+      >
 
       <section className="hero-tiles">
-        <div className="hero-tiles__lanyard">
+        <div className="hero-tiles__lanyard" ref={lanyardWrapRef}>
           <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} />
         </div>
 
@@ -447,8 +579,16 @@ function Home() {
               <img src="/tileeight.png" alt="" className="hero-tile__img" draggable={false} />
             </div>
           </div>
+
+          <div className="hero-fold-clone" ref={cloneARef}>
+            <img src="/tileone.png" alt="" className="hero-fold-clone__img" draggable={false} />
+          </div>
+          <div className="hero-fold-clone" ref={cloneBRef}>
+            <img src="/tileeight.png" alt="" className="hero-fold-clone__img" draggable={false} />
+          </div>
         </div>
       </section>
+      </div>
 
       <section className="about" ref={aboutRef}>
         <div className="about__stage">

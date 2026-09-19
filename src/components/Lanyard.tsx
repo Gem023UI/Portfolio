@@ -57,9 +57,9 @@ interface LanyardProps {
 export default function Lanyard({
   position = [0, 0, 30],
   gravity = [0, -40, 0],
-  fov = 20,
+  fov = 15,
   transparent = true,
-  frontImage = null,
+  frontImage = "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789823446/ee00e7da-b4df-4caf-a90d-b906c68e7d11_lawhn2.jpg",
   backImage = null,
   imageFit = 'cover',
   lanyardImage = null,

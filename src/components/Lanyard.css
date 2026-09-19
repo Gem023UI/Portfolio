@@ -8,4 +8,5 @@
   align-items: center;
   transform: scale(1);
   transform-origin: center;
+  border: 1px solid #ffffff;
 }

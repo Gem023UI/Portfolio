@@ -393,9 +393,8 @@ function Home() {
           <div className="hero-tile hero-tile--3 hero-tile--text" onMouseEnter={() => handleTileHover(2)}>
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[2] = el; }}>
               <div className="hero-tile__textblock">
-                <span className="hero-word hero-word--anton">FULL</span>
-                <span className="hero-word hero-word--zen">STACK</span>
-                <CascadeWord word="DEVELOPER" />
+                <span className="hero-word hero-word--full">FULL</span>
+                <CascadeWord word=" STACK DEVELOPER" />
               </div>
             </div>
           </div>
@@ -404,9 +403,8 @@ function Home() {
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[3] = el; }}>
               <img src="/tilefour.png" alt="" className="hero-tile__img" draggable={false} />
               <div className="hero-tile__overlay">
-                <div className="hero-tile__certs-title">
-                  CERTIFICATIONS <span className="hero-arrow">↗</span>
-                </div>
+                <div className="hero-tile__certs-title">CERTI</div>
+                <div className="hero-tile__certs-title">FICATIONS</div>
                 <p className="hero-tile__certs-sub">
                   Hard Skills &amp;<br />Tech Ventures
                 </p>
@@ -424,7 +422,6 @@ function Home() {
                 <p className="hero-tile__line hero-tile__line--right">
                   Logos and Brand<br />Design
                 </p>
-                <span className="hero-arrow hero-arrow--projects">↗</span>
                 <div className="hero-tile__projects-title">PROJECTS</div>
               </div>
             </div>
@@ -433,9 +430,8 @@ function Home() {
           <div className="hero-tile hero-tile--6 hero-tile--text" onMouseEnter={() => handleTileHover(5)}>
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[5] = el; }}>
               <div className="hero-tile__textblock">
-                <span className="hero-word hero-word--anton">BRAND</span>
-                <span className="hero-word hero-word--zen">PRODUCT</span>
-                <CascadeWord word="IDENTITY" />
+                <span className="hero-word hero-word--brand">BRAND</span>
+                <CascadeWord word="PRODUCT DESIGN" />
               </div>
             </div>
           </div>
@@ -450,127 +446,6 @@ function Home() {
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[7] = el; }}>
               <img src="/tileeight.png" alt="" className="hero-tile__img" draggable={false} />
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="hero" ref={heroRef}>
-        <div className="hero__stage" ref={stageRef}>
-          <div className="hero__text">
-            <div className="hero__greeting">Hi! My name is</div>
-
-            <div className="hero__bigtext" ref={bigTextRef} aria-hidden="true">
-                <div className="hero__bigtext-inner" ref={bigTextInnerRef}>
-                <FoldText
-                    text="JEMUEL"
-                    splitBy="char"
-                    hinge="top"
-                    trigger="mount"
-                    duration={1.85}
-                    stagger={0.045}
-                    ease="power3.out"
-                    perspective={500}
-                    creaseShading={0.55}
-                    fontSize={250}
-                    fontWeight={550}
-                    color="#6442df"
-                />
-                </div>
-            </div>
-
-            <div className="hero__surname">MALAGA</div>
-          </div>
-
-          {/* Parallax */}
-          <div className="hero__photo" ref={photoRef}>
-            <img src={HERO_IMAGE} alt="Jemuel Malaga" draggable={false} />
-
-            <div
-              className="hero__anchor hero__anchor--product-design"
-              ref={(el) => {
-                anchorRefs.current.productDesign = el;
-              }}
-            />
-            <div
-              className="hero__anchor hero__anchor--full-stack"
-              ref={(el) => {
-                anchorRefs.current.fullStack = el;
-              }}
-            />
-            <div
-              className="hero__anchor hero__anchor--ai-ml"
-              ref={(el) => {
-                anchorRefs.current.aiMl = el;
-              }}
-            />
-            <div
-              className="hero__anchor hero__anchor--ui-ux"
-              ref={(el) => {
-                anchorRefs.current.uiUx = el;
-              }}
-            />
-          </div>
-
-          <svg className="hero__lines" ref={linesSvgRef} aria-hidden="true">
-            <line
-              ref={(el) => {
-                lineRefs.current.productDesign = el;
-              }}
-            />
-            <line
-              ref={(el) => {
-                lineRefs.current.fullStack = el;
-              }}
-            />
-            <line
-              ref={(el) => {
-                lineRefs.current.aiMl = el;
-              }}
-            />
-            <line
-              ref={(el) => {
-                lineRefs.current.uiUx = el;
-              }}
-            />
-          </svg>
-
-          {/* Parallax */}
-          <div
-            className="hero__tag hero__tag--product-design"
-            ref={(el) => {
-              tagRefs.current.productDesign = el;
-            }}
-          >
-            PRODUCT DESIGN
-          </div>
-          <div
-            className="hero__tag hero__tag--full-stack"
-            ref={(el) => {
-              tagRefs.current.fullStack = el;
-            }}
-          >
-            FULL STACK
-          </div>
-          <div
-            className="hero__tag hero__tag--ai-ml"
-            ref={(el) => {
-              tagRefs.current.aiMl = el;
-            }}
-          >
-            AI / ML
-          </div>
-          <div
-            className="hero__tag hero__tag--ui-ux"
-            ref={(el) => {
-              tagRefs.current.uiUx = el;
-            }}
-          >
-            UI / UX
-          </div>
-
-          {/* Parallax */}
-          <div className="hero__role" ref={roleRef}>
-            FRONT END DEVELOPER&nbsp;&nbsp;|&nbsp;&nbsp;UI/UX DESIGN
           </div>
         </div>
       </section>

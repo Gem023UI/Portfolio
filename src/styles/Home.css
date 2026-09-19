@@ -1,207 +1,218 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Zen+Dots&display=swap');
+
 .home {
   min-height: 100vh;
   width: 100%;
 }
 
-.hero {
-  max-height: 90vh;
-  padding: 5%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--bg-primary);
-  overflow: hidden;
-}
-
-.hero__stage {
+/* ---- Hero: tiled grid ---- */
+.hero-tiles {
   position: relative;
   width: 100%;
-  top: 10%;
-  max-width: 1110px;
-  aspect-ratio: 1110 / 624;
-  margin: 0 auto;
-  padding-top: 48px;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
 }
 
-/* ---- Hero Texts ---- */
-.hero__texts {
+.hero-tiles__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  width: 100%;
+  height: 100%;
+}
+
+.hero-tile {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background: #000;
+}
+
+.hero-tile__inner {
   position: absolute;
   inset: 0;
-  top: 10%;
+  will-change: transform;
+}
+
+.hero-tile__img {
   width: 100%;
-  height: min-content;
-  z-index: 6;
-  pointer-events: none;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  filter: grayscale(1) contrast(1.15);
+}
+
+.hero-tile--text .hero-tile__inner {
+  background: #f2f2f0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* ---- Greeting (static, no parallax) ---- */
-.hero__greeting {
-  position: absolute;
-  top: 14%;
-  left: 3%;
-  margin-top: 24px;
+.hero-tile__textblock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05em;
+  padding-left: 8%;
+  width: 100%;
+}
+
+.hero-word {
+  color: #0a0a0a;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.hero-word--anton {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+}
+
+.hero-word--zen {
+  font-family: 'Zen Dots', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 2.4rem);
+  margin-top: 0.15em;
+}
+
+.hero-cascade {
+  position: relative;
+  display: inline-block;
+  margin-top: 0.3em;
+}
+
+.hero-cascade__base {
+  position: relative;
   font-family: 'Montserrat', sans-serif;
   font-weight: 800;
-  font-size: clamp(1rem, 1.4vw, 1.3rem);
-  color: var(--hero-purple);
-  z-index: 6;
-  align-self: center;
-  justify-self: left;
+  font-size: clamp(1rem, 2vw, 1.6rem);
+  color: #0a0a0a;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  display: block;
 }
 
-/* ---- Big background name (static, no parallax) ---- */
-.hero__bigtext {
+.hero-cascade__echo {
   position: absolute;
-  top: 20%;
   left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  z-index: 1;
-  user-select: none;
-  font-family: 'Anton', sans-serif;
-}
-
-.hero__bigtext-inner {
-  display: inline-flex;
-  gap: 0.1em;
-  align-self: center;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1rem, 2vw, 1.6rem);
+  color: #0a0a0a;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   white-space: nowrap;
-  transform-origin: top center;
-  line-height: 0.85;
-  letter-spacing: 0.1em;
-}
-
-/* ---- Photo (parallax) ---- */
-.hero__photo {
-  position: absolute;
-  top: 23%;
-  left: 50%;
-  height: 85%;
-  transform: translateX(-50%);
-  z-index: 10;
-  will-change: transform;
   pointer-events: none;
 }
 
-.hero__photo img {
-  height: 70%;
-  width: auto;
-  display: block;
-  object-fit: contain;
-  user-select: none;
-}
-
-.hero__anchor {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-}
-
-.hero__anchor--product-design {
-  top: 52%;
-  left: 60%;
-}
-
-.hero__anchor--full-stack {
-  top: 45%;
-  left: 58%;
-}
-
-.hero__anchor--ai-ml {
-  top: 60%;
-  left: 72%;
-}
-
-.hero__anchor--ui-ux {
-  top: 50%;
-  left: 42%;
-}
-
-/* ---- Surname (static, no parallax) ---- */
-.hero__surname {
-  position: absolute;
-  top: 76%;
-  right: 3%;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 800;
-  font-size: clamp(0.65rem, 2.6vw, 2.2rem);
-  color: var(--hero-purple);
-  z-index: 6;
-}
-
-/* ---- Connector lines: coordinates set in JS, always pixel-accurate ---- */
-.hero__lines {
+.hero-tile__overlay {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 6;
-  pointer-events: none;
-  overflow: visible;
-}
-
-.hero__lines line {
-  stroke: var(--hero-green);
-  stroke-width: 3;
-  stroke-linecap: round;
-}
-
-/* ---- Tags (parallax) ---- */
-.hero__tag {
-  position: absolute;
-  z-index: 7;
-  background: var(--hero-green);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 8%;
   color: #fff;
+  pointer-events: none;
+}
+
+.hero-tile__certs-title {
   font-family: 'Montserrat', sans-serif;
   font-weight: 800;
-  font-size: clamp(1rem, 0.85vw, 0.85rem);
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
   letter-spacing: 0.02em;
-  padding: 0.4em 0.9em;
-  border-radius: 4px;
-  white-space: nowrap;
-  will-change: transform;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
-.hero__tag--product-design {
-  top: 37%;
-  left: 9%;
+.hero-arrow {
+  font-size: 0.85em;
 }
 
-.hero__tag--full-stack {
-  top: 25%;
-  left: 70%;
+.hero-tile__certs-sub {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: clamp(0.85rem, 1.4vw, 1.1rem);
+  line-height: 1.4;
+  margin: 0;
 }
 
-.hero__tag--ai-ml {
-  top: 52%;
-  left: 81%;
+.hero-tile__overlay--projects {
+  justify-content: space-between;
+  padding: 6% 8%;
+  color: #fff;
 }
 
-.hero__tag--ui-ux {
-  top: 72%;
-  left: 15%;
-}
-
-/* ---- Role line (parallax) ---- */
-.hero__role {
-  position: absolute;
-  top: 85%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: max-content;
+.hero-tile__line {
   font-family: 'Montserrat', sans-serif;
   font-weight: 500;
-  letter-spacing: 0.12em;
-  font-size: clamp(0.75rem, 1.1vw, 1rem);
-  color: var(--hero-purple);
-  z-index: 6;
-  will-change: transform;
+  font-size: clamp(0.85rem, 1.4vw, 1.15rem);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.hero-tile__line--right {
+  align-self: flex-end;
+  text-align: right;
+}
+
+.hero-arrow--projects {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  align-self: flex-start;
+}
+
+.hero-tile__projects-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.hero-tiles__lanyard {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(420px, 90%);
+  height: 60vh;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.hero-tiles__lanyard .lanyard-wrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-tiles__lanyard canvas {
+  pointer-events: auto;
+}
+
+@media (max-width: 900px) {
+  .hero-tiles {
+    height: auto;
+  }
+
+  .hero-tiles__grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 50vh);
+  }
+
+  .hero-tiles__lanyard {
+    height: 40vh;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-tiles__grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(8, 60vh);
+  }
 }
 
 /* ---- About section ---- */
@@ -460,7 +471,6 @@
   }
 }
 
-/* Mobile */
 @media (max-width: 700px) {
   .projects {
     padding: 70px 0 0;
@@ -476,7 +486,6 @@
   }
 }
 
-/* Mobile */
 @media (max-width: 700px) {
   .about {
     padding: 60px 24px;
@@ -498,73 +507,5 @@
 
   .about__links {
     gap: 18px;
-  }
-}
-
-/* Tablet */
-@media (max-width: 900px) {
-  .hero {
-    padding: 90px 5% 150px;
-  }
-}
-
-/* Mobile — collapse to a simple stacked layout, lines hidden */
-@media (max-width: 700px) {
-  .hero {
-    min-height: auto;
-    padding: 110px 24px 70px;
-  }
-
-  .hero__stage {
-    aspect-ratio: unset;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    max-width: 420px;
-  }
-
-  .hero__greeting,
-  .hero__bigtext,
-  .hero__photo,
-  .hero__surname,
-  .hero__role,
-  .hero__tag {
-    position: static;
-    transform: none !important;
-  }
-
-  .hero__bigtext-inner {
-    transform: none !important;
-    white-space: normal;
-  }
-
-  .hero__lines {
-    display: none;
-  }
-
-  .hero__greeting {
-    align-self: flex-start;
-  }
-
-  .hero__photo {
-    height: auto;
-  }
-
-  .hero__photo img {
-    height: auto;
-    width: min(70vw, 260px);
-  }
-
-  .hero__surname {
-    align-self: flex-end;
-  }
-
-  .hero__tag {
-    align-self: center;
-  }
-
-  .hero__role {
-    text-align: center;
   }
 }

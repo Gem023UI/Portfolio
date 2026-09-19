@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import FoldText from "../components/FoldText";
 import ProjectFolders from "../components/ProjectFolders";
 import TextLoop from "../components/TextLoop";
 import GithubContributions from "../components/Github";
+import Lanyard from "../components/Lanyard";
 import "../styles/Home.css";
 
 const HERO_IMAGE =
@@ -54,6 +55,41 @@ interface CertificationItem {
   alt: string;
   link: string;
 }
+
+function CascadeWord({ word, echoCount = 5 }: { word: string; echoCount?: number }) {
+  return (
+    <span className="hero-cascade" aria-label={word}>
+      <span className="hero-cascade__base">{word}</span>
+      {Array.from({ length: echoCount }).map((_, i) => (
+        <span
+          key={i}
+          className="hero-cascade__echo"
+          aria-hidden="true"
+          style={{ opacity: 0.32 - i * 0.05, top: `${(i + 1) * 0.85}em` }}
+        >
+          {word}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+type SlideAxis = "x" | "y";
+interface TileSlideConfig {
+  axis: SlideAxis;
+  from: number;
+}
+
+const TILE_SLIDE: Record<number, TileSlideConfig> = {
+  1: { axis: "x", from: 100 },
+  2: { axis: "y", from: 100 },
+  3: { axis: "x", from: -100 },
+  4: { axis: "y", from: -100 },
+  5: { axis: "y", from: -100 },
+  6: { axis: "x", from: -100 },
+  7: { axis: "y", from: 100 },
+  8: { axis: "x", from: 100 },
+};
 
 function Home() {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -282,8 +318,142 @@ function Home() {
   };
   }, []);
 
+  const heroTileRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [tileDelays] = useState<number[]>(() => Array.from({ length: 8 }, () => Math.random() * 3));
+
+  useEffect(() => {
+    const cleanups: (() => void)[] = [];
+
+    heroTileRefs.current.forEach((el, idx) => {
+      if (!el) return;
+      const config = TILE_SLIDE[idx + 1];
+      if (!config) return;
+
+      if (config.axis === "x") {
+        gsap.set(el, { xPercent: config.from });
+      } else {
+        gsap.set(el, { yPercent: config.from });
+      }
+
+      const tween =
+        config.axis === "x"
+          ? gsap.to(el, { xPercent: 0, duration: 1, delay: tileDelays[idx], ease: "power4.out" })
+          : gsap.to(el, { yPercent: 0, duration: 1, delay: tileDelays[idx], ease: "power4.out" });
+
+      cleanups.push(() => tween.kill());
+    });
+
+    return () => cleanups.forEach((fn) => fn());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleTileHover = (idx: number) => {
+    const el = heroTileRefs.current[idx];
+    const config = TILE_SLIDE[idx + 1];
+    if (!el || !config) return;
+
+    gsap.killTweensOf(el);
+    const tl = gsap.timeline();
+    if (config.axis === "x") {
+      tl.to(el, { xPercent: config.from, duration: 0.35, ease: "power2.in" }).to(el, {
+        xPercent: 0,
+        duration: 0.7,
+        ease: "power4.out",
+      });
+    } else {
+      tl.to(el, { yPercent: config.from, duration: 0.35, ease: "power2.in" }).to(el, {
+        yPercent: 0,
+        duration: 0.7,
+        ease: "power4.out",
+      });
+    }
+  };
+
   return (
     <main className="home">
+
+      <section className="hero-tiles">
+        <div className="hero-tiles__lanyard">
+          <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} />
+        </div>
+
+        <div className="hero-tiles__grid">
+          <div className="hero-tile hero-tile--1" onMouseEnter={() => handleTileHover(0)}>
+            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[0] = el; }}>
+              <img src="/tileone.png" alt="" className="hero-tile__img" draggable={false} />
+            </div>
+          </div>
+
+          <div className="hero-tile hero-tile--2" onMouseEnter={() => handleTileHover(1)}>
+            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[1] = el; }}>
+              <img src="/tiletwo.png" alt="" className="hero-tile__img" draggable={false} />
+            </div>
+          </div>
+
+          <div className="hero-tile hero-tile--3 hero-tile--text" onMouseEnter={() => handleTileHover(2)}>
+            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[2] = el; }}>
+              <div className="hero-tile__textblock">
+                <span className="hero-word hero-word--anton">FULL</span>
+                <span className="hero-word hero-word--zen">STACK</span>
+                <CascadeWord word="DEVELOPER" />
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-tile hero-tile--4" onMouseEnter={() => handleTileHover(3)}>
+            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[3] = el; }}>
+              <img src="/tilefour.png" alt="" className="hero-tile__img" draggable={false} />
+              <div className="hero-tile__overlay">
+                <div className="hero-tile__certs-title">
+                  CERTIFICATIONS <span className="hero-arrow">↗</span>
+                </div>
+                <p className="hero-tile__certs-sub">
+                  Hard Skills &amp;<br />Tech Ventures
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-tile hero-tile--5" onMouseEnter={() => handleTileHover(4)}>
+            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[4] = el; }}>
+              <img src="/tilefive.png" alt="" className="hero-tile__img" draggable={false} />
+              <div className="hero-tile__overlay hero-tile__overlay--projects">
+                <p className="hero-tile__line hero-tile__line--left">
+                  Web &amp; Mobile<br />Applications
+                </p>
+                <p className="hero-tile__line hero-tile__line--right">
+                  Logos and Brand<br />Design
+                </p>
+                <span className="hero-arrow hero-arrow--projects">↗</span>
+                <div className="hero-tile__projects-title">PROJECTS</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-tile hero-tile--6 hero-tile--text" onMouseEnter={() => handleTileHover(5)}>
+            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[5] = el; }}>
+              <div className="hero-tile__textblock">
+                <span className="hero-word hero-word--anton">BRAND</span>
+                <span className="hero-word hero-word--zen">PRODUCT</span>
+                <CascadeWord word="IDENTITY" />
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-tile hero-tile--7" onMouseEnter={() => handleTileHover(6)}>
+            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[6] = el; }}>
+              <img src="/tileseven.png" alt="" className="hero-tile__img" draggable={false} />
+            </div>
+          </div>
+
+          <div className="hero-tile hero-tile--8" onMouseEnter={() => handleTileHover(7)}>
+            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[7] = el; }}>
+              <img src="/tileeight.png" alt="" className="hero-tile__img" draggable={false} />
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="hero" ref={heroRef}>
         <div className="hero__stage" ref={stageRef}>
           <div className="hero__text">

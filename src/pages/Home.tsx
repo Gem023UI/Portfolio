@@ -95,24 +95,42 @@ const CELL_H = 50;
 
 type Rect = { left: number; top: number };
 
-// Path each traveling clone hops through, one grid cell at a time.
-// cloneA: tile1 -> tile5 -> tile6 -> tile2 (ends exactly in tile2's cell)
-const CLONE_A_PATH: Rect[] = [
-  { left: 0, top: 0 },
-  { left: 0, top: 50 },
-  { left: 25, top: 50 },
-  { left: 25, top: 0 },
+// Home cell of each tile (0-indexed: 0=tile1 ... 7=tile8), fixed for the tile's whole lifetime
+const TILE_HOME: Rect[] = [
+  { left: 0, top: 0 },   // tile1
+  { left: 25, top: 0 },  // tile2
+  { left: 50, top: 0 },  // tile3
+  { left: 75, top: 0 },  // tile4
+  { left: 0, top: 50 },  // tile5
+  { left: 25, top: 50 }, // tile6
+  { left: 50, top: 50 }, // tile7
+  { left: 75, top: 50 }, // tile8
 ];
 
-// cloneB: tile8 -> tile4 -> tile3 -> tile7 (ends exactly in tile7's cell)
-const CLONE_B_PATH: Rect[] = [
-  { left: 75, top: 50 },
-  { left: 75, top: 0 },
-  { left: 50, top: 0 },
-  { left: 50, top: 50 },
+interface FoldConfig {
+  mover: number; // tile index that animates and folds away
+  dest: number;  // tile index whose cell it folds into (and ends up hidden under)
+  stage: number; // 0-3, which quarter of scroll progress drives this fold
+}
+
+// Each real tile animates exactly once, into the next tile in its chain, then
+// stays permanently at that destination (hidden beneath it via z-index).
+const FOLD_CHAIN: FoldConfig[] = [
+  { mover: 0, dest: 4, stage: 0 }, // tile1 folds under tile5
+  { mover: 7, dest: 3, stage: 0 }, // tile8 folds under tile4
+  { mover: 4, dest: 5, stage: 1 }, // tile5 folds under tile6
+  { mover: 3, dest: 2, stage: 1 }, // tile4 folds under tile3
+  { mover: 5, dest: 1, stage: 2 }, // tile6 folds under tile2
+  { mover: 2, dest: 6, stage: 2 }, // tile3 folds under tile7
 ];
 
-const HERO_TRANSITION_SCROLL_VH = 320;
+// tile2 and tile7 stay put through stages 0-2 (as static recipients), then slide out in stage 3
+const SLIDE_OUT: { idx: number; direction: 1 | -1 }[] = [
+  { idx: 1, direction: -1 }, // tile2 exits left
+  { idx: 6, direction: 1 },  // tile7 exits right
+];
+
+const HERO_TRANSITION_SCROLL_VH = 1280;
 
 // Renders one hop: collapses the clone toward the shared edge between `from`
 // and `to`, then expands it back out from that same edge into the next cell.
@@ -422,19 +440,14 @@ function Home() {
   };
 
   const heroTransitionRef = useRef<HTMLDivElement | null>(null);
-  const cloneARef = useRef<HTMLDivElement | null>(null);
-  const cloneBRef = useRef<HTMLDivElement | null>(null);
+  const heroTileWrapperRefs = useRef<(HTMLDivElement | null)[]>([]);
   const lanyardWrapRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const section = heroTransitionRef.current;
-    const cloneA = cloneARef.current;
-    const cloneB = cloneBRef.current;
-    if (!section || !cloneA || !cloneB) return;
+    if (!section) return;
 
     let frame = 0;
-    const HIDE_IMMEDIATELY = [0, 2, 3, 4, 5, 7]; // tile1,3,4,5,6,8 (0-indexed)
-    const HIDE_AT_STAGE3 = [1, 6]; // tile2, tile7
 
     const update = () => {
       const rect = section.getBoundingClientRect();
@@ -442,49 +455,31 @@ function Home() {
       const scrolled = -rect.top;
       const p = scrollable > 0 ? Math.min(Math.max(scrolled / scrollable, 0), 1) : 0;
 
-      const raw = p * 4;
-      const stage = Math.min(Math.floor(raw), 3);
-      const localT = Math.min(Math.max(raw - stage, 0), 1);
-
-      heroTileRefs.current.forEach((el, idx) => {
-        if (!el) return;
-        if (HIDE_IMMEDIATELY.includes(idx)) {
-          el.style.opacity = p > 0.0001 ? '0' : '1';
-        } else if (HIDE_AT_STAGE3.includes(idx)) {
-          el.style.opacity = p >= 0.75 - 0.0001 ? '0' : '1';
-        }
-      });
-
       if (lanyardWrapRef.current) {
         const fade = Math.min(Math.max(p / 0.2, 0), 1);
         lanyardWrapRef.current.style.opacity = String(1 - fade);
       }
 
-      const showClones = p > 0.0001 && p < 1;
-      cloneA.style.opacity = showClones ? '1' : '0';
-      cloneB.style.opacity = showClones ? '1' : '0';
+      FOLD_CHAIN.forEach(({ mover, dest, stage }) => {
+        const el = heroTileWrapperRefs.current[mover];
+        if (!el) return;
+        const stageStart = stage * 0.25;
+        const localT = Math.min(Math.max((p - stageStart) / 0.25, 0), 1);
+        applyFoldHop(el, TILE_HOME[mover], TILE_HOME[dest], localT);
+        el.style.opacity = localT >= 1 ? '0' : '1';
+      });
 
-      if (stage < 3) {
-        applyFoldHop(cloneA, CLONE_A_PATH[stage], CLONE_A_PATH[stage + 1], localT);
-        applyFoldHop(cloneB, CLONE_B_PATH[stage], CLONE_B_PATH[stage + 1], localT);
-      } else {
-        const endA = CLONE_A_PATH[3];
-        const endB = CLONE_B_PATH[3];
-
-        cloneA.style.left = `${endA.left}%`;
-        cloneA.style.top = `${endA.top}%`;
-        cloneA.style.width = `${CELL_W}%`;
-        cloneA.style.height = `${CELL_H}%`;
-        cloneA.style.transformOrigin = '50% 50%';
-        cloneA.style.transform = `translateX(${-100 * localT}vw)`;
-
-        cloneB.style.left = `${endB.left}%`;
-        cloneB.style.top = `${endB.top}%`;
-        cloneB.style.width = `${CELL_W}%`;
-        cloneB.style.height = `${CELL_H}%`;
-        cloneB.style.transformOrigin = '50% 50%';
-        cloneB.style.transform = `translateX(${100 * localT}vw)`;
-      }
+      SLIDE_OUT.forEach(({ idx, direction }) => {
+        const el = heroTileWrapperRefs.current[idx];
+        if (!el) return;
+        const localT = Math.min(Math.max((p - 0.75) / 0.25, 0), 1);
+        const home = TILE_HOME[idx];
+        el.style.left = `${home.left}%`;
+        el.style.top = `${home.top}%`;
+        el.style.width = `${CELL_W}%`;
+        el.style.height = `${CELL_H}%`;
+        el.style.transform = `translateX(${direction * 100 * localT}vw)`;
+      });
 
       frame = requestAnimationFrame(update);
     };
@@ -507,19 +502,19 @@ function Home() {
         </div>
 
         <div className="hero-tiles__grid">
-          <div className="hero-tile hero-tile--1" onMouseEnter={() => handleTileHover(0)}>
+          <div className="hero-tile hero-tile--1" ref={(el) => { heroTileWrapperRefs.current[0] = el; }} onMouseEnter={() => handleTileHover(0)}>
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[0] = el; }}>
               <img src="/tileone.png" alt="" className="hero-tile__img" draggable={false} />
             </div>
           </div>
 
-          <div className="hero-tile hero-tile--2" onMouseEnter={() => handleTileHover(1)}>
+          <div className="hero-tile hero-tile--2" ref={(el) => { heroTileWrapperRefs.current[1] = el; }} onMouseEnter={() => handleTileHover(1)}>
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[1] = el; }}>
               <img src="/tiletwo.png" alt="" className="hero-tile__img" draggable={false} />
             </div>
           </div>
 
-          <div className="hero-tile hero-tile--3 hero-tile--text" onMouseEnter={() => handleTileHover(2)}>
+          <div className="hero-tile hero-tile--3 hero-tile--text" ref={(el) => { heroTileWrapperRefs.current[2] = el; }} onMouseEnter={() => handleTileHover(2)}>
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[2] = el; }}>
               <div className="hero-tile__textblock">
                 <span className="hero-word hero-word--full">FULL</span>
@@ -528,7 +523,7 @@ function Home() {
             </div>
           </div>
 
-          <div className="hero-tile hero-tile--4" onMouseEnter={() => handleTileHover(3)}>
+          <div className="hero-tile hero-tile--4" ref={(el) => { heroTileWrapperRefs.current[3] = el; }} onMouseEnter={() => handleTileHover(3)}>
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[3] = el; }}>
               <img src="/tilefour.png" alt="" className="hero-tile__img" draggable={false} />
               <div className="hero-tile__overlay">
@@ -541,7 +536,7 @@ function Home() {
             </div>
           </div>
 
-          <div className="hero-tile hero-tile--5" onMouseEnter={() => handleTileHover(4)}>
+          <div className="hero-tile hero-tile--5" ref={(el) => { heroTileWrapperRefs.current[4] = el; }} onMouseEnter={() => handleTileHover(4)}>
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[4] = el; }}>
               <img src="/tilefive.png" alt="" className="hero-tile__img" draggable={false} />
               <div className="hero-tile__overlay hero-tile__overlay--projects">
@@ -556,7 +551,7 @@ function Home() {
             </div>
           </div>
 
-          <div className="hero-tile hero-tile--6 hero-tile--text" onMouseEnter={() => handleTileHover(5)}>
+          <div className="hero-tile hero-tile--6 hero-tile--text" ref={(el) => { heroTileWrapperRefs.current[5] = el; }} onMouseEnter={() => handleTileHover(5)}>
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[5] = el; }}>
               <div className="hero-tile__textblock">
                 <span className="hero-word hero-word--brand">BRAND</span>
@@ -565,23 +560,16 @@ function Home() {
             </div>
           </div>
 
-          <div className="hero-tile hero-tile--7" onMouseEnter={() => handleTileHover(6)}>
+          <div className="hero-tile hero-tile--7" ref={(el) => { heroTileWrapperRefs.current[6] = el; }} onMouseEnter={() => handleTileHover(6)}>
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[6] = el; }}>
               <img src="/tileseven.png" alt="" className="hero-tile__img" draggable={false} />
             </div>
           </div>
 
-          <div className="hero-tile hero-tile--8" onMouseEnter={() => handleTileHover(7)}>
+          <div className="hero-tile hero-tile--8" ref={(el) => { heroTileWrapperRefs.current[7] = el; }} onMouseEnter={() => handleTileHover(7)}>
             <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[7] = el; }}>
               <img src="/tileeight.png" alt="" className="hero-tile__img" draggable={false} />
             </div>
-          </div>
-
-          <div className="hero-fold-clone" ref={cloneARef}>
-            <img src="/tileone.png" alt="" className="hero-fold-clone__img" draggable={false} />
-          </div>
-          <div className="hero-fold-clone" ref={cloneBRef}>
-            <img src="/tileeight.png" alt="" className="hero-fold-clone__img" draggable={false} />
           </div>
         </div>
       </section>

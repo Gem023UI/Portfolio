@@ -57,13 +57,13 @@ interface LanyardProps {
 export default function Lanyard({
   position = [0, 0, 30],
   gravity = [0, -40, 0],
-  fov = 15,
+  fov = 12,
   transparent = true,
-  frontImage = "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789823446/ee00e7da-b4df-4caf-a90d-b906c68e7d11_lawhn2.jpg",
-  backImage = null,
+  frontImage = "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1790004010/lanyardfront2_iyxvlq.png",
+  backImage = "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1790000723/lanyardback_ld232n.png",
   imageFit = 'cover',
   lanyardImage = null,
-  lanyardWidth = 3
+  lanyardWidth = 2.5
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
 
@@ -115,7 +115,7 @@ export default function Lanyard({
             scale={[100, 0.1, 1]}
           />
           <Lightformer
-            intensity={10}
+            intensity={2}
             color="white"
             position={[-10, 0, 14]}
             rotation={[0, Math.PI / 2, Math.PI / 3]}

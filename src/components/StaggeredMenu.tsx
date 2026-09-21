@@ -36,8 +36,6 @@ export interface StaggeredMenuProps {
 
 const VISITOR_COUNT_STORAGE_KEY = 'jm-portfolio-visitor-count';
 
-// NOTE: this counts visits from THIS browser only (localStorage is per-device).
-// It is not a true cross-visitor global counter — that requires a backend/API.
 function getAndIncrementVisitorCount(): number {
   if (typeof window === 'undefined') return 0;
   try {
@@ -59,7 +57,7 @@ export interface StaggeredMenuItem {
   label: string;
   ariaLabel: string;
   link: string;
-  onClick?: () => void; // ADD — when present, intercepts navigation and runs this instead
+  onClick?: () => void;
 }
 
 const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
@@ -74,7 +72,7 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   menuButtonColor = '#fff',
   openMenuButtonColor = '#fff',
   changeMenuColorOnOpen = true,
-  accentColor = '#5227FF',
+  accentColor = '#c4ff00',
   isFixed = false,
   closeOnClickAway = true,
   onMenuOpen,

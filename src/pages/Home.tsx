@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import FoldText from "../components/FoldText";
 import ProjectFolders from "../components/ProjectFolders";
-import TextLoop from "../components/TextLoop";
 import GithubContributions from "../components/Github";
 import Lanyard from "../components/Lanyard";
+import ScrollReveal from "../components/ScrollReveal";
 import "../styles/Home.css";
 
 const LAPTOP_IMAGE =
@@ -14,46 +14,7 @@ const PEN_IMAGE =
 const PAPER_IMAGE =
   "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789199117/615dc822-98de-47d7-a84b-3c3cc2ed3b33.png";
 
-type TagKey = "productDesign" | "fullStack" | "aiMl" | "uiUx";
-const TAG_ORDER: TagKey[] = ["productDesign", "fullStack", "aiMl", "uiUx"];
-
-const TAG_DEPTH: Record<TagKey, number> = {
-  productDesign: 26,
-  fullStack: 30,
-  aiMl: 28,
-  uiUx: 24,
-};
-const PHOTO_DEPTH = 22;
-const ROLE_DEPTH = 8;
-
-const CERTIFICATIONS: CertificationItem[] = [
-  {
-    id: "cert-1",
-    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789538316/d4464715-9de5-41b1-aa6b-1c1be5b4375b.png",
-    alt: "Certification 1",
-    link: "#",
-  },
-  {
-    id: "cert-2",
-    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789538357/dc05adea-2d4f-43a0-9545-fec929ba6bb1.png",
-    alt: "Certification 2",
-    link: "#",
-  },
-  {
-    id: "cert-3",
-    image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789538471/0da6767e-0f8f-4c7e-afca-655547edff92.png",
-    alt: "Certification 3",
-    link: "#",
-  },
-];
-
-interface CertificationItem {
-  id: string;
-  image: string;
-  alt: string;
-  link: string;
-}
-
+// ---- Hero tile 3 / tile 6 cascading echo text (DEVELOPER / IDENTITY) ----
 function CascadeWord({ word, echoCount = 5 }: { word: string; echoCount?: number }) {
   return (
     <span className="hero-cascade" aria-label={word}>
@@ -72,6 +33,7 @@ function CascadeWord({ word, echoCount = 5 }: { word: string; echoCount?: number
   );
 }
 
+// ---- Hero tile entrance/hover slide config ----
 type SlideAxis = "x" | "y";
 interface TileSlideConfig {
   axis: SlideAxis;
@@ -89,7 +51,7 @@ const TILE_SLIDE: Record<number, TileSlideConfig> = {
   8: { axis: "x", from: 100 },
 };
 
-// Grid geometry: 4 columns × 2 rows, all percentages relative to .hero-tiles__grid
+// ---- Hero fold-transition config ----
 const CELL_W = 25;
 const CELL_H = 50;
 
@@ -132,7 +94,7 @@ const SLIDE_OUT: { idx: number; direction: 1 | -1 }[] = [
 
 const HERO_TRANSITION_SCROLL_VH = 1280;
 
-// Renders one hop: collapses the clone toward the shared edge between `from`
+// Renders one hop: collapses the tile toward the shared edge between `from`
 // and `to`, then expands it back out from that same edge into the next cell.
 function applyFoldHop(el: HTMLElement, from: Rect, to: Rect, t: number) {
   const vertical = from.left === to.left;
@@ -148,249 +110,38 @@ function applyFoldHop(el: HTMLElement, from: Rect, to: Rect, t: number) {
   if (vertical) {
     const movingDown = to.top > from.top;
     const origin = collapsing
-      ? movingDown ? '50% 100%' : '50% 0%'
-      : movingDown ? '50% 0%' : '50% 100%';
+      ? movingDown ? "50% 100%" : "50% 0%"
+      : movingDown ? "50% 0%" : "50% 100%";
     el.style.transformOrigin = origin;
     el.style.transform = `scaleY(${collapsing ? 1 - local : local})`;
   } else {
     const movingRight = to.left > from.left;
     const origin = collapsing
-      ? movingRight ? '100% 50%' : '0% 50%'
-      : movingRight ? '0% 50%' : '100% 50%';
+      ? movingRight ? "100% 50%" : "0% 50%"
+      : movingRight ? "0% 50%" : "100% 50%";
     el.style.transformOrigin = origin;
     el.style.transform = `scaleX(${collapsing ? 1 - local : local})`;
   }
 }
 
 function Home() {
-  const heroRef = useRef<HTMLElement | null>(null);
-  const stageRef = useRef<HTMLDivElement | null>(null);
+  // ---- Hero tile refs ----
+  const heroTileRefs = useRef<(HTMLDivElement | null)[]>([]); // inner element: entrance/hover slide
+  const heroTileWrapperRefs = useRef<(HTMLDivElement | null)[]>([]); // outer element: fold-transition
+  const [tileDelays] = useState<number[]>(() => Array.from({ length: 8 }, () => Math.random() * 3));
 
-  const bigTextInnerRef = useRef<HTMLDivElement | null>(null);
+  const heroTransitionRef = useRef<HTMLDivElement | null>(null);
+  const lanyardWrapRef = useRef<HTMLDivElement | null>(null);
 
-  const photoRef = useRef<HTMLDivElement | null>(null);
-  const roleRef = useRef<HTMLDivElement | null>(null);
-
+  // ---- About section refs ----
   const aboutRef = useRef<HTMLElement | null>(null);
   const paperMouseRef = useRef<HTMLDivElement | null>(null);
   const penMouseRef = useRef<HTMLDivElement | null>(null);
   const laptopMouseRef = useRef<HTMLDivElement | null>(null);
+  const aboutPaperSlideRef = useRef<HTMLDivElement | null>(null);
+  const aboutLaptopSlideRef = useRef<HTMLDivElement | null>(null);
 
-  const tagRefs = useRef<Record<TagKey, HTMLDivElement | null>>({
-    productDesign: null,
-    fullStack: null,
-    aiMl: null,
-    uiUx: null,
-  });
-  const anchorRefs = useRef<Record<TagKey, HTMLDivElement | null>>({
-    productDesign: null,
-    fullStack: null,
-    aiMl: null,
-    uiUx: null,
-  });
-  const lineRefs = useRef<Record<TagKey, SVGLineElement | null>>({
-    productDesign: null,
-    fullStack: null,
-    aiMl: null,
-    uiUx: null,
-  });
-
-  const linesSvgRef = useRef<SVGSVGElement | null>(null);
-
-  // ---- Parallax: cursor-follow motion for photo, tags, role only ----
-  useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) return;
-
-    const makeSetter = (el: HTMLElement | null) =>
-      el
-        ? {
-            x: gsap.quickTo(el, "x", { duration: 0.8, ease: "power3.out" }),
-            y: gsap.quickTo(el, "y", { duration: 0.8, ease: "power3.out" }),
-          }
-        : null;
-
-    const photoSetter = makeSetter(photoRef.current);
-    const roleSetter = makeSetter(roleRef.current);
-    const tagSetters = TAG_ORDER.map((key) => ({
-      key,
-      setter: makeSetter(tagRefs.current[key]),
-    }));
-
-    const handlePointerMove = (event: PointerEvent) => {
-      const rect = hero.getBoundingClientRect();
-      const relX = (event.clientX - rect.left) / rect.width - 0.5;
-      const relY = (event.clientY - rect.top) / rect.height - 0.5;
-
-      photoSetter?.x(relX * PHOTO_DEPTH);
-      photoSetter?.y(relY * PHOTO_DEPTH);
-
-      roleSetter?.x(relX * ROLE_DEPTH);
-      roleSetter?.y(relY * ROLE_DEPTH * 0.6);
-
-      tagSetters.forEach(({ key, setter }) => {
-        const depth = TAG_DEPTH[key];
-        setter?.x(relX * depth);
-        setter?.y(relY * depth);
-      });
-    };
-
-    const resetParallax = () => {
-      photoSetter?.x(0);
-      photoSetter?.y(0);
-      roleSetter?.x(0);
-      roleSetter?.y(0);
-      tagSetters.forEach(({ setter }) => {
-        setter?.x(0);
-        setter?.y(0);
-      });
-    };
-
-    window.addEventListener("pointermove", handlePointerMove);
-    hero.addEventListener("pointerleave", resetParallax);
-
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      hero.removeEventListener("pointerleave", resetParallax);
-    };
-  }, []);
-
-  // ---- Connector lines: always recomputed from real element positions ----
-  useEffect(() => {
-    const stage = stageRef.current;
-    const svg = linesSvgRef.current;
-    if (!stage || !svg) return;
-
-    const updateLines = () => {
-      const stageRect = stage.getBoundingClientRect();
-      if (!stageRect.width || !stageRect.height) return;
-
-      svg.setAttribute("viewBox", `0 0 ${stageRect.width} ${stageRect.height}`);
-
-      TAG_ORDER.forEach((key) => {
-        const tagEl = tagRefs.current[key];
-        const anchorEl = anchorRefs.current[key];
-        const lineEl = lineRefs.current[key];
-        if (!tagEl || !anchorEl || !lineEl) return;
-
-        const tagRect = tagEl.getBoundingClientRect();
-        const anchorRect = anchorEl.getBoundingClientRect();
-
-        const tagX = tagRect.left + tagRect.width / 2 - stageRect.left;
-        const tagY = tagRect.top + tagRect.height / 2 - stageRect.top;
-        const anchorX = anchorRect.left + anchorRect.width / 2 - stageRect.left;
-        const anchorY = anchorRect.top + anchorRect.height / 2 - stageRect.top;
-
-        lineEl.setAttribute("x1", String(tagX));
-        lineEl.setAttribute("y1", String(tagY));
-        lineEl.setAttribute("x2", String(anchorX));
-        lineEl.setAttribute("y2", String(anchorY));
-      });
-    };
-
-    updateLines();
-
-    const resizeObserver = new ResizeObserver(updateLines);
-    resizeObserver.observe(stage);
-
-    // Runs every animation frame so lines stay attached while parallax animates
-    gsap.ticker.add(updateLines);
-
-    return () => {
-      resizeObserver.disconnect();
-      gsap.ticker.remove(updateLines);
-    };
-  }, []);
-
-  // ---- Fit the FoldText "JEMUEL" to span the stage width, no parallax ----
-  useEffect(() => {
-    const stage = stageRef.current;
-    const inner = bigTextInnerRef.current;
-    if (!stage || !inner) return;
-
-    const fitText = () => {
-      const stageWidth = stage.getBoundingClientRect().width;
-      if (!stageWidth) return;
-
-      inner.style.transform = "scale(1)";
-      const naturalWidth = inner.scrollWidth;
-      if (!naturalWidth) return;
-
-      const targetWidth = stageWidth * 0.94;
-      const scale = targetWidth / naturalWidth;
-      inner.style.transform = `scale(${scale})`;
-    };
-
-    fitText();
-    const resizeObserver = new ResizeObserver(fitText);
-    resizeObserver.observe(stage);
-
-    // Re-fit shortly after mount in case the font/FoldText layout settles late
-    const timeout = window.setTimeout(fitText, 300);
-
-    return () => {
-      resizeObserver.disconnect();
-      window.clearTimeout(timeout);
-    };
-  }, []);
-
-  // ---- About section mouse parallax: paper, pen, laptop ----
-  useEffect(() => {
-  const about = aboutRef.current;
-  if (!about) return;
-
-  const makeSetter = (el: HTMLElement | null) =>
-    el
-      ? {
-          x: gsap.quickTo(el, "x", { duration: 0.8, ease: "power3.out" }),
-          y: gsap.quickTo(el, "y", { duration: 0.8, ease: "power3.out" }),
-        }
-      : null;
-
-  const paperSetter = makeSetter(paperMouseRef.current);
-  const penSetter = makeSetter(penMouseRef.current);
-  const laptopSetter = makeSetter(laptopMouseRef.current);
-
-  const PAPER_DEPTH = 14;
-  const PEN_DEPTH = 26;
-  const LAPTOP_DEPTH = 18;
-
-  const handlePointerMove = (event: PointerEvent) => {
-    const rect = about.getBoundingClientRect();
-    const relX = (event.clientX - rect.left) / rect.width - 0.5;
-    const relY = (event.clientY - rect.top) / rect.height - 0.5;
-
-    paperSetter?.x(relX * -PAPER_DEPTH);
-    paperSetter?.y(relY * -PAPER_DEPTH);
-
-    penSetter?.x(relX * PEN_DEPTH);
-    penSetter?.y(relY * PEN_DEPTH);
-
-    laptopSetter?.x(relX * -LAPTOP_DEPTH);
-    laptopSetter?.y(relY * -LAPTOP_DEPTH);
-  };
-
-  const resetParallax = () => {
-    paperSetter?.x(0);
-    paperSetter?.y(0);
-    penSetter?.x(0);
-    penSetter?.y(0);
-    laptopSetter?.x(0);
-    laptopSetter?.y(0);
-  };
-
-  window.addEventListener("pointermove", handlePointerMove);
-  about.addEventListener("pointerleave", resetParallax);
-
-  return () => {
-    window.removeEventListener("pointermove", handlePointerMove);
-    about.removeEventListener("pointerleave", resetParallax);
-  };
-  }, []);
-
-  const heroTileRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [tileDelays] = useState<number[]>(() => Array.from({ length: 8 }, () => Math.random() * 3));
-
+  // ---- Hero tile entrance: random-delay slide-in on mount ----
   useEffect(() => {
     const cleanups: (() => void)[] = [];
 
@@ -439,10 +190,7 @@ function Home() {
     }
   };
 
-  const heroTransitionRef = useRef<HTMLDivElement | null>(null);
-  const heroTileWrapperRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const lanyardWrapRef = useRef<HTMLDivElement | null>(null);
-
+  // ---- Hero fold-transition: scroll-scrubbed, drives the whole exit sequence ----
   useEffect(() => {
     const section = heroTransitionRef.current;
     if (!section) return;
@@ -466,7 +214,7 @@ function Home() {
         const stageStart = stage * 0.25;
         const localT = Math.min(Math.max((p - stageStart) / 0.25, 0), 1);
         applyFoldHop(el, TILE_HOME[mover], TILE_HOME[dest], localT);
-        el.style.opacity = localT >= 1 ? '0' : '1';
+        el.style.opacity = localT >= 1 ? "0" : "1";
       });
 
       SLIDE_OUT.forEach(({ idx, direction }) => {
@@ -488,153 +236,332 @@ function Home() {
     return () => cancelAnimationFrame(frame);
   }, []);
 
+  // ---- About section mouse parallax: paper, pen, laptop ----
+  useEffect(() => {
+    const about = aboutRef.current;
+    if (!about) return;
+
+    const makeSetter = (el: HTMLElement | null) =>
+      el
+        ? {
+            x: gsap.quickTo(el, "x", { duration: 0.8, ease: "power3.out" }),
+            y: gsap.quickTo(el, "y", { duration: 0.8, ease: "power3.out" }),
+          }
+        : null;
+
+    const paperSetter = makeSetter(paperMouseRef.current);
+    const penSetter = makeSetter(penMouseRef.current);
+    const laptopSetter = makeSetter(laptopMouseRef.current);
+
+    const PAPER_DEPTH = 14;
+    const PEN_DEPTH = 26;
+    const LAPTOP_DEPTH = 18;
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const rect = about.getBoundingClientRect();
+      const relX = (event.clientX - rect.left) / rect.width - 0.5;
+      const relY = (event.clientY - rect.top) / rect.height - 0.5;
+
+      paperSetter?.x(relX * -PAPER_DEPTH);
+      paperSetter?.y(relY * -PAPER_DEPTH);
+
+      penSetter?.x(relX * PEN_DEPTH);
+      penSetter?.y(relY * PEN_DEPTH);
+
+      laptopSetter?.x(relX * -LAPTOP_DEPTH);
+      laptopSetter?.y(relY * -LAPTOP_DEPTH);
+    };
+
+    const resetParallax = () => {
+      paperSetter?.x(0);
+      paperSetter?.y(0);
+      penSetter?.x(0);
+      penSetter?.y(0);
+      laptopSetter?.x(0);
+      laptopSetter?.y(0);
+    };
+
+    window.addEventListener("pointermove", handlePointerMove);
+    about.addEventListener("pointerleave", resetParallax);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      about.removeEventListener("pointerleave", resetParallax);
+    };
+  }, []);
+
+  // ---- About section: side images slide in toward center, hold, then exit outward ----
+  useEffect(() => {
+    const section = aboutRef.current;
+    const paperSlide = aboutPaperSlideRef.current;
+    const laptopSlide = aboutLaptopSlideRef.current;
+    if (!section || !paperSlide || !laptopSlide) return;
+
+    const INTRO_END = 0.15;   // fraction of the section's scroll where images finish arriving
+    const OUTRO_START = 0.85; // fraction where they start leaving again
+
+    let frame = 0;
+
+    const update = () => {
+      const rect = section.getBoundingClientRect();
+      const scrollable = section.offsetHeight - window.innerHeight;
+      const scrolled = -rect.top;
+      const p = scrollable > 0 ? Math.min(Math.max(scrolled / scrollable, 0), 1) : 0;
+
+      let t: number;
+      if (p < INTRO_END) {
+        t = p / INTRO_END;
+      } else if (p > OUTRO_START) {
+        t = 1 - (p - OUTRO_START) / (1 - OUTRO_START);
+      } else {
+        t = 1;
+      }
+      t = Math.min(Math.max(t, 0), 1);
+
+      paperSlide.style.transform = `translateX(${(1 - t) * -130}%)`;
+      laptopSlide.style.transform = `translateX(${(1 - t) * 130}%)`;
+
+      frame = requestAnimationFrame(update);
+    };
+
+    frame = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
   return (
     <main className="home">
-      <div
-        className="hero-transition"
-        ref={heroTransitionRef}
-        style={{ height: `${HERO_TRANSITION_SCROLL_VH}vh` }}
-      >
-
-      <section className="hero-tiles">
-        <div className="hero-tiles__lanyard" ref={lanyardWrapRef}>
-          <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} />
-        </div>
-
-        <div className="hero-tiles__grid">
-          <div className="hero-tile hero-tile--1" ref={(el) => { heroTileWrapperRefs.current[0] = el; }} onMouseEnter={() => handleTileHover(0)}>
-            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[0] = el; }}>
-              <img src="/tileone.png" alt="" className="hero-tile__img" draggable={false} />
-            </div>
+      <div className="hero-transition" ref={heroTransitionRef} style={{ height: `${HERO_TRANSITION_SCROLL_VH}vh` }}>
+        <section className="hero-tiles">
+          <div className="hero-tiles__lanyard" ref={lanyardWrapRef}>
+            <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} />
           </div>
 
-          <div className="hero-tile hero-tile--2" ref={(el) => { heroTileWrapperRefs.current[1] = el; }} onMouseEnter={() => handleTileHover(1)}>
-            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[1] = el; }}>
-              <img src="/tiletwo.png" alt="" className="hero-tile__img" draggable={false} />
+          <div className="hero-tiles__grid">
+            <div
+              className="hero-tile hero-tile--1"
+              ref={(el) => {
+                heroTileWrapperRefs.current[0] = el;
+              }}
+              onMouseEnter={() => handleTileHover(0)}
+            >
+              <div
+                className="hero-tile__inner"
+                ref={(el) => {
+                  heroTileRefs.current[0] = el;
+                }}
+              >
+                <img src="/tileone.png" alt="" className="hero-tile__img" draggable={false} />
+              </div>
             </div>
-          </div>
 
-          <div className="hero-tile hero-tile--3 hero-tile--text" ref={(el) => { heroTileWrapperRefs.current[2] = el; }} onMouseEnter={() => handleTileHover(2)}>
-            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[2] = el; }}>
-              <div className="hero-tile__textblock">
-                <span className="hero-word hero-word--full">FULL</span>
-                <CascadeWord word=" STACK DEVELOPER" />
+            <div
+              className="hero-tile hero-tile--2"
+              ref={(el) => {
+                heroTileWrapperRefs.current[1] = el;
+              }}
+              onMouseEnter={() => handleTileHover(1)}
+            >
+              <div
+                className="hero-tile__inner"
+                ref={(el) => {
+                  heroTileRefs.current[1] = el;
+                }}
+              >
+                <img src="/tiletwo.png" alt="" className="hero-tile__img" draggable={false} />
+              </div>
+            </div>
+
+            <div
+              className="hero-tile hero-tile--3 hero-tile--text"
+              ref={(el) => {
+                heroTileWrapperRefs.current[2] = el;
+              }}
+              onMouseEnter={() => handleTileHover(2)}
+            >
+              <div
+                className="hero-tile__inner"
+                ref={(el) => {
+                  heroTileRefs.current[2] = el;
+                }}
+              >
+                <div className="hero-tile__textblock">
+                  <span className="hero-word hero-word--full">FULL</span>
+                  <span className="hero-word hero-word--zen">STACK</span>
+                  <CascadeWord word="DEVELOPER" />
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="hero-tile hero-tile--4"
+              ref={(el) => {
+                heroTileWrapperRefs.current[3] = el;
+              }}
+              onMouseEnter={() => handleTileHover(3)}
+            >
+              <div
+                className="hero-tile__inner"
+                ref={(el) => {
+                  heroTileRefs.current[3] = el;
+                }}
+              >
+                <img src="/tilefour.png" alt="" className="hero-tile__img" draggable={false} />
+                <div className="hero-tile__overlay">
+                  <div className="hero-tile__certs-title">
+                    CERTIFICATIONS <span className="hero-arrow">↗</span>
+                  </div>
+                  <p className="hero-tile__certs-sub">
+                    Hard Skills &amp;<br />Tech Ventures
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="hero-tile hero-tile--5"
+              ref={(el) => {
+                heroTileWrapperRefs.current[4] = el;
+              }}
+              onMouseEnter={() => handleTileHover(4)}
+            >
+              <div
+                className="hero-tile__inner"
+                ref={(el) => {
+                  heroTileRefs.current[4] = el;
+                }}
+              >
+                <img src="/tilefive.png" alt="" className="hero-tile__img" draggable={false} />
+                <div className="hero-tile__overlay hero-tile__overlay--projects">
+                  <p className="hero-tile__line hero-tile__line--left">
+                    Web &amp; Mobile<br />Applications
+                  </p>
+                  <p className="hero-tile__line hero-tile__line--right">
+                    Logos and Brand<br />Design
+                  </p>
+                  <span className="hero-arrow hero-arrow--projects">↗</span>
+                  <div className="hero-tile__projects-title">PROJECTS</div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="hero-tile hero-tile--6 hero-tile--text"
+              ref={(el) => {
+                heroTileWrapperRefs.current[5] = el;
+              }}
+              onMouseEnter={() => handleTileHover(5)}
+            >
+              <div
+                className="hero-tile__inner"
+                ref={(el) => {
+                  heroTileRefs.current[5] = el;
+                }}
+              >
+                <div className="hero-tile__textblock">
+                  <span className="hero-word hero-word--brand">BRAND</span>
+                  <span className="hero-word hero-word--zen">PRODUCT</span>
+                  <CascadeWord word="IDENTITY" />
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="hero-tile hero-tile--7"
+              ref={(el) => {
+                heroTileWrapperRefs.current[6] = el;
+              }}
+              onMouseEnter={() => handleTileHover(6)}
+            >
+              <div
+                className="hero-tile__inner"
+                ref={(el) => {
+                  heroTileRefs.current[6] = el;
+                }}
+              >
+                <img src="/tileseven.png" alt="" className="hero-tile__img" draggable={false} />
+              </div>
+            </div>
+
+            <div
+              className="hero-tile hero-tile--8"
+              ref={(el) => {
+                heroTileWrapperRefs.current[7] = el;
+              }}
+              onMouseEnter={() => handleTileHover(7)}
+            >
+              <div
+                className="hero-tile__inner"
+                ref={(el) => {
+                  heroTileRefs.current[7] = el;
+                }}
+              >
+                <img src="/tileeight.png" alt="" className="hero-tile__img" draggable={false} />
               </div>
             </div>
           </div>
-
-          <div className="hero-tile hero-tile--4" ref={(el) => { heroTileWrapperRefs.current[3] = el; }} onMouseEnter={() => handleTileHover(3)}>
-            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[3] = el; }}>
-              <img src="/tilefour.png" alt="" className="hero-tile__img" draggable={false} />
-              <div className="hero-tile__overlay">
-                <div className="hero-tile__certs-title">CERTI</div>
-                <div className="hero-tile__certs-title">FICATIONS</div>
-                <p className="hero-tile__certs-sub">
-                  Hard Skills &amp;<br />Tech Ventures
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="hero-tile hero-tile--5" ref={(el) => { heroTileWrapperRefs.current[4] = el; }} onMouseEnter={() => handleTileHover(4)}>
-            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[4] = el; }}>
-              <img src="/tilefive.png" alt="" className="hero-tile__img" draggable={false} />
-              <div className="hero-tile__overlay hero-tile__overlay--projects">
-                <p className="hero-tile__line hero-tile__line--left">
-                  Web &amp; Mobile<br />Applications
-                </p>
-                <p className="hero-tile__line hero-tile__line--right">
-                  Logos and Brand<br />Design
-                </p>
-                <div className="hero-tile__projects-title">PROJECTS</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="hero-tile hero-tile--6 hero-tile--text" ref={(el) => { heroTileWrapperRefs.current[5] = el; }} onMouseEnter={() => handleTileHover(5)}>
-            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[5] = el; }}>
-              <div className="hero-tile__textblock">
-                <span className="hero-word hero-word--brand">BRAND</span>
-                <CascadeWord word="PRODUCT DESIGN" />
-              </div>
-            </div>
-          </div>
-
-          <div className="hero-tile hero-tile--7" ref={(el) => { heroTileWrapperRefs.current[6] = el; }} onMouseEnter={() => handleTileHover(6)}>
-            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[6] = el; }}>
-              <img src="/tileseven.png" alt="" className="hero-tile__img" draggable={false} />
-            </div>
-          </div>
-
-          <div className="hero-tile hero-tile--8" ref={(el) => { heroTileWrapperRefs.current[7] = el; }} onMouseEnter={() => handleTileHover(7)}>
-            <div className="hero-tile__inner" ref={(el) => { heroTileRefs.current[7] = el; }}>
-              <img src="/tileeight.png" alt="" className="hero-tile__img" draggable={false} />
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
       </div>
 
       <section className="about" ref={aboutRef}>
         <div className="about__stage">
-            <div className="about__paper" ref={paperMouseRef}>
-            <img src={PAPER_IMAGE} alt="" draggable={false} />
+          <div className="about__decor">
+            <div className="about__paper-pen" ref={aboutPaperSlideRef}>
+              <div className="about__paper" ref={paperMouseRef}>
+                <img src={PAPER_IMAGE} alt="" draggable={false} />
+              </div>
+              <div className="about__pen" ref={penMouseRef}>
+                <img src={PEN_IMAGE} alt="" draggable={false} />
+              </div>
             </div>
 
-            <div className="about__pen" ref={penMouseRef}>
-            <img src={PEN_IMAGE} alt="" draggable={false} />
+            <div className="about__laptop-slide" ref={aboutLaptopSlideRef}>
+              <div className="about__laptop" ref={laptopMouseRef}>
+                <img src={LAPTOP_IMAGE} alt="" draggable={false} />
+              </div>
             </div>
+          </div>
 
-            <div className="about__laptop" ref={laptopMouseRef}>
-            <img src={LAPTOP_IMAGE} alt="" draggable={false} />
-            </div>
+          <div className="about__text">
+            <ScrollReveal baseOpacity={0.1} enableBlur baseRotation={3} blurStrength={4}>
+              Aspires and takes into practice the desire to materialize my ideas, bridging the gap
+              between{" "}
+              <span className="about__highlight">real-world problems</span>{" "}
+              and{" "}
+              <span className="about__highlight">aesthetic, functional tech solutions.</span>
+              {"\n\n"}
+              Right now I&apos;m focused on learning hard skills via{" "}
+              <span className="about__highlight">certifications</span>{" "}
+              and establishing meaningful connections with the{" "}
+              <span className="about__highlight">professionals</span> I aim to become.
+            </ScrollReveal>
 
-            <div className="about__text">
-            <p>
-                Aspires and takes into practice the desire to materialize my ideas, bridging the gap
-                between{" "}
-                <span className="about__highlight about__highlight--purple">
-                real-world problems
-                </span>{" "}
-                and{" "}
-                <span className="about__highlight about__highlight--green">
-                aesthetic, functional tech solutions.
-                </span>
-            </p>
-            <p>
-                Right now I&apos;m focused on learning hard skills via{" "}
-                <span className="about__highlight about__highlight--purple">certifications</span>{" "}
-                and establishing meaningful connections with the{" "}
-                <span className="about__highlight about__highlight--green">professionals</span> I
-                aim to become.
-            </p>
             <div className="about__links">
-                <a
+              <a
                 href="https://www.linkedin.com/in/jemuel-malaga-870740287"
                 target="_blank"
                 rel="noopener noreferrer"
-                >
+              >
                 LinkedIn
-                </a>
-                <a href="https://github.com/Gem023UI" target="_blank" rel="noopener noreferrer">
+              </a>
+              <a href="https://github.com/Gem023UI" target="_blank" rel="noopener noreferrer">
                 Github
-                </a>
-                <a
+              </a>
+              <a
                 href="https://www.instagram.com/chase.jml/?hl=en"
                 target="_blank"
                 rel="noopener noreferrer"
-                >
+              >
                 Instagram
-                </a>
-                <a
+              </a>
+              <a
                 href="https://www.facebook.com/jemuel.malaga.023/"
                 target="_blank"
                 rel="noopener noreferrer"
-                >
+              >
                 Facebook
-                </a>
+              </a>
             </div>
-            </div>
+          </div>
         </div>
       </section>
 
@@ -657,46 +584,6 @@ function Home() {
         </h2>
 
         <ProjectFolders />
-      </section>
-
-      <section className="certifications">
-        <div className="certifications__loop">
-          <TextLoop
-            text="Certifications"
-            shape="wave"
-            speed={70}
-            separator="✦"
-            curviness={25}
-            fontSize={20}
-            fontWeight={800}
-            letterSpacing={2}
-            color="#ffffff"
-            ribbon
-            ribbonColor="#5b2eff"
-            ribbonWidth={50}
-            pauseOnHover={false}
-          />
-        </div>
-
-        <div className="certifications__panel">
-          <div className="certifications__cards">
-            {CERTIFICATIONS.map((cert) => (
-              <a
-                key={cert.id}
-                href={cert.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="certifications__card"
-              >
-                <img src={cert.image} alt={cert.alt} draggable={false} />
-              </a>
-            ))}
-          </div>
-        </div>
-
-        <a href="/certifications" className="certifications__all-link">
-          All Certifications  ↗
-        </a>
       </section>
 
       <GithubContributions />

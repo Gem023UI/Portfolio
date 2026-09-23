@@ -1,0 +1,14 @@
+.scroll-reveal {
+  margin: 20px 0;
+}
+
+.scroll-reveal-text {
+  font-size: clamp(1rem, 1.6vw, 1.35rem);
+  line-height: 1.6;
+  font-weight: 400;
+  white-space: pre-line; /* lets the "\n\n" between paragraphs render as a real line break */
+}
+
+.word {
+  display: inline-block;
+}

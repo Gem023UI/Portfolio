@@ -1,7 +1,7 @@
 .project-folders {
   position: relative;
   width: 100%;
-  background-color: var(--bg-primary);
+  background-color: #000;
   margin: 0 auto;
 }
 
@@ -11,7 +11,7 @@
   height: 100vh;
   box-sizing: border-box; /* keeps total height at exactly 100vh with padding included */
   overflow: hidden;
-  background-color: var(--bg-primary);
+  background-color: #000;
 }
 
 .project-folders__center {

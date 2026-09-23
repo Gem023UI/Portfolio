@@ -234,32 +234,49 @@
 .about {
   position: relative;
   width: 100%;
-  min-height: 70vh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  background-color: var(--bg-primary);
-  overflow: hidden;
-  padding: 10px 6%;
+  background-color: #000;
+  overflow-x: hidden;
+  padding: 10px 6% 120px;
 }
 
 .about__stage {
   position: relative;
   width: 100%;
   max-width: 1120px;
-  margin-top: 20px;
+  margin: 0 auto;
+  min-height: 140vh;
+}
+
+/* Sticky decor row: stays pinned near the top of the viewport while the two
+   ScrollReveal paragraphs scroll past underneath. height:0 keeps it from
+   pushing .about__text down in normal flow. */
+.about__decor {
+  position: absolute;
+  top: 15vh;
+  left: 0;
+  width: 100%;
+  height: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.about__paper-pen {
+  position: relative;
+  width: 25vw;
+  margin-left: -8%;
+  pointer-events: auto;
+  will-change: transform;
 }
 
 .about__paper {
-  position: absolute;
-  top: 20%;
-  left: -15%;
-  width: clamp(350px, 20vw, 300px);
-  z-index: 1;
-  will-change: transform;
+  position: relative;
+  width: 100%;
 }
 
 .about__paper img {
@@ -271,11 +288,10 @@
 
 .about__pen {
   position: absolute;
-  top: 15%;
-  left: -1%;
-  width: clamp(250px, 14vw, 200px);
+  top: -5%;
+  left: 18%;
+  width: 62%;
   z-index: 2;
-  will-change: transform;
 }
 
 .about__pen img {
@@ -285,13 +301,17 @@
   rotate: 90deg;
 }
 
-.about__laptop {
-  position: absolute;
-  top: -10%;
-  right: -20%;
-  width: clamp(450px, 28vw, 420px);
-  z-index: 1;
+.about__laptop-slide {
+  position: relative;
+  width: 25vw;
+  margin-right: -6%;
+  pointer-events: auto;
   will-change: transform;
+}
+
+.about__laptop {
+  position: relative;
+  width: 100%;
 }
 
 .about__laptop img {
@@ -306,27 +326,17 @@
   z-index: 3;
   max-width: 720px;
   margin: 0 auto;
+  padding-top: 6vh;
   text-align: center;
   font-family: 'Montserrat', sans-serif;
   font-size: clamp(1rem, 1.6vw, 1.35rem);
   line-height: 1.6;
-  color: var(--text-primary);
-}
-
-.about__text p {
-  margin: 0 0 28px;
+  color: #f2f2f0;
 }
 
 .about__highlight {
   font-weight: 800;
-}
-
-.about__highlight--purple {
-  color: var(--hero-purple);
-}
-
-.about__highlight--green {
-  color: var(--hero-green);
+  color: #c4ff00;
 }
 
 .about__links {
@@ -334,12 +344,12 @@
   align-items: center;
   justify-content: center;
   gap: 28px;
-  margin-top: 8px;
+  margin-top: 40px;
   flex-wrap: wrap;
 }
 
 .about__links a {
-  color: var(--text-secondary);
+  color: #9a9a9a;
   font-family: 'Montserrat', sans-serif;
   font-weight: 600;
   font-size: 0.95rem;
@@ -349,7 +359,34 @@
 }
 
 .about__links a:hover {
-  color: var(--text-primary);
+  color: #ffffff;
+}
+
+@media (max-width: 700px) {
+  .about {
+    padding: 60px 24px 80px;
+  }
+
+  .about__stage {
+    min-height: auto;
+  }
+
+  .about__decor {
+    display: none;
+  }
+
+  .about__text {
+    padding-top: 0;
+    font-size: 0.95rem;
+  }
+
+  .about__reveal-block {
+    margin-bottom: 6vh;
+  }
+
+  .about__links {
+    gap: 18px;
+  }
 }
 
 /* ---- Projects section ---- */
@@ -361,7 +398,7 @@
   flex-direction: column;
   align-items: center;
   padding: 10px 0 0;
-  background-color: var(--bg-primary);
+  background-color: #000;
   overflow: hidden;
   padding-bottom: 100px;
 }
@@ -373,7 +410,7 @@
   letter-spacing: 0.02em;
   color: var(--hero-purple);
   text-align: center;
-  background-color: var(--bg-primary);
+  background-color: #000;
 }
 
 .certifications {
@@ -382,7 +419,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: var(--bg-primary);
+  background-color: #000;
 }
 
 .certifications__loop {
@@ -402,7 +439,7 @@
 .certifications__panel {
   width: 100%;
   max-width: fit-content;
-  background: var(--bg-primary);
+  background-color: #000;
   border-radius: 24px;
   padding: 100px 50px 40px;
   position: relative;

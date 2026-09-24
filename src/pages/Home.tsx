@@ -332,10 +332,6 @@ function Home() {
     <main className="home">
       <div className="hero-transition" ref={heroTransitionRef} style={{ height: `${HERO_TRANSITION_SCROLL_VH}vh` }}>
         <section className="hero-tiles">
-          <div className="hero-tiles__lanyard" ref={lanyardWrapRef}>
-            <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} />
-          </div>
-
           <div className="hero-tiles__grid">
             <div
               className="hero-tile hero-tile--1"
@@ -386,8 +382,7 @@ function Home() {
               >
                 <div className="hero-tile__textblock">
                   <span className="hero-word hero-word--full">FULL</span>
-                  <span className="hero-word hero-word--zen">STACK</span>
-                  <CascadeWord word="DEVELOPER" />
+                  <CascadeWord word="STACK DEVELOPER" />
                 </div>
               </div>
             </div>
@@ -459,8 +454,7 @@ function Home() {
               >
                 <div className="hero-tile__textblock">
                   <span className="hero-word hero-word--brand">BRAND</span>
-                  <span className="hero-word hero-word--zen">PRODUCT</span>
-                  <CascadeWord word="IDENTITY" />
+                  <CascadeWord word="PRODUCT IDENTITY" />
                 </div>
               </div>
             </div>

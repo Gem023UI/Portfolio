@@ -3,7 +3,6 @@ import { gsap } from "gsap";
 import FoldText from "../components/FoldText";
 import ProjectFolders from "../components/ProjectFolders";
 import GithubContributions from "../components/Github";
-import Lanyard from "../components/Lanyard";
 import ScrollReveal from "../components/ScrollReveal";
 import "../styles/Home.css";
 

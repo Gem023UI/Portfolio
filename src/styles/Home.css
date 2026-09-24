@@ -4,6 +4,10 @@
   min-height: 100vh;
   width: 100%;
   background-image: url('/background.png');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 /* ---- Hero: tiled grid ---- */
@@ -13,7 +17,7 @@
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: #000;
+  background: transparent;
 }
 
 .hero-tiles__grid {
@@ -219,7 +223,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  background-color: #000;
+  background-color: transparent;
   overflow-x: hidden;
   padding: 10px 6% 120px;
 }
@@ -236,7 +240,7 @@
    ScrollReveal paragraphs scroll past underneath. height:0 keeps it from
    pushing .about__text down in normal flow. */
 .about__decor {
-  position: absolute;
+  position: sticky;
   top: 15vh;
   left: 0;
   width: 100%;
@@ -380,7 +384,7 @@
   flex-direction: column;
   align-items: center;
   padding: 10px 0 0;
-  background-color: #000;
+  background-color: transparent;
   overflow: hidden;
   padding-bottom: 100px;
 }
@@ -392,7 +396,7 @@
   letter-spacing: 0.02em;
   color: var(--hero-purple);
   text-align: center;
-  background-color: #000;
+  background-color: transparent;
 }
 
 .certifications {
@@ -401,7 +405,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #000;
+  background-color: transparent;
 }
 
 .certifications__loop {

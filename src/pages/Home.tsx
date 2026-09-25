@@ -296,7 +296,7 @@ function Home() {
     const laptopSlide = aboutLaptopSlideRef.current;
     if (!section || !paperSlide || !laptopSlide) return;
 
-    const INTRO_END = 0.15;   // fraction of the section's scroll where images finish arriving
+    const INTRO_END = 0.01;   // fraction of the section's scroll where images finish arriving
     const OUTRO_START = 0.85; // fraction where they start leaving again
 
     let frame = 0;

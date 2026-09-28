@@ -57,13 +57,13 @@ interface LanyardProps {
 export default function Lanyard({
   position = [0, 0, 30],
   gravity = [0, -40, 0],
-  fov = 12,
+  fov = 10,
   transparent = true,
   frontImage = "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1790004010/lanyardfront2_iyxvlq.png",
   backImage = "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1790000723/lanyardback_ld232n.png",
   imageFit = 'cover',
   lanyardImage = null,
-  lanyardWidth = 2.5
+  lanyardWidth = 1.5
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
 

@@ -1,0 +1,98 @@
+/* Instrument Serif is imported at the top of styles/Home.css */
+
+.projects {
+  position: relative;
+  z-index: 5; /* above About, whose pinned final look it slides over */
+  width: 100%;
+  margin-top: -100vh; /* overlap About's 100vh "hold" zone (see .about__flow padding-bottom) */
+}
+
+/* ---- Sticky layer ---- */
+.projects__stick {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 3vh; /* optical centring of the serif caps */
+  background: var(--sky-main, #b3d9ff);
+  pointer-events: none;
+}
+
+.projects__sky {
+  z-index: 0;
+}
+
+.projects__title {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  white-space: nowrap;
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 20vw; /* replaced by the fitted px value once the font is ready */
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--on-sky, #ffffff);
+  opacity: 0.95; /* GSAP scrubs this down to ~0.22 */
+  user-select: none;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+
+/* ---- Cloud fringe ---- */
+.projects__fringe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80vh;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* solid strip guarantees the very top edge is fully cloud-coloured (== About background) */
+.projects__fringe::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6vh;
+  background: var(--cloud, #e6f2ff);
+  z-index: 1;
+}
+
+.projects__fringe-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- Flow layer ---- */
+.projects__flow {
+  position: relative;
+  z-index: 2;
+  margin-top: -100vh;
+  margin-top: -100svh;
+}
+
+/* Time for the title to settle before the first folder scrolls in */
+.projects__lead {
+  height: 150vh;
+}
+
+.projects__sr-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

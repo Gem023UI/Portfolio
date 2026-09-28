@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Hero from '../components/Hero';
 import CloudSurge from '../components/CloudSurge';
 import About from '../components/About';
-import ProjectFolders from '../components/ProjectFolders';
+import ProjectsSection from '../components/ProjectsSection';
 import '../styles/Home.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -62,7 +62,7 @@ function Home() {
       </div>
 
       <About />
-      <ProjectFolders />
+      <ProjectsSection />
     </main>
   );
 }

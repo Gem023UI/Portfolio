@@ -1,13 +1,14 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 
-export type ThemeMode = 'light' | 'system' | 'dark';
-type ResolvedTheme = 'light' | 'dark';
+export type ThemeMode = 'morning' | 'sunset' | 'night';
+export const THEME_MODES: ThemeMode[] = ['morning', 'sunset', 'night'];
 
 interface ThemeContextValue {
   mode: ThemeMode;
-  resolvedTheme: ResolvedTheme;
+  /** Kept for compatibility with existing consumers; identical to `mode` now that there is no "system" option. */
+  resolvedTheme: ThemeMode;
   setMode: (mode: ThemeMode) => void;
   /** Same as setMode, but plays a radial-reveal animation expanding from (x, y) — e.g. a click point. */
   setModeAtPoint: (mode: ThemeMode, x: number, y: number) => void;
@@ -22,33 +23,37 @@ type DocumentWithViewTransitions = Document & {
   startViewTransition?: (callback: () => void) => { ready: Promise<void>; finished: Promise<void> };
 };
 
-function getSystemPreference(): ResolvedTheme {
-  if (typeof window === 'undefined') return 'light';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+function isThemeMode(value: unknown): value is ThemeMode {
+  return value === 'morning' || value === 'sunset' || value === 'night';
 }
 
-function getStoredMode(): ThemeMode {
-  if (typeof window === 'undefined') return 'system';
+/** Default theme from the visitor's local clock: 05:00-16:59 morning, 17:00-18:59 sunset, otherwise night. */
+export function getTimeBasedTheme(date: Date = new Date()): ThemeMode {
+  const hour = date.getHours();
+  if (hour >= 5 && hour < 17) return 'morning';
+  if (hour >= 17 && hour < 19) return 'sunset';
+  return 'night';
+}
+
+function getStoredMode(): ThemeMode | null {
+  if (typeof window === 'undefined') return null;
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
+    if (isThemeMode(stored)) return stored;
   } catch {
     // localStorage unavailable (private browsing, etc.) — fall back silently
   }
-  return 'system';
+  return null;
 }
 
-function resolve(mode: ThemeMode): ResolvedTheme {
-  return mode === 'system' ? getSystemPreference() : mode;
-}
-
-function applyTheme(resolved: ResolvedTheme) {
-  document.documentElement.setAttribute('data-theme', resolved);
+function applyTheme(mode: ThemeMode) {
+  document.documentElement.setAttribute('data-theme', mode);
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>(() => getStoredMode());
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolve(mode));
+  // A stored choice wins; otherwise follow the visitor's clock. The clock-based
+  // default is NOT persisted, so it keeps following the time until they pick a theme.
+  const [mode, setModeState] = useState<ThemeMode>(() => getStoredMode() ?? getTimeBasedTheme());
 
   const persist = useCallback((next: ThemeMode) => {
     try {
@@ -62,10 +67,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // be safely wrapped in flushSync + startViewTransition for the reveal animation.
   const commitMode = useCallback(
     (next: ThemeMode) => {
-      const nextResolved = resolve(next);
-      applyTheme(nextResolved);
+      applyTheme(next);
       setModeState(next);
-      setResolvedTheme(nextResolved);
       persist(next);
     },
     [persist]
@@ -83,18 +86,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       const doc = document as DocumentWithViewTransitions;
       const supportsViewTransition = typeof doc.startViewTransition === 'function';
       const prefersReducedMotion =
-        typeof window !== 'undefined' &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       if (!supportsViewTransition || prefersReducedMotion) {
         commitMode(next);
         return;
       }
 
-      const endRadius = Math.hypot(
-        Math.max(x, window.innerWidth - x),
-        Math.max(y, window.innerHeight - y)
-      );
+      const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
 
       document.documentElement.style.setProperty('--theme-reveal-x', `${x}px`);
       document.documentElement.style.setProperty('--theme-reveal-y', `${y}px`);
@@ -109,28 +108,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     [commitMode]
   );
 
-  // While in "system" mode, keep following the OS setting live.
-  // No reveal animation here — this fires from an OS-level change, not a user click.
-  useEffect(() => {
-    if (mode !== 'system') return undefined;
-    const mql = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      const next: ResolvedTheme = e.matches ? 'dark' : 'light';
-      applyTheme(next);
-      setResolvedTheme(next);
-    };
-    mql.addEventListener('change', handleChange);
-    return () => mql.removeEventListener('change', handleChange);
-  }, [mode]);
-
   const value = useMemo<ThemeContextValue>(
-    () => ({ mode, resolvedTheme, setMode, setModeAtPoint }),
-    [mode, resolvedTheme, setMode, setModeAtPoint]
+    () => ({ mode, resolvedTheme: mode, setMode, setModeAtPoint }),
+    [mode, setMode, setModeAtPoint]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) {

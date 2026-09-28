@@ -16,39 +16,38 @@ body {
   overflow-x: hidden;
 }
 
-/* ---- Theme tokens ----
-   `data-theme` is set on <html> by the blocking script in index.html (prevents
-   a flash of the wrong theme on load) and kept in sync at runtime by ThemeProvider. */
 :root,
-:root[data-theme='light'] {
-  --bg-primary: #e8e8e6;
-  --bg-surface: #ffffff;
-  --bg-elevated: #ffffff;
-  --overlay-soft: rgba(0, 0, 0, 0.05);
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --text-primary: #1a1a1a;
-  --text-secondary: #6b6b68;
-  --hero-purple: #734dff;
-  --hero-purple-strong: #3b1aa8;
-  --hero-green: #5fcb3c;
-  --contrib-dot-empty: #c9c9c5;
-
+:root[data-theme='morning'] {
+  --sky-main: #B3D9FF; --sky-mid: #80B3FF; --sky-low: #6699E6; --sky-high: #E6F2FF;
+  --cloud: #E6F2FF;          /* surge clouds + About background */
+  --ink: #14233F;            /* text on cloud/light surfaces */
+  --on-sky: #FFFFFF;         /* text on sky surfaces */
+  --accent: #26619C;         /* lapis lazuli highlights */
+  --bg-primary: #B3D9FF; --bg-surface: #F3F9FF; --bg-elevated: #FFFFFF;
+  --overlay-soft: rgba(0,0,0,.05); --border-subtle: rgba(0,0,0,.08);
+  --text-primary: #14233F; --text-secondary: #4d5f7d;
+  --hero-purple: var(--accent); --hero-purple-strong: #1b4a7a;
+  --hero-green: #5fcb3c; --contrib-dot-empty: #c9d6e6;
   color-scheme: light;
 }
-
-:root[data-theme='dark'] {
-  --bg-primary: #131316;
-  --bg-surface: #1c1c21;
-  --bg-elevated: #26262c;
-  --overlay-soft: rgba(255, 255, 255, 0.08);
-  --border-subtle: rgba(255, 255, 255, 0.1);
-  --text-primary: #f3f3f1;
-  --text-secondary: #a3a3a0;
-  --hero-purple: #9c85ff;
-  --hero-purple-strong: #c9bbff;
-  --hero-green: #7ed957;
-  --contrib-dot-empty: #3a3a40;
-
+:root[data-theme='sunset'] {
+  --sky-main: #FFD9A0; --sky-mid: #FFAE66; --sky-low: #E07A52; --sky-high: #FFF3D6;
+  --cloud: #FFF3D6; --ink: #4A2418; --on-sky: #FFFFFF; --accent: #B4472A;
+  --bg-primary: #FFD9A0; --bg-surface: #FFF8EA; --bg-elevated: #FFFFFF;
+  --overlay-soft: rgba(0,0,0,.05); --border-subtle: rgba(0,0,0,.08);
+  --text-primary: #4A2418; --text-secondary: #8a5a45;
+  --hero-purple: var(--accent); --hero-purple-strong: #8a3520;
+  --hero-green: #5fcb3c; --contrib-dot-empty: #ecd3b0;
+  color-scheme: light;
+}
+:root[data-theme='night'] {
+  --sky-main: #6E7FBF; --sky-mid: #4A5AA0; --sky-low: #33406E; --sky-high: #B9C8F2;
+  --cloud: #B9C8F2; --ink: #1B2340; --on-sky: #FFFFFF; --accent: #3A4787;
+  --bg-primary: #33406E; --bg-surface: #232B4A; --bg-elevated: #2d3760;
+  --overlay-soft: rgba(255,255,255,.08); --border-subtle: rgba(255,255,255,.1);
+  --text-primary: #E8EDFB; --text-secondary: #a6b2d6;
+  --hero-purple: #B9C8F2; --hero-purple-strong: #E8EDFB;
+  --hero-green: #7ed957; --contrib-dot-empty: #3a4570;
   color-scheme: dark;
 }
 

@@ -537,30 +537,19 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
               <span className="sm-visitor-label">Visitors</span>
             </div>
 
-            {/* Visual only for now — wiring this up to actually change the site theme comes later */}
-            <div className="sm-theme-toggle" role="group" aria-label="Color mode (not yet functional)">
-              <button
-                type="button"
-                className={`sm-theme-option${themeMode === 'light' ? ' is-active' : ''}`}
-                aria-pressed={themeMode === 'light'}
-                onClick={(e) => setModeAtPoint('light', e.clientX, e.clientY)}
-              >
+            <div className="sm-theme-toggle" role="group" aria-label="Color theme">
+              <button type="button" aria-label="Morning" className={`sm-theme-option${themeMode === 'morning' ? ' is-active' : ''}`}
+                aria-pressed={themeMode === 'morning'} onClick={(e) => setModeAtPoint('morning', e.clientX, e.clientY)}>
                 <i className="fi fi-sr-sun" aria-hidden="true" />
               </button>
-              <button
-                type="button"
-                className={`sm-theme-option${themeMode === 'system' ? ' is-active' : ''}`}
-                aria-pressed={themeMode === 'system'}
-                onClick={(e) => setModeAtPoint('system', e.clientX, e.clientY)}
-              >
-                <i className="fi fi-sr-computer" aria-hidden="true" />
+              <button type="button" aria-label="Sunset" className={`sm-theme-option${themeMode === 'sunset' ? ' is-active' : ''}`}
+                aria-pressed={themeMode === 'sunset'} onClick={(e) => setModeAtPoint('sunset', e.clientX, e.clientY)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 8a6 6 0 0 0-6 6h12a6 6 0 0 0-6-6zM2 16h20v2H2zM5 20h14v2H5zM11 2h2v3h-2zM3.5 6.9l1.4-1.4 2.1 2.1-1.4 1.4zM17 7.6l2.1-2.1 1.4 1.4-2.1 2.1z"/>
+                </svg>
               </button>
-              <button
-                type="button"
-                className={`sm-theme-option${themeMode === 'dark' ? ' is-active' : ''}`}
-                aria-pressed={themeMode === 'dark'}
-                onClick={(e) => setModeAtPoint('dark', e.clientX, e.clientY)}
-              >
+              <button type="button" aria-label="Night" className={`sm-theme-option${themeMode === 'night' ? ' is-active' : ''}`}
+                aria-pressed={themeMode === 'night'} onClick={(e) => setModeAtPoint('night', e.clientX, e.clientY)}>
                 <i className="fi fi-sr-moon" aria-hidden="true" />
               </button>
             </div>

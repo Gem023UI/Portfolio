@@ -12,15 +12,12 @@
       (function () {
         try {
           var stored = localStorage.getItem('jm-portfolio-theme-mode');
-          var resolved =
-            stored === 'light' || stored === 'dark'
-              ? stored
-              : window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light';
-          document.documentElement.setAttribute('data-theme', resolved);
+          var h = new Date().getHours();
+          var byClock = h >= 5 && h < 17 ? 'morning' : h >= 17 && h < 19 ? 'sunset' : 'night';
+          var ok = stored === 'morning' || stored === 'sunset' || stored === 'night';
+          document.documentElement.setAttribute('data-theme', ok ? stored : byClock);
         } catch (e) {
-          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.setAttribute('data-theme', 'morning');
         }
       })();
     </script>

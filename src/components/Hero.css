@@ -1,0 +1,134 @@
+/* Anton + Montserrat are already imported globally in App.css */
+
+/* The stage is what scrolls; the hero inside it is sticky (Phase 3 makes the stage taller
+   so the hero stays pinned while the cloud surge covers it). */
+.hero-stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.hero {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate; /* own stacking context: all the z-indexes below are scoped to the hero */
+  background: var(--sky-main, #b3d9ff);
+}
+
+.hero__sky {
+  z-index: 0;
+}
+
+/* ---- Letters ---- */
+.hero__letters {
+  /* IMPORTANT: no z-index / transform / opacity / filter here (see Hero.tsx) */
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.012em;
+  padding-bottom: var(--hero-letters-lift, 9vh); /* nudges the word up to match the mockup */
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  font-size: min(30vw, 64vh);
+  line-height: 1;
+  color: #ffffff;
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero__letter {
+  position: relative;
+  display: block;
+  will-change: transform;
+}
+
+.hero__letter-inner {
+  display: block;
+}
+
+/* ---- Clouds ---- */
+.hero__cloud {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hero__cloud img {
+  display: block;
+  height: auto;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+}
+
+/* ---- Tagline ---- */
+.hero__tagline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 79%;
+  z-index: 40;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.hero__tagline-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.4em;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: clamp(0.75rem, 1.5vw, 1.6rem);
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.hero__tagline-sep {
+  font-weight: 500;
+}
+
+/* ---- Lanyard ---- */
+.hero__lanyard {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+}
+
+/* Lanyard.css gives its wrapper a debug-looking white border and a fixed 100vh height */
+.hero__lanyard .lanyard-wrapper {
+  height: 100%;
+  border: 0;
+}
+
+@media (max-width: 700px) {
+  .hero__letters {
+    font-size: min(30vw, 40vh);
+  }
+
+  .hero__tagline {
+    top: 72%;
+  }
+
+  .hero__tagline-text {
+    flex-direction: column;
+    gap: 0.3em;
+  }
+
+  .hero__tagline-sep {
+    display: none;
+  }
+}

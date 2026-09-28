@@ -235,98 +235,6 @@ function Home() {
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  // ---- About section mouse parallax: paper, pen, laptop ----
-  useEffect(() => {
-    const about = aboutRef.current;
-    if (!about) return;
-
-    const makeSetter = (el: HTMLElement | null) =>
-      el
-        ? {
-            x: gsap.quickTo(el, "x", { duration: 0.8, ease: "power3.out" }),
-            y: gsap.quickTo(el, "y", { duration: 0.8, ease: "power3.out" }),
-          }
-        : null;
-
-    const paperSetter = makeSetter(paperMouseRef.current);
-    const penSetter = makeSetter(penMouseRef.current);
-    const laptopSetter = makeSetter(laptopMouseRef.current);
-
-    const PAPER_DEPTH = 14;
-    const PEN_DEPTH = 26;
-    const LAPTOP_DEPTH = 18;
-
-    const handlePointerMove = (event: PointerEvent) => {
-      const rect = about.getBoundingClientRect();
-      const relX = (event.clientX - rect.left) / rect.width - 0.5;
-      const relY = (event.clientY - rect.top) / rect.height - 0.5;
-
-      paperSetter?.x(relX * -PAPER_DEPTH);
-      paperSetter?.y(relY * -PAPER_DEPTH);
-
-      penSetter?.x(relX * PEN_DEPTH);
-      penSetter?.y(relY * PEN_DEPTH);
-
-      laptopSetter?.x(relX * -LAPTOP_DEPTH);
-      laptopSetter?.y(relY * -LAPTOP_DEPTH);
-    };
-
-    const resetParallax = () => {
-      paperSetter?.x(0);
-      paperSetter?.y(0);
-      penSetter?.x(0);
-      penSetter?.y(0);
-      laptopSetter?.x(0);
-      laptopSetter?.y(0);
-    };
-
-    window.addEventListener("pointermove", handlePointerMove);
-    about.addEventListener("pointerleave", resetParallax);
-
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      about.removeEventListener("pointerleave", resetParallax);
-    };
-  }, []);
-
-  // ---- About section: side images slide in toward center, hold, then exit outward ----
-  useEffect(() => {
-    const section = aboutRef.current;
-    const paperSlide = aboutPaperSlideRef.current;
-    const laptopSlide = aboutLaptopSlideRef.current;
-    if (!section || !paperSlide || !laptopSlide) return;
-
-    const INTRO_END = 0.01;   // fraction of the section's scroll where images finish arriving
-    const OUTRO_START = 0.85; // fraction where they start leaving again
-
-    let frame = 0;
-
-    const update = () => {
-      const rect = section.getBoundingClientRect();
-      const scrollable = section.offsetHeight - window.innerHeight;
-      const scrolled = -rect.top;
-      const p = scrollable > 0 ? Math.min(Math.max(scrolled / scrollable, 0), 1) : 0;
-
-      let t: number;
-      if (p < INTRO_END) {
-        t = p / INTRO_END;
-      } else if (p > OUTRO_START) {
-        t = 1 - (p - OUTRO_START) / (1 - OUTRO_START);
-      } else {
-        t = 1;
-      }
-      t = Math.min(Math.max(t, 0), 1);
-
-      paperSlide.style.transform = `translateX(${(1 - t) * -130}%)`;
-      laptopSlide.style.transform = `translateX(${(1 - t) * 130}%)`;
-
-      frame = requestAnimationFrame(update);
-    };
-
-    frame = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(frame);
-  }, []);
-
   return (
     <main className="home">
       <div className="hero-transition" ref={heroTransitionRef} style={{ height: `${HERO_TRANSITION_SCROLL_VH}vh` }}>
@@ -497,23 +405,6 @@ function Home() {
 
       <section className="about" ref={aboutRef}>
         <div className="about__stage">
-          <div className="about__decor">
-            <div className="about__paper-pen" ref={aboutPaperSlideRef}>
-              <div className="about__paper" ref={paperMouseRef}>
-                <img src={PAPER_IMAGE} alt="" draggable={false} />
-              </div>
-              <div className="about__pen" ref={penMouseRef}>
-                <img src={PEN_IMAGE} alt="" draggable={false} />
-              </div>
-            </div>
-
-            <div className="about__laptop-slide" ref={aboutLaptopSlideRef}>
-              <div className="about__laptop" ref={laptopMouseRef}>
-                <img src={LAPTOP_IMAGE} alt="" draggable={false} />
-              </div>
-            </div>
-          </div>
-
           <div className="about__text">
             <ScrollReveal baseOpacity={0.1} enableBlur baseRotation={3} blurStrength={4}>
               Aspires and takes into practice the desire to materialize my ideas, bridging the gap

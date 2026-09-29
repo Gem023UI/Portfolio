@@ -5,6 +5,8 @@ import Hero from '../components/Hero';
 import CloudSurge from '../components/CloudSurge';
 import About from '../components/About';
 import ProjectsSection from '../components/ProjectsSection';
+import CertificationsSection from '../components/CertificationsSection';
+import Footer from '../components/Footer';
 import '../styles/Home.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -63,6 +65,8 @@ function Home() {
 
       <About />
       <ProjectsSection />
+      <CertificationsSection />
+      <Footer />
     </main>
   );
 }

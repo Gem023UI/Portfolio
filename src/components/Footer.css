@@ -1,0 +1,136 @@
+.footer {
+  position: relative;
+  width: 100%;
+  min-height: 70vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  /* Same colour as Certifications (no transition between them, per the brief) */
+  background: var(--sky-main, #b3d9ff);
+}
+
+.footer__sky {
+  z-index: 0;
+}
+
+.footer__clouds {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.footer__cloud {
+  position: absolute;
+  left: 0;
+  height: auto;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+}
+
+.footer__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 4vw;
+  padding: 8vh 6vw;
+}
+
+.footer__brand {
+  width: 40%;
+  flex: 0 0 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer__logo-frame {
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 1;
+  border-radius: 20px;
+  background: var(--overlay-soft, rgba(255, 255, 255, 0.12));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.25));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-sky, #ffffff);
+  opacity: 0.7;
+}
+
+.footer__logo-frame svg {
+  width: 38%;
+  height: 38%;
+}
+
+.footer__columns {
+  width: 60%;
+  flex: 0 0 60%;
+  display: flex;
+  gap: 4vw;
+}
+
+.footer__col {
+  flex: 1 1 50%;
+}
+
+.footer__heading {
+  margin: 0 0 1.2em;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.1rem, 1.6vw, 1.5rem);
+  color: var(--on-sky, #ffffff);
+  opacity: 0.75;
+}
+
+.footer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85em;
+}
+
+.footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+  color: var(--on-sky, #ffffff);
+  text-decoration: none;
+  opacity: 0.88;
+  transition: opacity 0.2s ease;
+}
+
+.footer__link:hover {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@media (max-width: 700px) {
+  .footer__content {
+    flex-direction: column;
+    padding: 6vh 8vw;
+    gap: 6vh;
+  }
+
+  .footer__brand,
+  .footer__columns {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .footer__brand .footer__logo-frame {
+    max-width: 180px;
+  }
+}

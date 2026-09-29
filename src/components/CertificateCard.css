@@ -1,0 +1,57 @@
+.cert-card {
+  position: relative;
+  flex: 0 0 auto;
+  width: min(30vw, 380px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+}
+
+.cert-card__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--overlay-soft, rgba(255, 255, 255, 0.12));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.25));
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+}
+
+/* Picture placeholder — swap for an <img> later */
+.cert-card__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-sky, #ffffff);
+  opacity: 0.55;
+}
+
+.cert-card__placeholder svg {
+  width: 34%;
+  height: 34%;
+}
+
+.cert-card__title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(1.15rem, 1.7vw, 1.6rem);
+  font-weight: 400;
+  color: var(--on-sky, #ffffff);
+  line-height: 1.25;
+}
+
+.cert-card__date {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+  color: var(--on-sky, #ffffff);
+  opacity: 0.7;
+}
+
+@media (max-width: 700px) {
+  .cert-card {
+    width: 62vw;
+  }
+}

@@ -2,29 +2,7 @@ import { useState } from 'react';
 import './Header.css';
 import StaggeredMenu from './StaggeredMenu';
 import ContactModal from './ContactModal';
-
-const socialItems = [
-  {
-    label: 'Facebook',
-    icon: 'fi fi-brands-facebook',
-    link: 'https://www.facebook.com/jemuel.malaga.023/',
-  },
-  {
-    label: 'GitHub',
-    icon: 'fi fi-brands-github',
-    link: 'https://github.com/Gem023UI',
-  },
-  {
-    label: 'Instagram',
-    icon: 'fi fi-brands-instagram-circle',
-    link: 'https://www.instagram.com/chase.jml/?hl=en',
-  },
-  {
-    label: 'LinkedIn',
-    icon: 'fi fi-brands-linkedin',
-    link: 'https://www.linkedin.com/in/jemuel-malaga-870740287',
-  },
-];
+import { SOCIAL_LINKS, NAV_LINKS } from './SiteLinks';
 
 function Header() {
   const [contactOpen, setContactOpen] = useState(false);
@@ -37,39 +15,10 @@ function Header() {
     document.body.classList.remove('staggered-menu-open');
   };
 
-  const menuItems = [
-    {
-      label: 'Home',
-      ariaLabel: 'Go to home page',
-      link: '/',
-    },
-    {
-      label: 'Projects',
-      ariaLabel: 'View my projects',
-      link: '/projects',
-    },
-    {
-      label: 'Stack',
-      ariaLabel: 'View my technology stack',
-      link: '/tech-stack',
-    },
-    {
-      label: 'Certifications',
-      ariaLabel: 'View my certifications',
-      link: '/certifications',
-    },
-    {
-      label: 'Blogs',
-      ariaLabel: 'Read my blogs',
-      link: '/blogs',
-    },
-    {
-      label: 'Contact',
-      ariaLabel: 'Open the contact form',
-      link: '#contact',
-      onClick: () => setContactOpen(true),
-    },
-  ];
+  // Same list Footer renders; Contact gets its modal-opening behaviour added here.
+  const menuItems = NAV_LINKS.map((item) =>
+    item.label === 'Contact' ? { ...item, onClick: () => setContactOpen(true) } : item
+  );
 
   return (
     <header className="header">
@@ -79,7 +28,7 @@ function Header() {
         <StaggeredMenu
           position="left"
           items={menuItems}
-          socialItems={socialItems}
+          socialItems={SOCIAL_LINKS}
           displaySocials
           displayItemNumbering
           menuButtonColor="#111111"

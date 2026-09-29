@@ -1,40 +1,30 @@
 import { FRAGMENT_SHADER } from './SkyShared';
 
-// The surge reuses everything in the Sky shader that comes BEFORE its `main()`:
-// the precision, uniforms, constants (ZOOM, BLUR_RADIUS, FBM_STRENGTH, ...) and the
-// noise helpers (noise2, fbm4, cnoise). Then `main()` below runs the SAME domain-warp
-// and the SAME three cloud bands (A / B / C with the same scales and blur) as Sky.tsx.
-//
-// The difference: in the Sky those bands split the screen into colored layers. Here each
-// band becomes a coverage mask whose threshold rides upward with `u_p`, so the cloud mass
-// billows up from the bottom of the screen and finally covers everything in `u_cloud`.
-//
-//   u_p      0..1 surge progress (0 = nothing, 1 = fully covered, solid u_cloud)
-//   u_cloud  colour of the trailing (thickest) bank and of the fully-covered screen.
-//            It equals the About background, so the hand-off is seamless.
-//   u_shade  the leading, thinner banks are tinted a little toward this colour (sky main)
-//   u_flip   1 = mirror vertically, so the cloud hangs from the top edge and its billowing
-//            edge points downward (used for the fringe along the top of the Projects sky)
-
+// Both shaders below reuse everything in the Sky shader that comes BEFORE its `main()`:
+// the precision, uniforms, constants (ZOOM, BLUR_RADIUS, FBM_STRENGTH, ...) and the noise
+// helpers (noise2, fbm4, cnoise). PREFIX is that text, sliced out at runtime so it can never
+// drift from Sky.tsx. DECLS adds the extra uniforms and band constants both mains need.
 const cut = FRAGMENT_SHADER.indexOf('uniform vec2 u_dirv;');
 if (cut < 0) throw new Error('Sky shader layout changed: could not find u_dirv');
+const PREFIX = FRAGMENT_SHADER.slice(0, cut);
 
-export const SURGE_FRAGMENT_SHADER =
-  FRAGMENT_SHADER.slice(0, cut) +
-  /* glsl */ `
+const DECLS = /* glsl */ `
 uniform vec2 u_dirv;
 uniform float u_p;
-uniform vec3 u_cloud;
-uniform vec3 u_shade;
-uniform float u_flip;   // 1.0 = the cloud mass hangs from the TOP edge (used for the Projects fringe)
+uniform vec3 u_cloud;   // colour of the fully-covered screen / the belt's solid core
+uniform vec3 u_shade;   // the leading, thinner banks are tinted a little toward this colour (sky main)
+uniform float u_flip;   // SURGE only: 1.0 mirrors vertically, so the mass hangs from the TOP edge
 
-// Where each band's threshold starts (fully below the screen) and ends (fully above it).
-// Band A leads, B follows, C trails: that offset is what gives the surge its layered depth.
+// SURGE band thresholds: where each band's coverage line starts (below the screen) and ends
+// (above it). Band A leads, B follows, C trails — the offset between them gives the layered look.
 const float A0 = -0.62; const float A1 = 1.70;
 const float B0 = -0.77; const float B1 = 1.60;
 const float C0 = -0.92; const float C1 = 1.50;
+`;
 
-void main(){
+// Shared head: runs the SAME domain-warp and fbm as Sky.tsx's own main(), producing `uv`
+// (warped, sky-space coords), `full` (the fbm cloud field) and `time`, which both mains sample.
+const WARP_HEAD = /* glsl */ `
   vec2 st = gl_FragCoord.xy/u_res - 0.5;
   st.x *= u_res.x/u_res.y;
   st = mat2(u_dirv.x, u_dirv.y, -u_dirv.y, u_dirv.x)*st;
@@ -63,8 +53,15 @@ void main(){
   float full = (fv + 0.6*fv*fv + 0.7*fv + 0.5)*0.5;
   full = pow(full, 0.55)*FBM_STRENGTH;
   float blurR = BLUR_RADIUS*1.5;
+`;
 
-  float e = u_p*u_p*(3.0 - 2.0*u_p);     // ease in/out so the surge swells, then settles
+// ---- SURGE: a cloud mass that rises from the bottom of the screen (or, with u_flip, hangs from
+// the top with its billowing edge pointing down) and finally covers the screen in solid u_cloud.
+//   u_p 0..1  surge progress: 0 = fully transparent, 1 = solid u_cloud
+const SURGE_MAIN = /* glsl */ `
+void main(){
+${WARP_HEAD}
+  float e = u_p*u_p*(3.0 - 2.0*u_p); // ease in/out so the surge swells, then settles
 
   vec2 uvA = uv + vec2((full-0.5)*1.2) + vec2(0.0, 0.025) + d0;
   float snA = noise2(uvA*2.0 + vec2(0.0, time*0.5))*3.0;
@@ -82,13 +79,11 @@ void main(){
   vec3 colB = mix(u_cloud, u_shade, 0.16);
   vec3 colC = u_cloud;
 
-  // premultiplied "over": A at the back, then B, then C on top
   vec3 pm = colA*covA;
   pm = colB*covB + pm*(1.0 - covB);
   pm = colC*covC + pm*(1.0 - covC);
   float al = 1.0 - (1.0 - covA)*(1.0 - covB)*(1.0 - covC);
 
-  // hard guarantees at both ends, independent of the noise: nothing at 0, solid u_cloud at 1
   float done = smoothstep(0.96, 1.0, u_p);
   pm = mix(pm, u_cloud, done);
   al = mix(al, 1.0, done);
@@ -99,3 +94,39 @@ void main(){
   gl_FragColor = vec4(pm, al);
 }
 `;
+
+export const SURGE_FRAGMENT_SHADER = PREFIX + DECLS + SURGE_MAIN;
+
+// ---- BELT: a horizontal cloud band, billowing on both its top and bottom edges, centred
+// vertically in its canvas. Meant to be placed straddling the seam between two stacked
+// sections (e.g. Projects -> Certifications): since the seam always falls inside the belt's
+// solid core, the two sections can never show a hard line, at any scroll position.
+//   u_p 0..1  swells the belt slightly thicker (a little "breathing" motion, not a coverage wipe)
+const BELT_MAIN = /* glsl */ `
+void main(){
+${WARP_HEAD}
+  float ys = gl_FragCoord.y/u_res.y;
+  float h = mix(0.27, 0.30, u_p);
+  float bl = 0.05;
+  float dA = clamp((full - 0.5)*2.4, -1.0, 1.0)*0.075 + (noise2(uv*3.2 + vec2(11.0, time*0.5)) - 0.5)*0.05;
+  float dB = clamp((full - 0.5)*2.0, -1.0, 1.0)*0.065 + (noise2(uv*4.6 + vec2(57.0, time*0.8)) - 0.5)*0.045;
+  float dC = clamp((full - 0.5)*1.8, -1.0, 1.0)*0.055 + (noise2(uv*6.0 + vec2(93.0, time*1.1)) - 0.5)*0.04;
+
+  float covA = 1.0 - smoothstep(h + 0.05 - bl, h + 0.05 + bl, abs(ys - 0.5 + dA));
+  float covB = 1.0 - smoothstep(h + 0.025 - bl, h + 0.025 + bl, abs(ys - 0.5 + dB));
+  float covC = 1.0 - smoothstep(h - bl, h + bl, abs(ys - 0.5 + dC));
+
+  vec3 colA = mix(u_cloud, u_shade, 0.38);
+  vec3 colB = mix(u_cloud, u_shade, 0.16);
+  vec3 colC = u_cloud;
+
+  vec3 pm = colA*covA;
+  pm = colB*covB + pm*(1.0 - covB);
+  pm = colC*covC + pm*(1.0 - covC);
+  float al = 1.0 - (1.0 - covA)*(1.0 - covB)*(1.0 - covC);
+
+  gl_FragColor = vec4(pm, al);
+}
+`;
+
+export const BELT_FRAGMENT_SHADER = PREFIX + DECLS + BELT_MAIN;

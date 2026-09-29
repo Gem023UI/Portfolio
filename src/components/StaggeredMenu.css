@@ -1,3 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+
+/* ---------------------------------------------------------------------
+   In-panel accent per global theme (drives --sm-accent, used by the
+   socials title, visitor icon, nav-item hover, active theme dot, and the
+   numbering counter — everything that sits ON TOP of the panel's own
+   surface, --bg-surface / --bg-elevated).
+
+   This is intentionally NOT --folder-3: night's folder shades are dark
+   blue by design, and the panel surface is ALSO dark at night, so a dark
+   accent there would be nearly invisible. Morning and sunset reuse the
+   site's existing --accent (already tuned against these surfaces); night
+   uses the sky's pale "high" tone instead, since it needs to be light
+   against a dark surface.
+
+   Header.tsx no longer passes an `accentColor` prop — StaggeredMenu.tsx
+   only sets --sm-accent inline when accentColor is given, so leaving it
+   unset lets this cascade-defined value take over per theme.
+--------------------------------------------------------------------- */
+:root[data-theme='morning'],
+:root[data-theme='sunset'] {
+  --sm-accent: var(--accent);
+}
+
+:root[data-theme='night'] {
+  --sm-accent: var(--sky-high);
+}
+
 .staggered-menu-wrapper {
   position: relative;
   width: 100%;
@@ -47,20 +75,25 @@
   object-fit: contain;
 }
 
+/* Fixed white pill, deliberately NOT theme-reactive: it needs to read clearly against
+   every sky background (including the dark night sky), so its colour never changes.
+   The icon/text colour still reflects the current theme via --accent (JS also sets this
+   inline through menuButtonColor/openMenuButtonColor — kept identical here as a fallback),
+   which already tests well against a white background in all three themes. */
 .sm-toggle {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  background: #c4ff00;
+  background: #ffffff;
   border: none;
   padding: 0.6rem 1.15rem;
   border-radius: 999px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  color: #e9e9ef;
-  font-weight: 800;
-  font-family: 'Montserrat', sans-serif;
+  color: var(--accent, #26619c);
+  font-weight: 400;
+  font-family: 'Instrument Serif', serif;
   line-height: 1;
   overflow: visible;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -71,8 +104,11 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
 
+/* Outline needs to read against the white pill, same requirement as the icon colour above,
+   so this uses --accent rather than --sm-accent (which is tuned for the dark panel surface,
+   not for white — see the top of this file). */
 .sm-toggle:focus-visible {
-  outline: 2px solid #ffffffaa;
+  outline: 2px solid var(--accent, #26619c);
   outline-offset: 4px;
   border-radius: 4px;
 }
@@ -201,8 +237,10 @@
 
 .sm-socials-title {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 800;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  font-weight: 400;
   color: var(--sm-accent, #ff0000);
 }
 
@@ -244,8 +282,9 @@
 }
 
 .sm-socials-link {
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-family: 'Instrument Serif', serif;
+  font-size: 0.95rem;
+  font-weight: 400;
   color: var(--text-primary);
   text-decoration: none;
   position: relative;
@@ -287,17 +326,19 @@
 }
 
 .sm-visitor-label {
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-family: 'Instrument Serif', serif;
+  font-size: 0.9rem;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   opacity: 0.6;
 }
 
 .sm-panel-title {
   margin: 0;
+  font-family: 'Instrument Serif', serif;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 400;
   color: var(--text-primary);
   text-transform: uppercase;
 }
@@ -314,11 +355,14 @@
 .sm-panel-item {
   position: relative;
   color: var(--text-primary);
-  font-weight: 600;
-  font-size: 2.5rem;
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 2.6rem;
   cursor: pointer;
   line-height: 1;
-  letter-spacing: -2px;
+  /* -2px was tuned for a tight geometric sans (Montserrat); Instrument Serif's wider,
+     more organic letterforms collide at that tracking, so this is loosened to suit it. */
+  letter-spacing: -0.01em;
   text-transform: uppercase;
   transition:
     background 0.25s,

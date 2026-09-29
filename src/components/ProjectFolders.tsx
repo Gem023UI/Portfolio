@@ -28,6 +28,12 @@ interface ProjectFolder {
 const TAB_HEIGHT = 9; // px — fixed regardless of viewport width
 const SCROLL_LENGTH_PER_PROJECT_VH = 180; // higher = slower, more scroll distance per folder
 
+// Folder colours come from the theme palette defined at the top of ProjectFolders.css
+// (--folder-1/2/3, escalating from lightest to most saturated within the current theme's
+// family — light blue in the morning theme, yellow in sunset, dark blue at night) rather
+// than fixed hex values, so every folder re-colours automatically when the theme changes.
+// --folder-ink is the one text colour that reads clearly against all three shades in a
+// given theme (dark ink for morning/sunset, white for night).
 const PROJECTS: ProjectFolder[] = [
   {
     id: "wayline",
@@ -35,11 +41,11 @@ const PROJECTS: ProjectFolder[] = [
     title: "TOMATOGUARD",
     description: "Sample Frontend Interface for AI/ML Project.",
     tags: ["FRONTEND", "DESIGN", "UX/UI"],
-    color: "#7ed957",
-    textColor: "#141414",
+    color: "var(--folder-1)",
+    textColor: "var(--folder-ink)",
     image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789283498/38125e49-76c9-4b76-950b-1f0ee1e0e4ee.png",
     link: "https://tomatoguard.vercel.app/",
-    tab: { tabStart: 0, peakStart: 0, peakEnd: 20, tabEnd: 28, flushLeft: true },   // wayline (green)
+    tab: { tabStart: 0, peakStart: 0, peakEnd: 20, tabEnd: 28, flushLeft: true },   // lightest shade
   },
   {
     id: "tandem",
@@ -47,11 +53,11 @@ const PROJECTS: ProjectFolder[] = [
     title: "TYPEVENTURE",
     description: "Gamified Learning Hub for Design Principles and Theory.",
     tags: ["LEADERBOARDS", "GAMIFIED", "WORKSPACE"],
-    color: "#5e1de0",
-    textColor: "#ffffff",
+    color: "var(--folder-2)",
+    textColor: "var(--folder-ink)",
     image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789282925/a2e452f5-4172-4919-9474-0ce63d8c1ab4.png",
     link: "https://type-venture.vercel.app/",
-    tab: { tabStart: 20, peakStart: 28, peakEnd: 52, tabEnd: 60 },   // tandem (violet)
+    tab: { tabStart: 20, peakStart: 28, peakEnd: 52, tabEnd: 60 },   // mid shade
   },
   {
     id: "forge",
@@ -59,11 +65,11 @@ const PROJECTS: ProjectFolder[] = [
     title: "CSPT",
     description: "Report Compilation and Learning Hub for CSPT Lessons and Materials.",
     tags: ["GOOGLE SLIDES", "QUIZZES", "VIDEO LESSONS"],
-    color: "#0a0a0a",
-    textColor: "#ffffff",
+    color: "var(--folder-3)",
+    textColor: "var(--folder-ink)",
     image: "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1789282381/f1f14e81-f96d-49fc-85aa-a130fb804a93.png",
     link: "https://bsit-s3a-cspt-web.vercel.app/",
-    tab: { tabStart: 52, peakStart: 60, peakEnd: 84, tabEnd: 92 },   // forge (black)
+    tab: { tabStart: 52, peakStart: 60, peakEnd: 84, tabEnd: 92 },   // deepest/most saturated shade
   },
 ];
 

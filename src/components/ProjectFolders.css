@@ -1,3 +1,38 @@
+/* ---------------------------------------------------------------------
+   Folder palette per global theme. Folder 1 -> 3 escalate from lightest to
+   most saturated within each theme's own hue family:
+     morning : shades of light blue
+     sunset  : shades of yellow
+     night   : shades of dark blue
+   --folder-ink is the single text colour that reads clearly against all
+   three shades within a theme (dark ink for morning/sunset; white for
+   night, since night's three shades are all dark).
+
+   NOTE: StaggeredMenu.css's colour sweep reuses --folder-1/--folder-2 from
+   this same block, so the menu and the folders always share one palette.
+   This is the single source of truth — edit the values here only.
+--------------------------------------------------------------------- */
+:root[data-theme='morning'] {
+  --folder-1: #dceefb;
+  --folder-2: #a9d4f5;
+  --folder-3: #2e86c9;
+  --folder-ink: #14233f;
+}
+
+:root[data-theme='sunset'] {
+  --folder-1: #fff3b0;
+  --folder-2: #ffe066;
+  --folder-3: #e6a800;
+  --folder-ink: #4a2418;
+}
+
+:root[data-theme='night'] {
+  --folder-1: #16294f;
+  --folder-2: #1e3a73;
+  --folder-3: #0b1730;
+  --folder-ink: #ffffff;
+}
+
 .project-folders {
   position: relative;
   width: 100%;
@@ -24,6 +59,7 @@
   position: absolute;
   inset: 0;
   will-change: transform;
+  transition: background-color 0.3s ease, color 0.3s ease; /* smooths a theme switch mid-scroll */
 }
 
 .project-panel__tab-label {
@@ -99,9 +135,16 @@
   flex-wrap: wrap;
 }
 
+/* Was a fixed white chip — with the new pastel morning/sunset shades a solid white tag
+   nearly disappeared against --folder-1 (very pale). A translucent chip plus a hairline
+   border stays visibly distinct from any of the three folder shades in every theme, and
+   --folder-ink keeps its text legible throughout (dark ink on the light themes, white on
+   night, where the translucent white fill also reads as a lighter chip against the dark
+   folder background). */
 .project-panel__tag {
-  background: #ffffff;
-  color: #141414;
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  color: var(--folder-ink);
   font-family: 'Montserrat', sans-serif;
   font-weight: 800;
   font-size: 0.8rem;

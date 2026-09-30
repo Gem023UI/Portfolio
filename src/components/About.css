@@ -42,7 +42,10 @@
   z-index: 1;
   margin-top: -100vh;
   margin-top: -100svh;
-  padding-bottom: 100vh; /* "hold" zone: the copy stays pinned while Projects slides up over it */
+}
+
+.about__hold {
+  height: 120vh;
 }
 
 /* Gives the title time to settle before the first paragraph arrives */

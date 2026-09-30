@@ -1,7 +1,7 @@
 import { useEffect, useRef, type CSSProperties, type MutableRefObject } from 'react';
 import { useTheme } from './ThemeContext';
-import { SKY_THEMES, VERTEX_SHADER, SKY_MAX_WIDTH } from './skyShared';
-import { SURGE_FRAGMENT_SHADER, BELT_FRAGMENT_SHADER } from './cloudSurgeShader';
+import { SKY_THEMES, VERTEX_SHADER, SKY_MAX_WIDTH } from './SkyShared';
+import { SURGE_FRAGMENT_SHADER, BELT_FRAGMENT_SHADER } from './CloudSurgeShader';
 
 // A transparent WebGL canvas that paints procedural cloud over whatever is behind it.
 // It is driven imperatively: a parent updates `progressRef.current` (0..1) from a

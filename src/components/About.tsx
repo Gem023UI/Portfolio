@@ -10,20 +10,28 @@ gsap.registerPlugin(ScrollTrigger);
 // Scroll choreography (S = scroll distance since the section's top reached the top of the screen):
 //   before S=0   the section slides in; ABOUT is already on screen, big (90vw) and strong
 //   0 -> 50vh    ABOUT settles: scales down to 80vw and fades to a faint watermark, staying centred
-//   ~75vh onward the paragraphs (separate ScrollReveal each) scroll up OVER the sticky title
-//   ~115vh       the copy is centred over the title; the signature starts writing itself (time-based)
-//   130vh        section ends with the final look: watermark + text + signature
-// Everything except the signature is scroll-scrubbed, so scrolling back up plays it in reverse.
+//   ~30vh onward the paragraphs (separate ScrollReveal each) scroll up OVER the sticky title
+//   130vh        the paragraphs have SETTLED in the middle of the screen and are pinned
+//   130 -> 250vh (the "hold" zone) the signature is written, driven by scroll amount (scrubbed)
+//   250vh        the signature is finished and the pins release: ABOUT, the paragraphs and the
+//                signature all scroll up together and leave the screen as one piece.
+//                The next section simply follows below (it no longer slides over About).
+// Everything is scroll-scrubbed, so scrolling back up plays it all in reverse.
 
 const TITLE_SETTLED_VW = 80;
 const TITLE_INTRO_VW = 90;
 const TITLE_SETTLED_OPACITY = 0.2;
+
+// Fraction of the hold zone reserved as a short rest after the last pen stroke,
+// so the finished signature sits still for a moment before everything scrolls away.
+const SIGNATURE_TAIL = 0.15;
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const leadRef = useRef<HTMLDivElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
+  const holdRef = useRef<HTMLDivElement>(null);
   const sigRef = useRef<SVGSVGElement>(null);
 
   // Fit the ABOUT word to exactly 80vw of width (font metrics differ, so measure instead of guessing).
@@ -52,9 +60,9 @@ export default function About() {
   useEffect(() => {
     const section = sectionRef.current;
     const title = titleRef.current;
-    const lead = leadRef.current;
+    const hold = holdRef.current;
     const svg = sigRef.current;
-    if (!section || !title || !lead || !svg) return;
+    if (!section || !title || !hold || !svg) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const ctx = gsap.context(() => {
@@ -76,24 +84,30 @@ export default function About() {
 
       if (!reduce) {
         const lengths = pens.map((p) => p.getTotalLength());
-        const total = lengths.reduce((a, b) => a + b, 0);
-        const SECONDS = 4.4; // total writing time
+        const total = lengths.reduce((a, b) => a + b, 0) || 1;
+
+        // The copy block is sticky (pinned at the centre) for exactly as long as the hold spacer
+        // scrolls through the viewport: the spacer's top enters at the bottom of the screen the moment
+        // the paragraphs finish settling, and its bottom arrives there the moment the pins release.
+        // So this scrub runs only while the paragraphs are settled and pinned.
         const tl = gsap.timeline({
-          paused: true,
-          defaults: { ease: 'power1.inOut' },
-        });
-        pens.forEach((pen, i) => {
-          tl.to(pen, { strokeDashoffset: 0, duration: Math.max(0.12, (lengths[i] / total) * SECONDS) }, i === 0 ? 0 : '>-0.02');
+          defaults: { ease: 'none' }, // constant pen speed: the ink follows the scroll 1:1
+          scrollTrigger: {
+            trigger: hold,
+            start: 'top bottom',
+            end: 'bottom bottom',
+            scrub: 0.6,
+          },
         });
 
-        ScrollTrigger.create({
-          // the copy block is sticky, so trigger on the (non-sticky) spacer above it: its bottom edge
-          // sits exactly where the copy's top edge would be
-          trigger: lead,
-          start: 'bottom 15%',
-          onEnter: () => tl.timeScale(1).play(),
-          onLeaveBack: () => tl.timeScale(2.2).reverse(), // un-write faster when scrolling back up
+        // Strokes are written one after another, each taking time proportional to its length,
+        // so the pen moves at a steady speed along the whole signature.
+        pens.forEach((pen, i) => {
+          tl.to(pen, { strokeDashoffset: 0, duration: lengths[i] / total }, i === 0 ? 0 : '>');
         });
+
+        // Short rest at the end: signature is complete before the section starts scrolling away.
+        tl.to({}, { duration: SIGNATURE_TAIL });
       }
     }, section);
 
@@ -102,7 +116,7 @@ export default function About() {
 
   return (
     <section className="about" ref={sectionRef} id="about" aria-label="About">
-      {/* Sticky layer: ABOUT stays centred in the viewport for the whole section */}
+      {/* Sticky layer: ABOUT stays centred in the viewport until the whole section is released */}
       <div className="about__stick" aria-hidden="true">
         <div className="about__title" ref={titleRef}>
           ABOUT
@@ -170,6 +184,9 @@ export default function About() {
             />
           </svg>
         </div>
+
+        {/* Scroll distance during which the copy stays pinned while the signature is written */}
+        <div className="about__hold" ref={holdRef} />
       </div>
     </section>
   );

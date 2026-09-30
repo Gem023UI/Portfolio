@@ -2,9 +2,8 @@
 
 .projects {
   position: relative;
-  z-index: 5; /* above About, whose pinned final look it slides over */
+  z-index: 5;
   width: 100%;
-  margin-top: -100vh; /* overlap About's 100vh "hold" zone (see .about__flow padding-bottom) */
 }
 
 /* ---- Sticky layer ---- */
@@ -19,12 +18,8 @@
   align-items: center;
   justify-content: center;
   padding-bottom: 3vh; /* optical centring of the serif caps */
-  background: var(--sky-main, #b3d9ff);
+  background: var(--sky-low, #6699e6);
   pointer-events: none;
-}
-
-.projects__sky {
-  z-index: 0;
 }
 
 .projects__title {
@@ -38,7 +33,7 @@
   line-height: 1;
   letter-spacing: 0.01em;
   color: var(--on-sky, #ffffff);
-  opacity: 0.95; /* GSAP scrubs this down to ~0.22 */
+  opacity: 0; /* GSAP scrubs this down to ~0.22 */
   user-select: none;
   transform-origin: 50% 50%;
   will-change: transform, opacity;

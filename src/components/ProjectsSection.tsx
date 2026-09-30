@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SkyBackground from './SkyBackground';
 import CloudSurge from './CloudSurge';
 import ProjectFolders from './ProjectFolders';
 import { useFitTitle } from './UseFitTitle';
@@ -10,18 +9,27 @@ import './ProjectsSection.css';
 gsap.registerPlugin(ScrollTrigger);
 
 // Scroll choreography for this section
-// (this section overlaps the last 100vh of About, which stays pinned in its final look):
-//   entering   the sky rises over About with a billowing cloud fringe along its top edge
-//              (cloud colour == About background, so the seam is invisible); PROJECTS is already
-//              on screen, big (90vw) and white
-//   S = 0      the section top reaches the top of the screen; the fringe scrolls away upward
-//   0 -> 50vh  PROJECTS settles to 80vw and fades to a watermark, sticky at the centre
+// (About now scrolls away completely; this section simply follows it, no overlap):
+//   entering   the section rises from below with a billowing cloud fringe along its top edge
+//              (cloud colour == About background, so the seam is invisible). The background
+//              behind the fringe is the flat dark palette colour (--sky-low), no sky/clouds.
+//   S = 0      the section top reaches the top of the screen; the fringe scrolls away upward.
+//              PROJECTS is still hidden, so the clouds never cover it.
+//   S = 0.5-0.9vh  PROJECTS fades in, big (90vw), once the fringe has cleared the title
+//   S = 0.9-1.5vh  PROJECTS settles to 80vw and fades to a watermark, sticky at the centre
 //   ~50vh on   the folders (existing <ProjectFolders/>) scroll up OVER the title
 // Everything is scrubbed to scroll, so it all reverses when scrolling back up.
 
 const TITLE_SETTLED_VW = 80;
 const TITLE_INTRO_VW = 90;
+const TITLE_PEAK_OPACITY = 0.95;
 const TITLE_SETTLED_OPACITY = 0.22;
+
+// Title timeline, in viewport heights of scroll after the section top reaches the top of the screen.
+// The fringe is 80vh tall and scrolls away with the page, so it has cleared the title by ~0.5vh.
+const TITLE_REVEAL_START = 0.5;
+const TITLE_REVEAL_END = 0.9;
+const TITLE_SETTLE_END = 1.5;
 
 // Cloud fringe density while entering (0.42 = thin fringe -> 0.6 = thicker, "swelling" as it rises)
 const FRINGE_FROM = 0.42;
@@ -40,17 +48,25 @@ export default function ProjectsSection() {
     if (!section || !title) return;
 
     const ctx = gsap.context(() => {
-      // PROJECTS: big -> settled watermark
-      gsap.fromTo(
-        title,
-        { scale: TITLE_INTRO_VW / TITLE_SETTLED_VW, opacity: 0.95 },
-        {
-          scale: 1,
-          opacity: TITLE_SETTLED_OPACITY,
-          ease: 'none',
-          scrollTrigger: { trigger: section, start: 'top top', end: '+=50%', scrub: 0.6 },
-        }
-      );
+      // PROJECTS: hidden while the clouds pass, then fades in big and settles into a watermark
+      gsap.set(title, { opacity: 0, scale: TITLE_INTRO_VW / TITLE_SETTLED_VW });
+      gsap
+        .timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: {
+            trigger: section,
+            start: 'top top',
+            end: () => `+=${window.innerHeight * TITLE_SETTLE_END}`,
+            scrub: 0.6,
+            invalidateOnRefresh: true,
+          },
+        })
+        .to(title, { opacity: TITLE_PEAK_OPACITY, duration: TITLE_REVEAL_END - TITLE_REVEAL_START }, TITLE_REVEAL_START)
+        .to(
+          title,
+          { opacity: TITLE_SETTLED_OPACITY, scale: 1, duration: TITLE_SETTLE_END - TITLE_REVEAL_END },
+          TITLE_REVEAL_END
+        );
 
       // Cloud fringe swells while the section rises from the bottom of the screen to the top
       const state = { p: 0 };
@@ -71,19 +87,15 @@ export default function ProjectsSection() {
     <section className="projects" ref={sectionRef} id="projects" aria-label="Projects">
       <h2 className="projects__sr-title">Projects</h2>
 
-      {/* Sticky layer: the sky + the PROJECTS watermark */}
+      {/* Sticky layer: flat palette colour + the PROJECTS watermark (no sky, no clouds) */}
       <div className="projects__stick" aria-hidden="true">
-        <SkyBackground
-          className="projects__sky"
-          style={{ position: 'absolute', inset: 0, height: '100%', aspectRatio: 'auto' }}
-        />
         <div className="projects__title" ref={titleRef}>
           PROJECTS
         </div>
       </div>
 
       {/* Cloud fringe along the top edge: hides the straight edge and makes it billow.
-          Not sticky, so it scrolls away upward once the sky is pinned. */}
+          Not sticky, so it scrolls away upward once the background is pinned. */}
       <div className="projects__fringe" aria-hidden="true">
         <CloudSurge progressRef={fringe} fromTop timeOffset={7} className="projects__fringe-canvas" />
       </div>

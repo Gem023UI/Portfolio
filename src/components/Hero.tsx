@@ -27,9 +27,11 @@ import './Hero.css';
 
 const LETTERS = ['J', 'E', 'M', 'U', 'E', 'L'];
 const LETTER_Z0 = 20;
-const CLOUD_COUNT = 9;
 const MAN_INDEX = 2; // the M
 const HI_INDEX = 0; // the J
+
+const SHOW_DRIFT_CLOUDS = false;
+const CLOUD_COUNT = SHOW_DRIFT_CLOUDS ? 9 : 0;
 
 const ANSWER_HOLD_MS = 3000; // after typing finishes (typing budget is 5s => 8s max total)
 const AMBIENT_HOLD_MS = 2800;
@@ -63,7 +65,10 @@ export default function Hero() {
   const manRef = useRef<HTMLButtonElement>(null);
 
   // ---- clouds ----
-  const sprites = useMemo(() => makeCloudSprites(cloudRgb(resolvedTheme)), [resolvedTheme]);
+  const sprites = useMemo(
+    () => (SHOW_DRIFT_CLOUDS ? makeCloudSprites(cloudRgb(resolvedTheme)) : []),
+    [resolvedTheme]
+  );
   const spritesRef = useRef(sprites);
   spritesRef.current = sprites;
 

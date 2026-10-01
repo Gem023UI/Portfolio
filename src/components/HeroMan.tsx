@@ -3,8 +3,8 @@ import { gsap } from 'gsap';
 
 // A real seated silhouette (single traced path) rigged into joints.
 // The one path is drawn once in <defs> and re-used through clip-paths, so every body part is
-// "the silhouette, cut to a region". Each part sits in a <g data-part> that rotates around a joint.
-// All pivots are absolute coordinates in the 235 x 471 viewBox (svgOrigin), at any nesting depth.
+// "the silhouette, cut to a region". Only the head and the lower legs move; the arms stay put.
+// All pivots are absolute coordinates in the 235 x 471 viewBox (svgOrigin).
 //
 // To adjust a cut line, edit CLIPS. To adjust a joint, edit PIVOTS.
 
@@ -20,35 +20,22 @@ const MAN_PATH =
 const CLIPS = {
   base: '-10,248 245,248 245,304 -10,304', // hips + thighs (never moves)
   legs: '-10,296 245,296 245,490 -10,490', // lower legs + shoes
-  torso: '96,58 154,58 152,78 171,86 169,110 175,172 175,250 47,250 47,172 74,108 76,84 94,72',
+  torso: '-30,76 92,76 94,72 96,58 154,58 152,78 270,78 270,250 -30,250', // chest + both arms (static)
   head: '70,-10 180,-10 180,69 70,69',
-  lUp: '-30,58 92,58 94,72 78,82 76,84 74,108 51,172 51,212 -30,212', // viewer-left upper arm
-  lFore: '-30,206 49,206 49,258 -30,258',
-  rUp: '270,58 154,58 152,78 168,84 166,110 172,172 170,212 270,212', // viewer-right upper arm
-  rFore: '270,206 170,206 170,247 270,247',
 } as const;
 
 // Joint pivots in viewBox coordinates.
 const PIVOTS = {
-  torso: '115 250', // hips
+  torso: '115 250', // hips (breathing only)
   head: '126 66', // neck
   bob: '126 66',
-  lUp: '66 106', // left shoulder
-  lFore: '22 214', // left elbow
-  rUp: '178 106', // right shoulder
-  rFore: '200 208', // right elbow
   legs: '118 298', // where the thighs end
   sway: '118 298',
 } as const;
 type Part = keyof typeof PIVOTS;
 
 const REST = {
-  torso: { rotation: 0 },
   head: { rotation: 0, x: 0, scaleX: 1 },
-  lUp: { rotation: 0 },
-  lFore: { rotation: 0 },
-  rUp: { rotation: 0 },
-  rFore: { rotation: 0 },
   legs: { rotation: 0 },
 } as const;
 type Posed = keyof typeof REST;
@@ -84,7 +71,7 @@ export default function HeroMan({ talking, paused }: HeroManProps) {
     gsap.to(E.sway, { rotation: 1.6, duration: 2.1, yoyo: true, repeat: -1, ease: 'sine.inOut' });
     gsap.to(E.torso, { scaleY: 1.008, duration: 2.4, yoyo: true, repeat: -1, ease: 'sine.inOut' });
 
-    // ---- random poses ----
+    // ---- random poses: head looking left / right, and kicking the legs ----
     const T = () => gsap.timeline({ defaults: { ease: 'power2.inOut' } });
     const hold = (tl: gsap.core.Timeline, d: number) => tl.to({}, { duration: d });
     const toRest = (tl: gsap.core.Timeline, d = 0.7) => {
@@ -98,9 +85,7 @@ export default function HeroMan({ talking, paused }: HeroManProps) {
         return toRest(hold(tl, rand(1.3, 2.2)));
       },
       lookRight: () => {
-        const tl = T()
-          .to(E.head, { rotation: 7, x: 4, scaleX: 0.94, duration: 0.5 })
-          .to(E.torso, { rotation: 2, duration: 0.5 }, '<');
+        const tl = T().to(E.head, { rotation: 7, x: 4, scaleX: 0.94, duration: 0.5 });
         return toRest(hold(tl, rand(1.3, 2.2)));
       },
       glance: () => {
@@ -108,44 +93,6 @@ export default function HeroMan({ talking, paused }: HeroManProps) {
         hold(tl, 0.8);
         tl.to(E.head, { rotation: 7, x: 4, scaleX: 0.94, duration: 0.6 });
         return toRest(hold(tl, 0.7));
-      },
-      lookUp: () => {
-        const tl = T().to(E.head, { rotation: -10, duration: 0.7 }).to(E.torso, { rotation: -2, duration: 0.7 }, '<');
-        return toRest(hold(tl, rand(1.6, 2.4)));
-      },
-      leanBack: () => {
-        const tl = T()
-          .to(E.torso, { rotation: -6, duration: 0.9 })
-          .to(E.head, { rotation: -6, duration: 0.9 }, '<')
-          .to(E.lUp, { rotation: 14, duration: 0.9 }, '<')
-          .to(E.rUp, { rotation: -14, duration: 0.9 }, '<')
-          .to(E.legs, { rotation: 3, duration: 0.9 }, '<');
-        return toRest(hold(tl, rand(1.8, 2.8)), 0.9);
-      },
-      stretch: () => {
-        const tl = T()
-          .to(E.lUp, { rotation: 110, duration: 0.9 })
-          .to(E.rUp, { rotation: -110, duration: 0.9 }, '<')
-          .to(E.torso, { rotation: -2, duration: 0.9 }, '<')
-          .to(E.head, { rotation: -6, duration: 0.9 }, '<');
-        tl.to(E.torso, { rotation: -4, duration: 0.5, yoyo: true, repeat: 1 });
-        return toRest(hold(tl, 0.5), 0.9);
-      },
-      scratch: () => {
-        const tl = T()
-          .to(E.rUp, { rotation: -150, duration: 0.8 })
-          .to(E.rFore, { rotation: -138, duration: 0.8 }, '<')
-          .to(E.head, { rotation: 3, duration: 0.8 }, '<');
-        tl.to(E.rFore, { rotation: -124, duration: 0.16, yoyo: true, repeat: 7 });
-        return toRest(hold(tl, 0.2), 0.9);
-      },
-      wave: () => {
-        const tl = T()
-          .to(E.rUp, { rotation: -110, duration: 0.7 })
-          .to(E.rFore, { rotation: -25, duration: 0.7 }, '<')
-          .to(E.head, { rotation: 4, duration: 0.7 }, '<');
-        tl.to(E.rFore, { rotation: 15, duration: 0.22, yoyo: true, repeat: 5 });
-        return toRest(hold(tl, 0.2), 0.9);
       },
       kick: () => {
         const tl = T().to(E.legs, { rotation: -6, duration: 0.4, yoyo: true, repeat: 3 });
@@ -211,20 +158,6 @@ export default function HeroMan({ talking, paused }: HeroManProps) {
 
         <g data-part="torso">
           <Piece id="torso" />
-
-          <g data-part="rUp">
-            <Piece id="rUp" />
-            <g data-part="rFore">
-              <Piece id="rFore" />
-            </g>
-          </g>
-
-          <g data-part="lUp">
-            <Piece id="lUp" />
-            <g data-part="lFore">
-              <Piece id="lFore" />
-            </g>
-          </g>
 
           <g data-part="bob">
             <g data-part="head">

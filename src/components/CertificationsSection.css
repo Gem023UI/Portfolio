@@ -32,9 +32,9 @@
   width: max-content;
   height: max-content;
   white-space: nowrap;
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Anton', serif;
   font-weight: 400;
-  font-size: 18vw; /* replaced by the fitted px value once the font is ready */
+  font-size: 20vw; /* replaced by the fitted px value once the font is ready */
   line-height: 1;
   letter-spacing: 0.01em;
   color: var(--accent, #26619c); /* white would vanish on the cloud background */

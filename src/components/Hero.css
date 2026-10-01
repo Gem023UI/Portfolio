@@ -35,8 +35,8 @@
   --man-h: 0.5em;
 
   position: absolute;
-  left: -1.5vw;
-  bottom: calc(var(--letters-drop) * -1);
+  left: -1vw;
+  bottom: calc(var(--letters-drop) * -0.5);
   margin: 0;
   display: flex;
   align-items: flex-end;
@@ -111,11 +111,6 @@
   overflow: visible;
   transform-origin: 50% 100%;
   transition: transform 0.25s ease;
-}
-
-.hero__man:hover .hero__man-svg,
-.hero__man:focus-visible .hero__man-svg {
-  transform: scale(1.05);
 }
 
 .hero__man:focus-visible {
@@ -255,8 +250,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .hero__bubble,
-  .hero__bubble-dots i,
-  .hero__man-svg {
+  .hero__bubble-dots i {
     animation: none;
     transition: none;
   }

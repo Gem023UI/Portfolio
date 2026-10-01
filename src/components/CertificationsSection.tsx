@@ -29,7 +29,7 @@ const TITLE_INTRO_VW = 90;
 const TITLE_SETTLED_OPACITY = 0.22;
 const TITLE_END = 0.25;
 const PAN_END = 0.85;
-const SCROLL_VH = 320; // extra scroll distance the section stays pinned for
+const SCROLL_VH = 620; // extra scroll distance the section stays pinned for
 
 export default function CertificationsSection() {
   const sectionRef = useRef<HTMLElement>(null);

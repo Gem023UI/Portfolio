@@ -27,9 +27,9 @@
   z-index: 1;
   display: inline-block;
   white-space: nowrap;
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Anton', serif;
   font-weight: 400;
-  font-size: 20vw; /* replaced by the fitted px value once the font is ready */
+  font-size: 30vw; /* replaced by the fitted px value once the font is ready */
   line-height: 1;
   letter-spacing: 0.01em;
   color: var(--on-sky, #ffffff);

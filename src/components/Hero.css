@@ -83,10 +83,10 @@
 /* ---- The man (inside the M) ---- */
 .hero__man {
   position: absolute;
-  left: -0.08em;
+  left: -0.03em;
   height: var(--man-h);
-  width: calc(var(--man-h) * 120 / 170);
-  top: calc(var(--cap-top) - var(--man-h) * 0.594); /* seat line of the SVG sits on the cap line */
+  width: calc(var(--man-h) * 235 / 471);
+  top: calc(var(--cap-top) - var(--man-h) * 0.633);
   padding: 0;
   border: 0;
   background: none;

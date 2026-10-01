@@ -63,3 +63,28 @@
   opacity: 0; /* hidden until the title has settled; GSAP fades it in as it slides in */
   will-change: transform, opacity;
 }
+
+/* ---- Exit cloud: pinned over the first two viewports of the Footer, BEHIND the section's content ---- */
+.certifications__exit {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  bottom: -200vh;
+  height: 300vh; /* 100vh sticky + 200vh of pin */
+  z-index: -1;
+  pointer-events: none;
+}
+
+.certifications__exit-stick {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+}
+
+.certifications__exit-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}

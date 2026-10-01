@@ -12,6 +12,16 @@ body,
   min-height: 100%;
 }
 
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   overflow-x: hidden;
 }
@@ -49,22 +59,6 @@ body {
   --hero-purple: #B9C8F2; --hero-purple-strong: #E8EDFB;
   --hero-green: #7ed957; --contrib-dot-empty: #3a4570;
   color-scheme: dark;
-}
-
-body {
-  position: relative;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background-image: url('/background.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #000; /* fallback if the image is slow to load or doesn't fully cover very wide screens */
 }
 
 /* ---- Theme-switch radial reveal ----

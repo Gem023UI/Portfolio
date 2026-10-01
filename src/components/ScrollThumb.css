@@ -1,0 +1,26 @@
+/* The pill only: there is no track. Colour = the dark colour of the active theme palette. */
+.scroll-thumb {
+  position: fixed;
+  top: 0;
+  right: 4px;
+  z-index: 9999;
+  width: 8px;
+  height: 60px;
+  border-radius: 999px;
+  background: var(--scrollbar-thumb, var(--ink, #14233f));
+  opacity: 0.8;
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
+  transition: width 0.15s ease, opacity 0.15s ease, background-color 0.4s ease;
+}
+
+.scroll-thumb:hover,
+.scroll-thumb--drag {
+  width: 11px;
+  opacity: 1;
+}
+
+.scroll-thumb--drag {
+  cursor: grabbing;
+}

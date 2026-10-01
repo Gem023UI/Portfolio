@@ -1,11 +1,18 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import CloudSurge from './CloudSurge';
 import SkyBackground from './SkyBackground';
 import { useTheme } from './ThemeContext';
 import { SKY_THEMES } from './SkyShared';
 import { makeCloudSprites } from './CloudSprites';
 import { SOCIAL_LINKS, NAV_LINKS } from './SiteLinks';
 import './Footer.css';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const FRINGE_FROM = 0.4;
+const FRINGE_TO = 0.34;
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
@@ -18,6 +25,26 @@ export default function Footer() {
   const { resolvedTheme } = useTheme();
   const cloudRefs = useRef<(HTMLImageElement | null)[]>([]);
   const sprites = useMemo(() => makeCloudSprites(cloudRgb(resolvedTheme)), [resolvedTheme]);
+
+  const footerRef = useRef<HTMLElement>(null);
+  const fringe = useRef(FRINGE_FROM);
+
+  useEffect(() => {
+    const el = footerRef.current;
+    if (!el) return;
+    const ctx = gsap.context(() => {
+      const state = { p: 0 };
+      gsap.to(state, {
+        p: 1,
+        ease: 'none',
+        scrollTrigger: { trigger: el, start: 'top bottom', end: 'top top', scrub: 0.6 },
+        onUpdate: () => {
+          fringe.current = FRINGE_FROM + (FRINGE_TO - FRINGE_FROM) * state.p;
+        },
+      });
+    }, el);
+    return () => ctx.revert();
+  }, []);
 
   // Same drifting-cloud technique as the hero, anchored along the bottom edge instead of scattered.
   const cloudCfg = useMemo(
@@ -55,7 +82,7 @@ export default function Footer() {
   }, [cloudCfg]);
 
   return (
-    <footer className="footer" aria-label="Footer">
+    <footer className="footer" aria-label="Footer" ref={footerRef}>
       <SkyBackground className="footer__sky" style={{ position: 'absolute', inset: 0, height: '100%', aspectRatio: 'auto' }} />
 
       <div className="footer__clouds" aria-hidden="true">
@@ -72,6 +99,10 @@ export default function Footer() {
             style={{ bottom: `${c.bottom}%`, width: `${c.width}vw`, opacity: c.opacity }}
           />
         ))}
+      </div>
+
+      <div className="footer__fringe" aria-hidden="true">
+        <CloudSurge progressRef={fringe} fromTop timeOffset={31} className="footer__fringe-canvas" />
       </div>
 
       <div className="footer__content">

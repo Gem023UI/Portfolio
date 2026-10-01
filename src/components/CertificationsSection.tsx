@@ -1,16 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SkyBackground from './SkyBackground';
-import CloudSurge from './CloudSurge';
 import CertificateCard from './CertificateCard';
 import { useFitTitle } from './UseFitTitle';
 import './CertificationsSection.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// TODO: replace with the real certificates (title, date, and swap CertificateCard's SVG
-// placeholder for an <img>). The first entry mirrors the sample in the provided mockup.
 const CERTIFICATES = [
   { title: 'Google Analyst', date: 'March 20, 2026' },
   { title: 'Certification Title', date: 'Date' },
@@ -19,31 +15,24 @@ const CERTIFICATES = [
   { title: 'Certification Title', date: 'Date' },
 ];
 
-// Scroll choreography, all within one pinned viewport:
-//   0 -> TITLE_FRACTION       CERTIFICATIONS settles from 90vw to 80vw, sticky at centre
-//   TITLE_FRACTION -> 1       the 5-card track pans right -> left under the title, ending with
-//                             the last card resting fully on screen (never overshooting)
-// Both are scrubbed to scroll, so the whole thing reverses cleanly on the way back up.
+// One pinned viewport (timeline is normalised to 0..1):
+//   0 -> 0.25      CERTIFICATIONS settles from 90vw to 80vw at the centre (cards still hidden)
+//   0.25 -> 0.85   cards fade in at the right edge, then pan right -> left; the last card stops
+//                  flush inside the viewport
+//   0.85 -> 1      REST: header + cards sit still, then the pin releases and the whole section
+//                  scrolls away together
 const TITLE_SETTLED_VW = 80;
 const TITLE_INTRO_VW = 90;
 const TITLE_SETTLED_OPACITY = 0.22;
-const TITLE_FRACTION = 0.3;
-const SCROLL_VH = 260; // total extra scroll distance the section stays pinned for
-
-// The seam between Projects and Certifications is two INDEPENDENT sky canvases rendered at the
-// same theme — visually continuous most of the time, but nothing guarantees their cloud noise
-// lines up exactly at the join. A cloud belt straddling the seam hides that join at any scroll
-// position, and swells thicker as Certifications approaches so it also reads as "a surge of
-// clouds" arriving, per the brief.
-const BELT_FROM = 0.15;
-const BELT_TO = 1;
+const TITLE_END = 0.25;
+const PAN_END = 0.85;
+const SCROLL_VH = 320; // extra scroll distance the section stays pinned for
 
 export default function CertificationsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const belt = useRef(0);
 
   useFitTitle(titleRef, TITLE_SETTLED_VW, '100px "Instrument Serif"');
 
@@ -55,36 +44,32 @@ export default function CertificationsSection() {
     if (!section || !title || !viewport || !track) return;
 
     const ctx = gsap.context(() => {
+      const pad = () => parseFloat(getComputedStyle(viewport).paddingLeft) || 0;
+      // last card's right edge lands exactly at the viewport's inner right edge
+      const maxX = () => Math.max(0, track.scrollWidth - (viewport.clientWidth - 2 * pad()));
+      // cards start just outside the right edge
+      const startX = () => viewport.clientWidth - pad();
+
       const tl = gsap.timeline({
-        scrollTrigger: { trigger: section, start: 'top top', end: '+=' + SCROLL_VH + '%', scrub: 0.6 },
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: section,
+          start: 'top top',
+          end: '+=' + SCROLL_VH + '%',
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+        },
       });
 
       tl.fromTo(
         title,
         { scale: TITLE_INTRO_VW / TITLE_SETTLED_VW, opacity: 0.95 },
-        { scale: 1, opacity: TITLE_SETTLED_OPACITY, ease: 'none', duration: TITLE_FRACTION }
+        { scale: 1, opacity: TITLE_SETTLED_OPACITY, duration: TITLE_END },
+        0
       );
-
-      // Measured at build time so the last card lands flush with the viewport's right edge —
-      // never overshooting past it, never stopping short.
-      const maxX = () => Math.max(0, track.scrollWidth - viewport.clientWidth);
-      tl.fromTo(
-        track,
-        { x: 0 },
-        { x: () => -maxX(), ease: 'none', duration: 1 - TITLE_FRACTION },
-        TITLE_FRACTION
-      );
-
-      // Cloud belt: thin while Certifications is still below the fold, thicker as it arrives.
-      const beltState = { p: 0 };
-      gsap.to(beltState, {
-        p: 1,
-        ease: 'none',
-        scrollTrigger: { trigger: section, start: 'top bottom', end: 'top top', scrub: 0.6 },
-        onUpdate: () => {
-          belt.current = BELT_FROM + (BELT_TO - BELT_FROM) * beltState.p;
-        },
-      });
+      tl.fromTo(track, { opacity: 0 }, { opacity: 1, duration: 0.06 }, TITLE_END);
+      tl.fromTo(track, { x: startX }, { x: () => -maxX(), duration: PAN_END - TITLE_END }, TITLE_END);
+      tl.to({}, { duration: 1 - PAN_END }, PAN_END); // rest before the pin releases
     }, section);
 
     const onResize = () => ScrollTrigger.refresh();
@@ -104,16 +89,7 @@ export default function CertificationsSection() {
       aria-label="Certifications"
       style={{ height: `${100 + SCROLL_VH}vh` }}
     >
-      <div className="certifications__belt" aria-hidden="true">
-        <CloudSurge progressRef={belt} variant="belt" timeOffset={13} className="certifications__belt-canvas" />
-      </div>
-
       <div className="certifications__stick">
-        <SkyBackground
-          className="certifications__sky"
-          style={{ position: 'absolute', inset: 0, height: '100%', aspectRatio: 'auto' }}
-        />
-
         <div className="certifications__title" ref={titleRef}>
           CERTIFICATIONS
         </div>

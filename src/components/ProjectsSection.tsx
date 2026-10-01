@@ -8,51 +8,48 @@ import './ProjectsSection.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Scroll choreography for this section
-// (About now scrolls away completely; this section simply follows it, no overlap):
-//   entering   the section rises from below with a billowing cloud fringe along its top edge
-//              (cloud colour == About background, so the seam is invisible). The background
-//              behind the fringe is the flat dark palette colour (--sky-low), no sky/clouds.
-//   S = 0      the section top reaches the top of the screen; the fringe scrolls away upward.
-//              PROJECTS is still hidden, so the clouds never cover it.
-//   S = 0.5-0.9vh  PROJECTS fades in, big (90vw), once the fringe has cleared the title
-//   S = 0.9-1.5vh  PROJECTS settles to 80vw and fades to a watermark, sticky at the centre
-//   ~50vh on   the folders (existing <ProjectFolders/>) scroll up OVER the title
-// Everything is scrubbed to scroll, so it all reverses when scrolling back up.
+// Scroll choreography:
+//   entering   the section rises with a billowing cloud fringe on top. PROJECTS is already on
+//              screen (big, 90vw) underneath it, so it is revealed as the clouds clear (no fade-in).
+//   S = 0 -> 1vh  PROJECTS settles to 80vw and fades to a watermark, sticky at the centre
+//   S > 1vh       the folders scroll up over the title (lead spacer is long enough for this)
+//   end        a cloud surge (same as Hero -> About) covers the screen in solid --cloud, which
+//              is Certifications' background, so the hand-off has no seam.
 
 const TITLE_SETTLED_VW = 80;
 const TITLE_INTRO_VW = 90;
 const TITLE_PEAK_OPACITY = 0.95;
 const TITLE_SETTLED_OPACITY = 0.22;
+const TITLE_SETTLE_END = 1.0; // viewport heights of scroll after the section top hits the top
 
-// Title timeline, in viewport heights of scroll after the section top reaches the top of the screen.
-// The fringe is 80vh tall and scrolls away with the page, so it has cleared the title by ~0.5vh.
-const TITLE_REVEAL_START = 0.5;
-const TITLE_REVEAL_END = 0.9;
-const TITLE_SETTLE_END = 1.5;
-
-// Cloud fringe density while entering (0.42 = thin fringe -> 0.6 = thicker, "swelling" as it rises)
-const FRINGE_FROM = 0.42;
-const FRINGE_TO = 0.6;
+// Fringe density: lower = cloud hangs less far down (keeps the whole billow inside the canvas)
+const FRINGE_FROM = 0.3;
+const FRINGE_TO = 0.42;
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
+  const exitRef = useRef<HTMLDivElement>(null);
   const fringe = useRef(FRINGE_FROM);
+  const exitSurge = useRef(0);
 
   useFitTitle(titleRef, TITLE_SETTLED_VW, '100px "Instrument Serif"');
 
   useEffect(() => {
     const section = sectionRef.current;
     const title = titleRef.current;
-    if (!section || !title) return;
+    const exit = exitRef.current;
+    if (!section || !title || !exit) return;
 
     const ctx = gsap.context(() => {
-      // PROJECTS: hidden while the clouds pass, then fades in big and settles into a watermark
-      gsap.set(title, { opacity: 0, scale: TITLE_INTRO_VW / TITLE_SETTLED_VW });
-      gsap
-        .timeline({
-          defaults: { ease: 'none' },
+      // PROJECTS: visible from the start, big -> settled watermark
+      gsap.fromTo(
+        title,
+        { scale: TITLE_INTRO_VW / TITLE_SETTLED_VW, opacity: TITLE_PEAK_OPACITY },
+        {
+          scale: 1,
+          opacity: TITLE_SETTLED_OPACITY,
+          ease: 'none',
           scrollTrigger: {
             trigger: section,
             start: 'top top',
@@ -60,22 +57,28 @@ export default function ProjectsSection() {
             scrub: 0.6,
             invalidateOnRefresh: true,
           },
-        })
-        .to(title, { opacity: TITLE_PEAK_OPACITY, duration: TITLE_REVEAL_END - TITLE_REVEAL_START }, TITLE_REVEAL_START)
-        .to(
-          title,
-          { opacity: TITLE_SETTLED_OPACITY, scale: 1, duration: TITLE_SETTLE_END - TITLE_REVEAL_END },
-          TITLE_REVEAL_END
-        );
+        }
+      );
 
-      // Cloud fringe swells while the section rises from the bottom of the screen to the top
-      const state = { p: 0 };
-      gsap.to(state, {
+      // Entry fringe swells while the section rises
+      const fringeState = { p: 0 };
+      gsap.to(fringeState, {
         p: 1,
         ease: 'none',
         scrollTrigger: { trigger: section, start: 'top bottom', end: 'top top', scrub: 0.6 },
         onUpdate: () => {
-          fringe.current = FRINGE_FROM + (FRINGE_TO - FRINGE_FROM) * state.p;
+          fringe.current = FRINGE_FROM + (FRINGE_TO - FRINGE_FROM) * fringeState.p;
+        },
+      });
+
+      // Exit surge: 0 -> 1 while the exit block is pinned (one viewport of scroll)
+      const exitState = { p: 0 };
+      gsap.to(exitState, {
+        p: 1,
+        ease: 'none',
+        scrollTrigger: { trigger: exit, start: 'top top', end: 'bottom bottom', scrub: 0.3 },
+        onUpdate: () => {
+          exitSurge.current = exitState.p;
         },
       });
     }, section);
@@ -87,23 +90,25 @@ export default function ProjectsSection() {
     <section className="projects" ref={sectionRef} id="projects" aria-label="Projects">
       <h2 className="projects__sr-title">Projects</h2>
 
-      {/* Sticky layer: flat palette colour + the PROJECTS watermark (no sky, no clouds) */}
       <div className="projects__stick" aria-hidden="true">
         <div className="projects__title" ref={titleRef}>
           PROJECTS
         </div>
       </div>
 
-      {/* Cloud fringe along the top edge: hides the straight edge and makes it billow.
-          Not sticky, so it scrolls away upward once the background is pinned. */}
       <div className="projects__fringe" aria-hidden="true">
         <CloudSurge progressRef={fringe} fromTop timeOffset={7} className="projects__fringe-canvas" />
       </div>
 
-      {/* Flow layer: pulled up over the sticky one; the folders scroll over the title */}
       <div className="projects__flow">
         <div className="projects__lead" />
         <ProjectFolders />
+      </div>
+
+      <div className="projects__exit" ref={exitRef} aria-hidden="true">
+        <div className="projects__exit-stick">
+          <CloudSurge progressRef={exitSurge} timeOffset={19} className="projects__exit-canvas" />
+        </div>
       </div>
     </section>
   );

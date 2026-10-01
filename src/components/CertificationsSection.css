@@ -2,29 +2,14 @@
 
 .certifications {
   position: relative;
-  z-index: 4; /* sits below .projects (z-index: 5), which slides over it from below */
+  z-index: 4;
   width: 100%;
+  /* same background as About: the Projects exit surge ends as solid --cloud, so the hand-off has no seam */
+  background: var(--cloud, #e6f2ff);
+  color: var(--ink, #14233f);
 }
 
-/* ---- Cloud belt: straddles the Projects/Certifications seam ---- */
-.certifications__belt {
-  position: absolute;
-  top: -18vh; /* the belt canvas is taller than its visible band so the seam sits inside its core */
-  left: 0;
-  width: 100%;
-  height: 36vh;
-  z-index: 6; /* above both this section's sky and Projects' folders */
-  pointer-events: none;
-}
-
-.certifications__belt-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-/* ---- Sticky layer: pinned for the whole section (title settle + horizontal scroll) ---- */
+/* ---- Sticky layer: pinned for the whole section (title settle + horizontal scroll + rest) ---- */
 .certifications__stick {
   position: sticky;
   top: 0;
@@ -35,28 +20,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--sky-main, #b3d9ff);
+  background: var(--cloud, #e6f2ff);
 }
 
-.certifications__sky {
-  z-index: 0;
-}
-
+/* Centred without a CSS transform, so GSAP's scale is the only transform on it */
 .certifications__title {
   position: absolute;
   z-index: 1;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: inline-block;
+  inset: 0;
+  margin: auto;
+  width: max-content;
+  height: max-content;
   white-space: nowrap;
   font-family: 'Instrument Serif', serif;
   font-weight: 400;
   font-size: 18vw; /* replaced by the fitted px value once the font is ready */
   line-height: 1;
   letter-spacing: 0.01em;
-  color: var(--on-sky, #ffffff);
-  opacity: 0.95; /* GSAP scrubs this down to ~0.22 */
+  color: var(--accent, #26619c); /* white would vanish on the cloud background */
+  opacity: 0.95; /* visible on entry; GSAP scrubs it down to ~0.22 */
   user-select: none;
   pointer-events: none;
   transform-origin: 50% 50%;
@@ -69,7 +51,7 @@
   z-index: 2;
   width: 100%;
   max-width: 1400px;
-  overflow: hidden;
+  overflow: visible; /* cards enter from the real right edge of the window */
   padding: 0 6vw;
 }
 
@@ -78,12 +60,6 @@
   align-items: flex-start;
   gap: clamp(24px, 3vw, 56px);
   width: max-content;
-  will-change: transform;
-}
-
-@media (max-width: 700px) {
-  .certifications__belt {
-    height: 30vh;
-    top: -14vh;
-  }
+  opacity: 0; /* hidden until the title has settled; GSAP fades it in as it slides in */
+  will-change: transform, opacity;
 }

@@ -62,17 +62,16 @@ export interface StaggeredMenuItem {
 
 const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   position = 'right',
-  colors = ['#B497CF', '#5227FF'],
   items = [],
   socialItems = [],
   displaySocials = true,
   displayItemNumbering = true,
   className,
   logoUrl = '/LOGO.png',
-  menuButtonColor = '#fff',
-  openMenuButtonColor = '#fff',
+  menuButtonColor = 'var(--ink)',
+  openMenuButtonColor = 'var(--ink)',
   changeMenuColorOnOpen = true,
-  accentColor = '#c4ff00',
+  accentColor = 'var(--accent)',
   isFixed = false,
   closeOnClickAway = true,
   onMenuOpen,
@@ -450,15 +449,9 @@ const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
       data-open={open || undefined}
     >
       <div ref={preLayersRef} className="sm-prelayers" aria-hidden="true">
-        {(() => {
-          const raw = colors && colors.length ? colors.slice(0, 4) : ['#1e1e22', '#35353c'];
-          let arr = [...raw];
-          if (arr.length >= 3) {
-            const mid = Math.floor(arr.length / 2);
-            arr.splice(mid, 1);
-          }
-          return arr.map((c, i) => <div key={i} className="sm-prelayer" style={{ background: c }} />);
-        })()}
+        <div className="sm-prelayer sm-prelayer--1" />
+        <div className="sm-prelayer sm-prelayer--2" />
+        <div className="sm-prelayer sm-prelayer--3" />
       </div>
       <header className="staggered-menu-header" aria-label="Main navigation header">
         <div className="sm-logo" aria-label="Logo">

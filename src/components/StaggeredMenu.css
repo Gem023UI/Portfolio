@@ -1,22 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 
-/* ---------------------------------------------------------------------
-   In-panel accent per global theme (drives --sm-accent, used by the
-   socials title, visitor icon, nav-item hover, active theme dot, and the
-   numbering counter — everything that sits ON TOP of the panel's own
-   surface, --bg-surface / --bg-elevated).
-
-   This is intentionally NOT --folder-3: night's folder shades are dark
-   blue by design, and the panel surface is ALSO dark at night, so a dark
-   accent there would be nearly invisible. Morning and sunset reuse the
-   site's existing --accent (already tuned against these surfaces); night
-   uses the sky's pale "high" tone instead, since it needs to be light
-   against a dark surface.
-
-   Header.tsx no longer passes an `accentColor` prop — StaggeredMenu.tsx
-   only sets --sm-accent inline when accentColor is given, so leaving it
-   unset lets this cascade-defined value take over per theme.
---------------------------------------------------------------------- */
 :root[data-theme='morning'],
 :root[data-theme='sunset'] {
   --sm-accent: var(--accent);
@@ -75,23 +58,18 @@
   object-fit: contain;
 }
 
-/* Fixed white pill, deliberately NOT theme-reactive: it needs to read clearly against
-   every sky background (including the dark night sky), so its colour never changes.
-   The icon/text colour still reflects the current theme via --accent (JS also sets this
-   inline through menuButtonColor/openMenuButtonColor — kept identical here as a fallback),
-   which already tests well against a white background in all three themes. */
 .sm-toggle {
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  background: #ffffff;
+  background: var(--cloud, #e6f2ff);
   border: none;
   padding: 0.6rem 1.15rem;
   border-radius: 999px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--ink, #14233f) 25%, transparent);
   cursor: pointer;
-  color: var(--accent, #26619c);
+  color: var(--ink, #14233f);
   font-weight: 400;
   font-family: 'Instrument Serif', serif;
   line-height: 1;
@@ -99,14 +77,15 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.sm-prelayer--1 { background: var(--sky-main); }
+.sm-prelayer--2 { background: var(--sky-mid); }
+.sm-prelayer--3 { background: var(--sky-low); }
+
 .sm-toggle:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--ink, #14233f) 32%, transparent);
 }
 
-/* Outline needs to read against the white pill, same requirement as the icon colour above,
-   so this uses --accent rather than --sm-accent (which is tuned for the dark panel surface,
-   not for white — see the top of this file). */
 .sm-toggle:focus-visible {
   outline: 2px solid var(--accent, #26619c);
   outline-offset: 4px;
@@ -360,8 +339,6 @@
   font-size: 2.6rem;
   cursor: pointer;
   line-height: 1;
-  /* -2px was tuned for a tight geometric sans (Montserrat); Instrument Serif's wider,
-     more organic letterforms collide at that tracking, so this is loosened to suit it. */
   letter-spacing: -0.01em;
   text-transform: uppercase;
   transition:
@@ -451,7 +428,7 @@
 .sm-theme-option.is-active {
   background: var(--bg-elevated);
   color: var(--sm-accent, #5227ff);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ink, #14233f) 18%, transparent);
 }
 
 @media (max-width: 1024px) {

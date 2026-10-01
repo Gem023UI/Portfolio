@@ -2,6 +2,7 @@
 
 .about {
   position: relative;
+  z-index: 6; /* above Projects (5): the exit cloud overlaps its first two screens */
   width: 100%;
   /* the fully-covered hero surge is exactly --cloud, so the hand-off has no visible seam */
   background: var(--cloud, #e6f2ff);
@@ -44,13 +45,9 @@
   margin-top: -100svh;
 }
 
-.about__hold {
-  height: 450vh;
-}
-
 /* Gives the title time to settle before the first paragraph arrives */
 .about__lead {
-  height: 130vh;
+  height: 200vh;
 }
 
 .about__copy {
@@ -62,6 +59,12 @@
   align-items: center;
   justify-content: center;
   padding: 0 6vw;
+}
+
+/* Scroll distance the copy stays pinned (paragraphs finish, pause, signature, rest).
+   About.tsx sets the real value inline (HOLD_VH); this is only a fallback. */
+.about__hold {
+  height: 700vh;
 }
 
 .about__text {
@@ -103,6 +106,36 @@
 .about__signature-ink {
   fill: var(--accent, #26619c);
   opacity: 0.5; /* one path => opacity composites as a unit, no dark overlaps */
+}
+
+/* ---- Exit cloud: Hero -> About surge, reversed and inverted ---- */
+/* Absolutely positioned so it adds no height to About. It starts 100vh above About's bottom edge
+   and runs 200vh into Projects. The sticky child pins for 200vh of scroll: the first viewport
+   it is a solid cloud (same colour as About's background) while About scrolls away, the second
+   viewport it lifts off the top and reveals Projects. z-index -1 keeps it BEHIND About's own
+   title, text and signature (About is a stacking context via z-index above), yet above Projects. */
+.about__exit {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  bottom: -200vh;
+  height: 300vh; /* 100vh sticky + 200vh of pin */
+  z-index: -1;
+  pointer-events: none;
+}
+
+.about__exit-stick {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+}
+
+.about__exit-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 @media (max-width: 700px) {

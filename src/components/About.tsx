@@ -8,25 +8,33 @@ import './About.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Scroll choreography (S = scroll distance since the section's top reached the top of the screen):
-//   before S=0   the section slides in; ABOUT is already on screen, big (90vw) and strong
-//   0 -> 50vh    ABOUT settles: scales down to 80vw and fades to a faint watermark, staying centred
-//   ~30vh onward the paragraphs (separate ScrollReveal each) scroll up OVER the sticky title
-//   130vh        the paragraphs have SETTLED in the middle of the screen and are pinned
-//   130 -> 250vh (the "hold" zone) the signature is written in one continuous pen motion, driven by scroll
-//   250vh        the pins release: ABOUT, the paragraphs and the signature scroll up together.
-//                At that moment the EXIT CLOUD starts: the Hero -> About surge played in reverse
-//                (progress 1 -> 0) and inverted (hangs from the top), so a solid cloud (== About's
-//                background, so it is invisible) lifts away upward and reveals Projects underneath.
+// Scroll choreography (S = scroll since the section's top reached the top of the screen).
+// One phase after another, each one finishing before the next begins:
+//   1. ABOUT letters       on screen big (90vw), settle to 80vw / faint watermark by S = 50vh
+//   2. (calm)              ABOUT sits alone in the middle until the paragraphs start rising (S = 100vh)
+//   3. paragraphs          rise over ABOUT, settle in the middle and finish revealing while pinned
+//   4. (calm)              paragraphs rest in the middle
+//   5. signature           written in one continuous pen motion over a long scroll
+//   6. (calm)              the finished signature rests in the middle
+//   7. release             ABOUT, paragraphs and signature leave together as one piece, over a SOLID cloud
+//                          that is the same colour as About's background, so there is no seam
+//   8. cloud lifts         Hero -> About, played backwards and mirrored: the solid cloud rises off the
+//                          top of the screen and reveals a pinned Projects (title already on screen)
 // Everything is scroll-scrubbed, so scrolling back up plays it all in reverse.
 
 const TITLE_SETTLED_VW = 80;
 const TITLE_INTRO_VW = 90;
 const TITLE_SETTLED_OPACITY = 0.2;
 
-// Fraction of the hold zone kept as a rest after the pen lifts for the last time,
-// so the finished signature sits still for a moment before everything scrolls away.
-const SIGNATURE_TAIL = 0.1;
+// Paragraph reveal finishes late (their bottom edge reaches 20% of the screen height) so they keep
+// filling in while pinned. Must match what ScrollReveal accepts for these two props.
+const PARAGRAPH_END = 'bottom 20%';
+
+// Hold zone (the copy is pinned for this long). Keep in sync with .about__hold in About.css.
+const HOLD_VH = 700;
+// Calm between "paragraphs finished" and "pen touches down", and after the pen lifts, in viewport heights
+const PAUSE_BEFORE_SIGNATURE_VH = 0.4;
+const REST_AFTER_SIGNATURE_VH = 0.7;
 
 export default function About() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -35,6 +43,7 @@ export default function About() {
   const copyRef = useRef<HTMLDivElement>(null);
   const holdRef = useRef<HTMLDivElement>(null);
   const sigRef = useRef<SVGSVGElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
   const exitRef = useRef<HTMLDivElement>(null);
   const exitSurge = useRef(1); // starts fully covered; scrubbed 1 -> 0
 
@@ -67,7 +76,8 @@ export default function About() {
     const hold = holdRef.current;
     const exit = exitRef.current;
     const svg = sigRef.current;
-    if (!section || !title || !hold || !exit || !svg) return;
+    const text = textRef.current;
+    if (!section || !title || !hold || !exit || !svg || !text) return;
     const pen = svg.querySelector<SVGPathElement>('.sig-pen');
 
     const ctx = gsap.context(() => {
@@ -99,20 +109,26 @@ export default function About() {
           pen.style.strokeDasharray = `${visible} ${length * 2}`;
           pen.style.strokeDashoffset = '0';
         };
-        const target = (self: ScrollTrigger) => Math.min(1, self.progress / (1 - SIGNATURE_TAIL));
         const pos = { q: 0 };
         draw(0);
 
-        // The copy block is pinned for exactly as long as the hold spacer scrolls through the
-        // viewport, so this runs only while the paragraphs are settled and pinned.
+        // Pen touches down only after the last paragraph has finished revealing (its bottom edge
+        // reaches 20% of the screen, which happens (26.5vh + half the text height) after the copy
+        // pins) plus a calm pause. It lifts REST_AFTER_SIGNATURE_VH before the pins release.
+        // Offsets are plain px so ScrollTrigger parses them reliably.
         ScrollTrigger.create({
           trigger: hold,
-          start: 'top bottom',
-          end: 'bottom bottom',
+          start: () => {
+            const vh = window.innerHeight;
+            const paragraphsDone = vh * 0.265 + text.offsetHeight / 2;
+            return `top bottom-=${Math.round(paragraphsDone + vh * PAUSE_BEFORE_SIGNATURE_VH)}`;
+          },
+          end: () => `bottom bottom+=${Math.round(window.innerHeight * REST_AFTER_SIGNATURE_VH)}`,
+          invalidateOnRefresh: true,
           onUpdate: (self) => {
             // short ease so the pen glides between wheel notches instead of stepping
             gsap.to(pos, {
-              q: target(self),
+              q: self.progress,
               duration: 0.25,
               ease: 'power1.out',
               overwrite: true,
@@ -120,21 +136,27 @@ export default function About() {
             });
           },
           onRefresh: (self) => {
-            pos.q = target(self);
+            pos.q = self.progress;
             draw(pos.q);
           },
         });
       }
 
       // ---- Exit cloud: Hero -> About surge, reversed (1 -> 0) and inverted (fromTop) ----
-      // The exit block spans the last 100vh of About plus the first 100vh of Projects and is
-      // pinned for one viewport of scroll: from the moment About's pins release until Projects
-      // reaches the top of the screen.
+      // The exit block is pinned for two viewports of scroll, starting the moment About's pins release:
+      //   first viewport   p stays 1: a SOLID cloud (== About's background) covers the screen while
+      //                    About scrolls away and Projects arrives underneath. No billowing edge ever
+      //                    crosses the About/Projects boundary, so there is no seam.
+      //   second viewport  p goes 1 -> 0: the cloud lifts off the top, revealing the pinned Projects.
       const exitState = { p: 1 };
-      gsap.to(exitState, {
-        p: 0,
-        ease: 'none',
+      const exitTl = gsap.timeline({
+        defaults: { ease: 'none' },
         scrollTrigger: { trigger: exit, start: 'top top', end: 'bottom bottom', scrub: 0.3 },
+      });
+      exitTl.to({}, { duration: 1 });
+      exitTl.to(exitState, {
+        p: 0,
+        duration: 1,
         onUpdate: () => {
           exitSurge.current = exitState.p;
         },
@@ -158,11 +180,11 @@ export default function About() {
         <div className="about__lead" ref={leadRef} />
 
         <div className="about__copy" ref={copyRef}>
-          <div className="about__text">
+          <div className="about__text" ref={textRef}>
             <ScrollReveal
               baseRotation={1.5}
-              wordAnimationEnd="bottom 85%"
-              rotationEnd="bottom 85%"
+              wordAnimationEnd={PARAGRAPH_END}
+              rotationEnd={PARAGRAPH_END}
             >
               {'Aspires and takes into practice the desire to materialize my ideas, bridging the gap between '}
               <span className="about__hl">real-world problems</span>
@@ -172,8 +194,8 @@ export default function About() {
 
             <ScrollReveal
               baseRotation={1.5}
-              wordAnimationEnd="bottom 85%"
-              rotationEnd="bottom 85%"
+              wordAnimationEnd={PARAGRAPH_END}
+              rotationEnd={PARAGRAPH_END}
             >
               {"Right now I'm focused on learning hard skills via "}
               <span className="about__hl">certifications</span>
@@ -220,10 +242,10 @@ export default function About() {
         </div>
 
         {/* Scroll distance during which the copy stays pinned while the signature is written */}
-        <div className="about__hold" ref={holdRef} />
+        <div className="about__hold" ref={holdRef} style={{ height: `${HOLD_VH}vh` }} />
       </div>
 
-      {/* Exit cloud: overlaps the first viewport of Projects, sits BEHIND About's own content */}
+      {/* Exit cloud: pinned over the first two viewports of Projects, BEHIND About's own content */}
       <div className="about__exit" ref={exitRef} aria-hidden="true">
         <div className="about__exit-stick">
           <CloudSurge progressRef={exitSurge} fromTop timeOffset={31} className="about__exit-canvas" />

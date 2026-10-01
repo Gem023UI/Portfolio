@@ -1,7 +1,6 @@
-/* Anton + Montserrat are already imported globally in App.css */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+/* Anton is already imported globally in App.css */
 
-/* The stage is what scrolls; the hero inside it is sticky (Phase 3 makes the stage taller
-   so the hero stays pinned while the cloud surge covers it). */
 .hero-stage {
   position: relative;
   width: 100%;
@@ -15,7 +14,7 @@
   height: 100vh;
   height: 100svh;
   overflow: hidden;
-  isolation: isolate; /* own stacking context: all the z-indexes below are scoped to the hero */
+  isolation: isolate;
   background: var(--sky-main, #b3d9ff);
 }
 
@@ -23,20 +22,28 @@
   z-index: 0;
 }
 
-/* ---- Letters ---- */
+/* ---- Letters ----
+   Tuning knobs (all in em of the letter font-size):
+   --letters-drop : how far the word sinks below the bottom edge (bigger = more cropped)
+   --cap-top      : distance from the top of a letter box to the top of the capitals
+                    (the man sits on this line, "Hi, I'm" hangs just above it)
+   --man-h        : height of the man                                                    */
 .hero__letters {
   /* IMPORTANT: no z-index / transform / opacity / filter here (see Hero.tsx) */
+  --letters-drop: 0.17em;
+  --cap-top: 0.22em;
+  --man-h: 0.42em;
+
   position: absolute;
-  inset: 0;
+  left: -1.5vw;
+  bottom: calc(var(--letters-drop) * -1);
   margin: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
   gap: 0.012em;
-  padding-bottom: var(--hero-letters-lift, 9vh); /* nudges the word up to match the mockup */
   font-family: 'Anton', sans-serif;
   font-weight: 400;
-  font-size: min(30vw, 64vh);
+  font-size: min(32vw, 92vh);
   line-height: 1;
   color: #ffffff;
   text-transform: uppercase;
@@ -47,11 +54,73 @@
 .hero__letter {
   position: relative;
   display: block;
-  will-change: transform;
 }
 
 .hero__letter-inner {
+  position: relative;
   display: block;
+  will-change: transform;
+}
+
+/* ---- "Hi, I'm" (inside the J) ---- */
+.hero__hi {
+  position: absolute;
+  left: 0.05em;
+  top: calc(var(--cap-top) - 0.2em);
+  white-space: nowrap;
+  text-transform: none;
+}
+
+.hero__hi-text {
+  display: block;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 0.14em;
+  line-height: 1;
+  color: #ffffff;
+}
+
+/* ---- The man (inside the M) ---- */
+.hero__man {
+  position: absolute;
+  left: 0.1em;
+  height: var(--man-h);
+  aspect-ratio: 120 / 170;
+  top: calc(var(--cap-top) - var(--man-h) * 0.594); /* seat line of the SVG sits on the cap line */
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #0b1220;
+  cursor: pointer;
+  pointer-events: auto; /* the h1 is pointer-events:none; the man opts back in */
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root[data-theme='sunset'] .hero__man {
+  color: #2a1512;
+}
+:root[data-theme='night'] .hero__man {
+  color: #070a18;
+}
+
+.hero__man-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 50% 100%;
+  transition: transform 0.25s ease;
+}
+
+.hero__man:hover .hero__man-svg,
+.hero__man:focus-visible .hero__man-svg {
+  transform: scale(1.05);
+}
+
+.hero__man:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+  border-radius: 8px;
 }
 
 /* ---- Clouds ---- */
@@ -72,63 +141,138 @@
   will-change: transform;
 }
 
-/* ---- Tagline ---- */
+/* ---- Tagline (top right) ---- */
 .hero__tagline {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 79%;
-  z-index: 40;
+  top: clamp(5rem, 15vh, 9rem);
+  right: clamp(1rem, 3.5vw, 3.5rem);
+  z-index: 25; /* odd, like the clouds: they pass in front of / behind it */
+  text-align: right;
   pointer-events: none;
-  will-change: transform;
 }
 
-.hero__tagline-text {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1.4em;
+.hero__tagline-line {
   margin: 0;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 800;
-  font-size: clamp(0.75rem, 1.5vw, 1.6rem);
-  letter-spacing: 0.04em;
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4.8vw, 5rem);
+  line-height: 1.12;
+  letter-spacing: -0.005em;
   color: #ffffff;
   white-space: nowrap;
 }
 
-.hero__tagline-sep {
-  font-weight: 500;
+.hero__tagline-em {
+  font-style: italic;
+  color: var(--hero-accent, #6699e6);
 }
 
-/* ---- Lanyard ---- */
-.hero__lanyard {
+/* ---- Speech bubble ---- */
+.hero__bubble {
   position: absolute;
-  inset: 0;
-  z-index: 50;
+  z-index: 60;
+  width: max-content;
+  max-width: min(260px, 70vw);
+  padding: 0.7rem 1rem;
+  border-radius: 1.1rem 1.1rem 1.1rem 0.25rem;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(1rem, 1.5vw, 1.3rem);
+  line-height: 1.25;
+  box-shadow: 0 10px 30px rgba(10, 20, 50, 0.18);
+  pointer-events: none;
+  transform: translateY(-100%);
+  transform-origin: left bottom;
+  animation: hero-bubble-in 0.28s cubic-bezier(0.2, 1.4, 0.4, 1) both;
 }
 
-/* Lanyard.css gives its wrapper a debug-looking white border and a fixed 100vh height */
-.hero__lanyard .lanyard-wrapper {
-  height: 100%;
-  border: 0;
+.hero__bubble::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  bottom: -6px;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+
+.hero__bubble-ghost {
+  display: block;
+  visibility: hidden; /* reserves the final size so the bubble doesn't grow while typing */
+}
+
+.hero__bubble-live {
+  position: absolute;
+  inset: 0.7rem 1rem;
+}
+
+.hero__bubble-dots {
+  display: flex;
+  gap: 5px;
+  padding: 0.25rem 0.1rem;
+}
+
+.hero__bubble-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0f172a;
+  animation: hero-dot 0.9s ease-in-out infinite;
+}
+.hero__bubble-dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.hero__bubble-dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes hero-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(-100%) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-100%) scale(1);
+  }
+}
+
+@keyframes hero-dot {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__bubble,
+  .hero__bubble-dots i,
+  .hero__man-svg {
+    animation: none;
+    transition: none;
+  }
 }
 
 @media (max-width: 700px) {
   .hero__letters {
-    font-size: min(30vw, 40vh);
+    --man-h: 0.5em;
+    font-size: min(40vw, 70vh);
+    left: -2vw;
   }
 
   .hero__tagline {
-    top: 72%;
+    top: 14vh;
   }
 
-  .hero__tagline-text {
-    flex-direction: column;
-    gap: 0.3em;
-  }
-
-  .hero__tagline-sep {
-    display: none;
+  .hero__tagline-line {
+    font-size: clamp(1.5rem, 7vw, 2.4rem);
   }
 }

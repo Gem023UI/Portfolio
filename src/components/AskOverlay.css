@@ -1,0 +1,105 @@
+.ask {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  background: rgba(236, 240, 247, 0.6);
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  opacity: 0;
+  transition: opacity 0.25s ease, backdrop-filter 0.25s ease, -webkit-backdrop-filter 0.25s ease;
+}
+
+.ask--open {
+  opacity: 1;
+  -webkit-backdrop-filter: blur(18px) saturate(0.85);
+  backdrop-filter: blur(18px) saturate(0.85);
+}
+
+:root[data-theme='sunset'] .ask {
+  background: rgba(255, 238, 220, 0.58);
+}
+:root[data-theme='night'] .ask {
+  background: rgba(14, 18, 38, 0.6);
+}
+
+.ask__form {
+  display: flex;
+  align-items: center;
+  gap: 0.18em;
+  max-width: 92vw;
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2rem, 4.8vw, 4.6rem);
+}
+
+.ask__bar {
+  flex: none;
+  width: 0.16em;
+  height: 1.05em;
+  background: #fff;
+  border-radius: 1px;
+  animation: ask-blink 1.1s steps(1) infinite;
+}
+.ask__bar--hidden {
+  display: none;
+}
+
+.ask__input {
+  min-width: 9em;
+  max-width: 88vw;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  line-height: 1.15;
+  color: #9a9a9a;
+  caret-color: #fff;
+  -webkit-text-stroke: 0.014em currentColor; /* Instrument Serif has no bold: fake a little weight */
+}
+.ask__input::placeholder {
+  color: #a8a8a8;
+  opacity: 1;
+}
+.ask__input:placeholder-shown {
+  caret-color: transparent;
+}
+@supports (field-sizing: content) {
+  .ask__input {
+    field-sizing: content;
+  }
+}
+
+:root[data-theme='night'] .ask__input,
+:root[data-theme='night'] .ask__input::placeholder {
+  color: #c4cbe6;
+}
+
+.ask__hint {
+  margin: 0;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: rgba(80, 90, 110, 0.7);
+}
+:root[data-theme='night'] .ask__hint {
+  color: rgba(196, 203, 230, 0.7);
+}
+
+@keyframes ask-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ask,
+  .ask__bar {
+    transition: none;
+    animation: none;
+  }
+}

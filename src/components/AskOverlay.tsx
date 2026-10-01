@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { MAX_QUESTION_LENGTH } from '../lib/Guardrails';
+import { MAX_QUESTION_LENGTH } from '../lib/guardrails';
 import './AskOverlay.css';
 
 interface AskOverlayProps {

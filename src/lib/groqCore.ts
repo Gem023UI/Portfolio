@@ -1,5 +1,5 @@
 import { buildSystemPrompt, REPLIES } from './devProfile.ts';
-import { hasProfanity } from './Guardrails.ts';
+import { hasProfanity } from './guardrails.ts';
 
 export const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 export const GROQ_MODEL = 'llama-3.1-8b-instant'; // fast + cheap; swap for a larger Groq model if you want

@@ -1,5 +1,5 @@
-import { validateQuestion } from './Guardrails.ts';
-import { groqAnswer, finalizeAnswer } from './GroqCore.ts';
+import { validateQuestion } from './guardrails.ts';
+import { groqAnswer, finalizeAnswer } from './groqCore.ts';
 import { REPLIES } from './devProfile.js';
 
 // LOCAL DEV ONLY: put VITE_GROQ_API_KEY in .env (gitignored) to call Groq directly.

@@ -8,7 +8,7 @@ import AskOverlay from './AskOverlay';
 import { makeCloudSprites } from './CloudSprites';
 import { SKY_THEMES } from './SkyShared';
 import { useTheme, type ThemeMode } from './ThemeContext';
-import { askDeveloper } from '../lib/AskGroq';
+import { askDeveloper } from '../lib/askGroq';
 import { AMBIENT_LINES, HOVER_PROMPTS } from '../lib/devProfile';
 import './Hero.css';
 

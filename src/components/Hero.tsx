@@ -33,6 +33,7 @@ const HI_INDEX = 0; // the J
 
 const ANSWER_HOLD_MS = 3000; // after typing finishes (typing budget is 5s => 8s max total)
 const AMBIENT_HOLD_MS = 2800;
+const ACCENT_DARKEN = 0.7; // 1 = the raw palette tone, lower = deeper (more contrast on the sky)
 
 type BubbleKind = 'ambient' | 'hover' | 'answer';
 interface BubbleState {
@@ -80,7 +81,7 @@ export default function Hero() {
 
   // tagline highlight = the theme's darkest sky tone
   const accent = useMemo(() => {
-    const [r, g, b] = SKY_THEMES[resolvedTheme].tones.low.map((v) => Math.round(v * 255));
+    const [r, g, b] = SKY_THEMES[resolvedTheme].tones.low.map((v) => Math.round(v * 255 * ACCENT_DARKEN));
     return `rgb(${r}, ${g}, ${b})`;
   }, [resolvedTheme]);
 

@@ -24,7 +24,7 @@ const json = (body: unknown, status = 200) =>
   });
 
 export async function POST(request: Request) {
-  const key = process.env.GROQ_API_KEY;
+  const key = process.env.VITE_GROQ_API_KEY;
   if (!key) return json({ answer: REPLIES.error }, 500);
 
   const ip = (request.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim();

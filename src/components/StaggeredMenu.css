@@ -1,12 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 :root[data-theme='morning'],
 :root[data-theme='sunset'] {
-  --sm-accent: var(--accent);
+  --sm-accent: var(--sky-mid);
 }
 
 :root[data-theme='night'] {
-  --sm-accent: var(--sky-high);
+  --sm-accent: var(--sky-mid);
 }
 
 .staggered-menu-wrapper {
@@ -70,8 +70,8 @@
   box-shadow: 0 4px 14px color-mix(in srgb, var(--ink, #14233f) 25%, transparent);
   cursor: pointer;
   color: var(--ink, #14233f);
-  font-weight: 400;
-  font-family: 'Instrument Serif', serif;
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
   line-height: 1;
   overflow: visible;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -216,10 +216,10 @@
 
 .sm-socials-title {
   margin: 0;
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
   font-size: 1.1rem;
-  font-weight: 400;
+  font-weight: 600;
   color: var(--sm-accent, #ff0000);
 }
 
@@ -261,9 +261,9 @@
 }
 
 .sm-socials-link {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 0.95rem;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--text-primary);
   text-decoration: none;
   position: relative;
@@ -305,7 +305,7 @@
 }
 
 .sm-visitor-label {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 0.9rem;
   font-weight: 400;
   text-transform: uppercase;
@@ -315,7 +315,7 @@
 
 .sm-panel-title {
   margin: 0;
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 1rem;
   font-weight: 400;
   color: var(--text-primary);
@@ -334,9 +334,9 @@
 .sm-panel-item {
   position: relative;
   color: var(--text-primary);
-  font-family: 'Instrument Serif', serif;
-  font-weight: 400;
-  font-size: 2.6rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 2.1rem;
   cursor: pointer;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -346,7 +346,7 @@
     color 0.25s;
   display: inline-block;
   text-decoration: none;
-  padding-right: 1.4em;
+  padding-right: 1.7em;
 }
 
 .staggered-menu-panel .sm-socials-list .sm-socials-link {
@@ -386,7 +386,7 @@
   content: counter(smItem, decimal-leading-zero);
   position: absolute;
   top: 0.1em;
-  right: 1.7em;
+  right: 0.4em;
   font-size: 18px;
   font-weight: 600;
   color: var(--sm-accent, #5227ff);

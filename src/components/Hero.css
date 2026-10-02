@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Montserrat:wght@700;800&display=swap');
 /* Anton is already imported globally in App.css */
 
 .hero-stage {
@@ -22,28 +22,55 @@
   z-index: 0;
 }
 
+/* ---- Centered column: "Hi! I'm" / JEMUEL / tagline ----
+   IMPORTANT: no z-index / transform / opacity / filter here (see Hero.tsx) */
+.hero__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* ---- "Hi! I'm" (above the word) ---- */
+.hero__hi {
+  position: relative;
+  z-index: 25;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1rem, 2.4vw, 2.4rem);
+  line-height: 1;
+  color: #ffffff;
+  text-align: center;
+  user-select: none;
+}
+
 /* ---- Letters ----
    Tuning knobs (all in em of the letter font-size):
-   --letters-drop : how far the word sinks below the bottom edge (bigger = more cropped)
-   --cap-top      : distance from the top of a letter box to the top of the capitals
-                    (the man sits on this line, "Hi, I'm" hangs just above it)
-   --man-h        : height of the man                                                    */
+   --cap-top : distance from the top of a letter box to the top of the capitals
+   --cap-h   : cap height of Anton
+   --seat    : where the man sits on the J's hook, as a fraction of cap height
+               (0 = top of the J, 1 = baseline; bigger = lower)
+   --man-h   : height of the man                                                  */
 .hero__letters {
   /* IMPORTANT: no z-index / transform / opacity / filter here (see Hero.tsx) */
-  --letters-drop: 0.17em;
   --cap-top: 0.066em;
-  --man-h: 0.5em;
+  --cap-h: 0.85em;
+  --seat: 0.7;
+  --man-h: 0.36em;
 
-  position: absolute;
-  left: -1vw;
-  bottom: calc(var(--letters-drop) * -0.5);
+  position: relative;
   margin: 0;
   display: flex;
   align-items: flex-end;
+  justify-content: center;
   gap: 0.012em;
   font-family: 'Anton', sans-serif;
   font-weight: 400;
-  font-size: min(28vw, 92vh);
+  font-size: min(31vw, 60vh);
   line-height: 1;
   color: #ffffff;
   text-transform: uppercase;
@@ -62,31 +89,14 @@
   will-change: transform;
 }
 
-/* ---- "Hi, I'm" (inside the J) ---- */
-.hero__hi {
-  position: absolute;
-  left: 0.09em;
-  top: calc(var(--cap-top) - 0.305em);
-  white-space: nowrap;
-  text-transform: none;
-}
-
-.hero__hi-text {
-  display: block;
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
-  font-size: 0.21em;
-  line-height: 1;
-  color: #ffffff;
-}
-
-/* ---- The man (inside the M) ---- */
+/* ---- The man (sitting on the left end of the J's hook) ---- */
 .hero__man {
   position: absolute;
-  left: -0.03em;
+  left: -0.003em;
   height: var(--man-h);
   width: calc(var(--man-h) * 235 / 471);
-  top: calc(var(--cap-top) - var(--man-h) * 0.633);
+  /* his seat line is ~63% down his own height */
+  top: calc(var(--cap-top) + var(--cap-h) * var(--seat) - var(--man-h) * 1);
   padding: 0;
   border: 0;
   background: none;
@@ -137,30 +147,30 @@
   will-change: transform;
 }
 
-/* ---- Tagline (top right) ---- */
+/* ---- Tagline (below the word) ---- */
 .hero__tagline {
-  position: absolute;
-  top: clamp(5rem, 15vh, 9rem);
-  right: clamp(1rem, 3.5vw, 3.5rem);
+  position: relative;
   z-index: 25; /* odd, like the clouds: they pass in front of / behind it */
-  text-align: right;
-  pointer-events: none;
-}
-
-.hero__tagline-line {
-  margin: 0;
-  font-family: 'Instrument Serif', serif;
-  font-weight: 400;
-  font-size: clamp(1.9rem, 4.8vw, 5rem);
-  line-height: 1.12;
-  letter-spacing: -0.005em;
+  margin: clamp(0.5rem, 1.2vw, 1.25rem) 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0 0.9em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: clamp(0.7rem, 1.7vw, 1.7rem);
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-align: center;
   color: #ffffff;
-  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
 }
 
-.hero__tagline-em {
-  font-style: italic;
-  color: var(--hero-accent, #6699e6);
+.hero__tagline-sep {
+  font-weight: 800;
 }
 
 /* ---- Speech bubble ---- */
@@ -258,16 +268,12 @@
 
 @media (max-width: 700px) {
   .hero__letters {
-    --man-h: 0.5em;
-    font-size: min(40vw, 70vh);
-    left: -2vw;
+    --man-h: 0.34em;
+    font-size: min(30vw, 55vh);
   }
 
   .hero__tagline {
-    top: 14vh;
-  }
-
-  .hero__tagline-line {
-    font-size: clamp(1.5rem, 7vw, 2.4rem);
+    font-size: clamp(0.6rem, 3vw, 1rem);
+    gap: 0 0.6em;
   }
 }

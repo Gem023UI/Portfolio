@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import SkyBackground from './SkyBackground';
 import Birds from './Birds';
@@ -13,13 +13,18 @@ import { AMBIENT_LINES, HOVER_PROMPTS } from '../lib/devProfile';
 import './Hero.css';
 
 // ---------------------------------------------------------------------------
+// Layout (matches the reference picture):
+//   "Hi! I'm"  (centered, above the word)
+//   J E M U E L (centered, man sitting on the left end of the J's hook)
+//   FULL STACK DEVELOPER | PRODUCT DESIGN (centered, below the word)
+//
 // Stacking plan (all siblings inside the hero's own stacking context):
 //   0        sky shader
 //   8        birds (far, behind everything)
 //   15-35    clouds  <- random z each, so each one lands behind/between/in front of letters
 //   20..30   letters (J=20, E=22, M=24, U=26, E=28, L=30)
-//            "Hi, I'm" lives inside J, the man lives inside M -> they share those z-indexes
-//   25       tagline (clouds can pass in front of / behind it too)
+//            the man lives inside J -> shares its z-index
+//   25       "Hi! I'm" + tagline (clouds can pass in front of / behind them too)
 //   45       birds (mid)
 //   55       birds (near)
 //   60       speech bubble
@@ -27,15 +32,13 @@ import './Hero.css';
 
 const LETTERS = ['J', 'E', 'M', 'U', 'E', 'L'];
 const LETTER_Z0 = 20;
-const MAN_INDEX = 2; // the M
-const HI_INDEX = 0; // the J
+const MAN_INDEX = 0; // the J
 
-const SHOW_DRIFT_CLOUDS = false;
+const SHOW_DRIFT_CLOUDS = true;
 const CLOUD_COUNT = SHOW_DRIFT_CLOUDS ? 9 : 0;
 
 const ANSWER_HOLD_MS = 3000; // after typing finishes (typing budget is 5s => 8s max total)
 const AMBIENT_HOLD_MS = 2800;
-const ACCENT_DARKEN = 0.7; // 1 = the raw palette tone, lower = deeper (more contrast on the sky)
 
 type BubbleKind = 'ambient' | 'hover' | 'answer';
 interface BubbleState {
@@ -83,12 +86,6 @@ export default function Hero() {
       })),
     []
   );
-
-  // tagline highlight = the theme's darkest sky tone
-  const accent = useMemo(() => {
-    const [r, g, b] = SKY_THEMES[resolvedTheme].tones.low.map((v) => Math.round(v * 255 * ACCENT_DARKEN));
-    return `rgb(${r}, ${g}, ${b})`;
-  }, [resolvedTheme]);
 
   // ---- man / bubble / ask state ----
   const [bubble, setBubble] = useState<BubbleState | null>(null);
@@ -224,12 +221,18 @@ export default function Hero() {
         stagger: 0.09,
         delay: 0.2,
       });
+      gsap.from('.hero__hi', {
+        opacity: 0,
+        y: -16,
+        duration: 1,
+        ease: 'power3.out',
+        delay: 0.7,
+      });
       gsap.from('.hero__tagline-line', {
         opacity: 0,
         y: 24,
         duration: 1.1,
         ease: 'power3.out',
-        stagger: 0.18,
         delay: 0.9,
       });
 
@@ -271,12 +274,7 @@ export default function Hero() {
   }, [cloudCfg]);
 
   return (
-    <section
-      className="hero"
-      ref={rootRef}
-      aria-label="Introduction"
-      style={{ '--hero-accent': accent } as CSSProperties}
-    >
+    <section className="hero" ref={rootRef} aria-label="Introduction">
       <SkyBackground
         className="hero__sky"
         style={{ position: 'absolute', inset: 0, height: '100%', aspectRatio: 'auto' }}
@@ -302,46 +300,46 @@ export default function Hero() {
         </div>
       ))}
 
-      {/* No z-index / transform / opacity on this element: it must NOT form a stacking
-          context, otherwise the clouds couldn't interleave with individual letters. */}
-      <h1 className="hero__letters" aria-label="Jemuel">
-        {LETTERS.map((ch, i) => (
-          <span key={i} className="hero__letter" style={{ zIndex: LETTER_Z0 + i * 2 }}>
-            <span className="hero__letter-inner">
-              <span aria-hidden="true">{ch}</span>
-
-              {i === HI_INDEX && (
-                <span className="hero__hi" aria-hidden="true">
-                  <span className="hero__hi-text">Hi, I’m</span>
-                </span>
-              )}
-
-              {i === MAN_INDEX && (
-                <button
-                  type="button"
-                  ref={manRef}
-                  className="hero__man"
-                  aria-label="Ask me anything about Jemuel"
-                  onPointerEnter={onManEnter}
-                  onPointerLeave={onManLeave}
-                  onFocus={onManEnter}
-                  onBlur={onManLeave}
-                  onClick={openAsk}
-                >
-                  <HeroMan talking={talking} paused={askOpen} />
-                </button>
-              )}
-            </span>
-          </span>
-        ))}
-      </h1>
-
-      <div className="hero__tagline">
-        <p className="hero__tagline-line">
-          <em className="hero__tagline-em">Design</em> the feeling.
+      {/* Centered column: "Hi! I'm" / JEMUEL / tagline.
+          No z-index / transform / opacity on this wrapper or the h1: they must NOT form a
+          stacking context, otherwise the clouds couldn't interleave with individual letters. */}
+      <div className="hero__center">
+        <p className="hero__hi" aria-hidden="true">
+          Hi! I’m
         </p>
-        <p className="hero__tagline-line">
-          <em className="hero__tagline-em">Engineer</em> the function.
+
+        <h1 className="hero__letters" aria-label="Jemuel">
+          {LETTERS.map((ch, i) => (
+            <span key={i} className="hero__letter" style={{ zIndex: LETTER_Z0 + i * 2 }}>
+              <span className="hero__letter-inner">
+                <span aria-hidden="true">{ch}</span>
+
+                {i === MAN_INDEX && (
+                  <button
+                    type="button"
+                    ref={manRef}
+                    className="hero__man"
+                    aria-label="Ask me anything about Jemuel"
+                    onPointerEnter={onManEnter}
+                    onPointerLeave={onManLeave}
+                    onFocus={onManEnter}
+                    onBlur={onManLeave}
+                    onClick={openAsk}
+                  >
+                    <HeroMan talking={talking} paused={askOpen} />
+                  </button>
+                )}
+              </span>
+            </span>
+          ))}
+        </h1>
+
+        <p className="hero__tagline hero__tagline-line">
+          <span>Full Stack Developer</span>
+          <span className="hero__tagline-sep" aria-hidden="true">
+            |
+          </span>
+          <span>Product Design</span>
         </p>
       </div>
 

@@ -1,90 +1,80 @@
-/* ---- Stage: gives the footer 100vh of extra scroll while it stays pinned ----
-   Certifications' exit cloud is pinned for two viewports: the first covers the footer arriving,
-   the second lifts off the top and reveals it. The footer therefore has to stay in place for
-   that second viewport, which is what this padding + sticky pair provides. */
-.footer-stage {
-  position: relative;
-  width: 100%;
-}
-
-.footer-stage__tail {
-  height: 100vh;
-}
+/* No background of its own: the app-level sky (App.tsx) shows through.
+   The footer is 80vh tall and does not pin, so it simply scrolls into place. */
 
 .footer {
-  position: sticky;
-  top: 0;
+  position: relative;
+  z-index: 3;
   width: 100%;
-  min-height: 100vh;
+  height: 80vh;
+  height: 80svh;
+  min-height: 30rem;
   overflow: hidden;
+  isolation: isolate; /* keeps the birds' z-indexes inside the footer */
   display: flex;
-  align-items: center;
-  /* shows only until the sky canvas paints */
-  background: var(--sky-low, #6699e6);
+  flex-direction: column;
+  background: transparent;
+  color: var(--on-sky, #ffffff);
 }
 
-/* Same shader sky as the hero, flipped vertically so its clouds are at the BOTTOM of the footer */
-.footer__sky {
-  z-index: 0;
-  transform: scaleY(-1);
-}
-
+/* ---- Top row: call to action (left) + links (right) ---- */
 .footer__content {
   position: relative;
-  z-index: 2;
-  width: 100%;
+  z-index: 20;
+  flex: 1 1 auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 4vw;
-  padding: 8vh 6vw;
+  padding: clamp(2.5rem, 24vh, 14rem) 6vw 0;
 }
 
-.footer__brand {
-  width: 40%;
-  flex: 0 0 40%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.footer__cta {
+  flex: 0 1 55%;
 }
 
-.footer__logo-frame {
-  width: 100%;
-  max-width: 260px;
-  aspect-ratio: 1;
-  border-radius: 20px;
-  background: var(--overlay-soft, rgba(255, 255, 255, 0.12));
-  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.25));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--on-sky, #ffffff);
-  opacity: 0.7;
-}
-
-.footer__logo-frame svg {
-  width: 38%;
-  height: 38%;
-}
-
-.footer__columns {
-  width: 60%;
-  flex: 0 0 60%;
-  display: flex;
-  gap: 4vw;
-}
-
-.footer__col {
-  flex: 1 1 50%;
-}
-
-.footer__heading {
-  margin: 0 0 1.2em;
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
+.footer__lead {
+  margin: 0;
+  font-family: 'Instrument Serif', sans-serif;
+  font-size: clamp(1rem, 1.5vw, 1.5rem);
+  line-height: 1.45;
   font-weight: 400;
-  font-size: clamp(1.1rem, 1.6vw, 1.5rem);
   color: var(--on-sky, #ffffff);
-  opacity: 0.75;
+}
+
+.footer__lead--bold {
+  font-weight: 800;
+}
+
+.footer__drop {
+  margin: clamp(1.2rem, 3.5vh, 2.2rem) 0 0;
+  padding: 0 0 0.3em;
+  border: 0;
+  border-bottom: 2px solid currentColor;
+  background: none;
+  color: inherit;
+  font-family: 'Instrument Serif', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1rem, 1.5vw, 1.5rem);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.2s ease, letter-spacing 0.25s ease;
+}
+
+.footer__drop:hover {
+  opacity: 0.8;
+  letter-spacing: 0.06em;
+}
+
+.footer__drop:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 6px;
+}
+
+.footer__links {
+  flex: 0 0 auto;
+  display: flex;
+  gap: clamp(2rem, 7vw, 6rem);
 }
 
 .footer__list {
@@ -97,15 +87,12 @@
 }
 
 .footer__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6em;
   font-family: 'Instrument Serif', sans-serif;
-  font-weight: 600;
-  font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+  font-weight: 400;
+  font-size: clamp(1rem, 1.5vw, 1.5rem);
   color: var(--on-sky, #ffffff);
   text-decoration: none;
-  opacity: 0.88;
+  opacity: 0.92;
   transition: opacity 0.2s ease;
 }
 
@@ -115,20 +102,66 @@
   text-underline-offset: 4px;
 }
 
+/* ---- "Just Create." ----
+   Font size is fitted in Footer.tsx. Man tuning knobs (em of the word's font size):
+   --man-h    his height
+   --man-seat distance from the bottom of the word box up to his feet (= the top of the "u")
+   --man-left where he sits along the word (% of its width) */
+.footer__wordwrap {
+  position: relative;
+  z-index: 10;
+  flex: 0 0 auto;
+  padding-left: 0.8vw;
+}
+
+.footer__word {
+  --man-h: 0.44em;
+  --man-seat: 0.58em;
+  --man-left: 15.5%;
+
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  font-family: 'Anton', sans-serif;
+  font-weight: 400;
+  font-size: 22vw; /* replaced by the fitted px value in Footer.tsx */
+  line-height: 1;
+  white-space: nowrap;
+  color: #ffffff;
+  user-select: none;
+}
+
+.footer__man {
+  position: absolute;
+  left: var(--man-left);
+  bottom: var(--man-seat);
+  height: var(--man-h);
+  width: calc(var(--man-h) * 235 / 471);
+  color: var(--hero-accent, #0500ff);
+  font-size: 1rem; /* HeroMan sizes itself from its box, not from the word's font size */
+  pointer-events: none;
+}
+
+.footer__man .hero__man-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 50% 100%;
+}
+
 @media (max-width: 700px) {
   .footer__content {
     flex-direction: column;
-    padding: 6vh 8vw;
-    gap: 6vh;
+    padding: 4rem 8vw 0;
+    gap: 2rem;
   }
 
-  .footer__brand,
-  .footer__columns {
-    width: 100%;
-    flex: 1 1 auto;
+  .footer__cta {
+    flex: 0 0 auto;
   }
 
-  .footer__brand .footer__logo-frame {
-    max-width: 180px;
+  .footer__links {
+    gap: 3rem;
   }
 }

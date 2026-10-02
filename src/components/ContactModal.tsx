@@ -12,6 +12,7 @@ export interface ContactModalProps {
 function ContactModal({ open, onClose }: ContactModalProps) {
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const nameRef = useRef<HTMLInputElement | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -21,7 +22,7 @@ function ContactModal({ open, onClose }: ContactModalProps) {
   useEffect(() => {
     const overlay = overlayRef.current;
     const card = cardRef.current;
-    if (!overlay || !card) return;
+    if (!overlay || !card) return undefined;
 
     if (open) {
       gsap.set(overlay, { display: "flex" });
@@ -31,6 +32,8 @@ function ContactModal({ open, onClose }: ContactModalProps) {
         { opacity: 0, y: 24, scale: 0.96 },
         { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(1.6)" }
       );
+      const focusTimer = window.setTimeout(() => nameRef.current?.focus(), 350);
+      return () => window.clearTimeout(focusTimer);
     } else if (overlay.style.display !== "none") {
       gsap.to(card, { opacity: 0, y: 16, scale: 0.96, duration: 0.25, ease: "power2.in" });
       gsap.to(overlay, {
@@ -42,6 +45,7 @@ function ContactModal({ open, onClose }: ContactModalProps) {
         },
       });
     }
+    return undefined;
   }, [open]);
 
   // Escape key closes the modal
@@ -117,7 +121,7 @@ function ContactModal({ open, onClose }: ContactModalProps) {
 
         <div className="contact-modal-body">
           <h2 id="contact-modal-title" className="contact-modal-title">
-            Let's build something together.
+            Let's build something <span className="contact-modal-hl">together.</span>
           </h2>
           <p className="contact-modal-subtitle">
             Fill this in and it'll open your email app with everything pre-filled — just hit send from there.
@@ -127,6 +131,7 @@ function ContactModal({ open, onClose }: ContactModalProps) {
             <label className="contact-modal-field">
               <span>Name</span>
               <input
+                ref={nameRef}
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}

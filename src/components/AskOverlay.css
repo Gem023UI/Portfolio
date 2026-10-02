@@ -30,7 +30,7 @@
 
 .ask__form {
   width: min(92vw, 1100px);
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Poppins', serif;
   font-size: clamp(2rem, 4.8vw, 4.6rem);
 }
 
@@ -53,7 +53,7 @@
   color: #ffffff;
   caret-color: #ffffff; /* the native caret is already thin */
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.22);
-  -webkit-text-stroke: 0.012em currentColor; /* Instrument Serif has no bold: fake a little weight */
+  -webkit-text-stroke: 0.012em currentColor; /* Poppins has no bold: fake a little weight */
 }
 
 /* while empty, the fake caret below is shown instead of the native one */
@@ -88,7 +88,7 @@
 
 .ask__hint {
   margin: 0;
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Poppins', serif;
   font-style: italic;
   font-size: 1.05rem;
   color: rgba(255, 255, 255, 0.7);

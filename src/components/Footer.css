@@ -34,7 +34,7 @@
 
 .footer__lead {
   margin: 0;
-  font-family: 'Instrument Serif', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: clamp(1rem, 1.5vw, 1.5rem);
   line-height: 1.45;
   font-weight: 400;
@@ -52,7 +52,7 @@
   border-bottom: 2px solid currentColor;
   background: none;
   color: inherit;
-  font-family: 'Instrument Serif', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 800;
   font-size: clamp(1rem, 1.5vw, 1.5rem);
   letter-spacing: 0.02em;
@@ -87,7 +87,7 @@
 }
 
 .footer__link {
-  font-family: 'Instrument Serif', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-weight: 400;
   font-size: clamp(1rem, 1.5vw, 1.5rem);
   color: var(--on-sky, #ffffff);

@@ -6,7 +6,7 @@ interface CertificateCardProps {
 }
 
 // Display-only card: an image placeholder (swap the SVG for a real <img src="..." /> once
-// certificate images are ready), a title and a date, all in Instrument Serif.
+// certificate images are ready), a title and a date, all in Poppins.
 export default function CertificateCard({ title, date }: CertificateCardProps) {
   return (
     <div className="cert-card">

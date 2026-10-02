@@ -25,7 +25,7 @@
   display: flex;
   align-items: center;
   z-index: 1001;
-  font-family: 'Instrument Serif', sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 body.staggered-menu-open .app__page {

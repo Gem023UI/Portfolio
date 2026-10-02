@@ -35,7 +35,7 @@
 }
 
 .cert-card__title {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Poppins', serif;
   font-size: clamp(1.15rem, 1.7vw, 1.6rem);
   font-weight: 400;
   color: var(--accent);
@@ -43,7 +43,7 @@
 }
 
 .cert-card__date {
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Poppins', serif;
   font-style: italic;
   font-size: clamp(0.9rem, 1.1vw, 1.05rem);
   color: var(--accent);

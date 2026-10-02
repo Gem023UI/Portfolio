@@ -21,7 +21,7 @@ export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
 
-  useFitTitle(titleRef, TITLE_SETTLED_VW, '100px "Instrument Serif"');
+  useFitTitle(titleRef, TITLE_SETTLED_VW, '100px "Poppins"');
 
   useEffect(() => {
     const section = sectionRef.current;

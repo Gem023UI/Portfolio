@@ -34,7 +34,7 @@ export default function CertificationsSection() {
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
-  useFitTitle(titleRef, TITLE_SETTLED_VW, '100px "Instrument Serif"');
+  useFitTitle(titleRef, TITLE_SETTLED_VW, '100px "Poppins"');
 
   useEffect(() => {
     const section = sectionRef.current;

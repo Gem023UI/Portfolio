@@ -5,7 +5,7 @@ import { useEffect, type RefObject } from 'react';
  * Font metrics differ between fonts, so this measures the text at a reference size and scales it,
  * re-fitting once the web font has loaded and whenever the window is resized.
  *
- * `fontSpec` is a CSS font shorthand at 100px used to wait for the font, e.g. '100px "Instrument Serif"'.
+ * `fontSpec` is a CSS font shorthand at 100px used to wait for the font, e.g. '100px "Poppins"'.
  * Measurement uses offsetWidth (layout width), which a GSAP scale transform does not affect.
  */
 export function useFitTitle(ref: RefObject<HTMLElement | null>, vw: number, fontSpec: string) {

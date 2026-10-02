@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import SkyBackground from './SkyBackground';
 import Birds from './Birds';
 import HeroMan from './HeroMan';
@@ -7,34 +8,39 @@ import ManBubble from './ManBubble';
 import AskOverlay from './AskOverlay';
 import { makeCloudSprites } from './CloudSprites';
 import { SKY_THEMES } from './SkyShared';
+import { SIGNATURE } from './SignaturePath';
 import { useTheme, type ThemeMode } from './ThemeContext';
 import { askDeveloper } from '../lib/askGroq';
 import { AMBIENT_LINES, HOVER_PROMPTS } from '../lib/devProfile';
 import './Hero.css';
 
+gsap.registerPlugin(ScrollTrigger);
+
 // ---------------------------------------------------------------------------
 // Layout (matches the reference picture):
-//   "Hi! I'm"  (centered, above the word)
-//   J E M U E L (centered, man sitting on the left end of the J's hook)
-//   FULL STACK DEVELOPER | PRODUCT DESIGN (centered, below the word)
+//   HI! I'M JEMUEL MALAGA                       (centered, small)
+//   DESIGN      | THE FEELING                   (left: accent, big / right: white, smaller)
+//   ENGINEER    | THE EXPERIENCE .              (the man sits on the end of "EXPERIENCE")
+//   FULL STACK DEVELOPER | PRODUCT DESIGN       (centered, small)
 //
 // Stacking plan (all siblings inside the hero's own stacking context):
 //   0        sky shader
-//   8        birds (far, behind everything)
-//   15-35    clouds  <- random z each, so each one lands behind/between/in front of letters
-//   20..30   letters (J=20, E=22, M=24, U=26, E=28, L=30)
-//            the man lives inside J -> shares its z-index
-//   25       "Hi! I'm" + tagline (clouds can pass in front of / behind them too)
-//   45       birds (mid)
-//   55       birds (near)
+//   8        birds (far)
+//   15-35    clouds  <- random z each, so each one lands behind/between/in front of the lines
+//   20..26   title lines (DESIGN=20, ENGINEER=22, THE FEELING=24, THE EXPERIENCE=26)
+//            the man lives inside THE EXPERIENCE -> shares its z-index
+//   25       "Hi!" + tagline
+//   45 / 55  birds (mid / near)
+//   50       signature (scroll-written)
 //   60       speech bubble
 // ---------------------------------------------------------------------------
 
-const LETTERS = ['J', 'E', 'M', 'U', 'E', 'L'];
-const LETTER_Z0 = 20;
-const MAN_INDEX = 0; // the J
+/** Scroll distance (in vh) the hero stays pinned while the signature is written, BEFORE the cloud surge. */
+export const HERO_SIGNATURE_SCROLL_VH = 220;
+/** The pen finishes at this fraction of the signature phase; the rest is a calm hold. */
+const PEN_DONE_AT = 0.85;
 
-const SHOW_DRIFT_CLOUDS = true;
+const SHOW_DRIFT_CLOUDS = false;
 const CLOUD_COUNT = SHOW_DRIFT_CLOUDS ? 9 : 0;
 
 const ANSWER_HOLD_MS = 3000; // after typing finishes (typing budget is 5s => 8s max total)
@@ -66,6 +72,8 @@ export default function Hero() {
   const rootRef = useRef<HTMLElement>(null);
   const cloudRefs = useRef<(HTMLDivElement | null)[]>([]);
   const manRef = useRef<HTMLButtonElement>(null);
+  const sigRef = useRef<SVGSVGElement>(null);
+  const glassRef = useRef<HTMLDivElement>(null);
 
   // ---- clouds ----
   const sprites = useMemo(
@@ -121,9 +129,9 @@ export default function Hero() {
     if (!root || !man) return;
     const hr = root.getBoundingClientRect();
     const mr = man.getBoundingClientRect();
-    const x = Math.max(8, Math.min(mr.left - hr.left + mr.width * 0.62, hr.width - 280));
+    const x = Math.min(Math.max(mr.left - hr.left + mr.width * 0.35, 272), hr.width - 8);
     const y = mr.top - hr.top + mr.height * 0.08;
-    setPos({ x, y });
+    setPos((p) => (Math.abs(p.x - x) < 0.5 && Math.abs(p.y - y) < 0.5 ? p : { x, y }));
   }, []);
 
   const show = useCallback(
@@ -213,12 +221,12 @@ export default function Hero() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const ctx = gsap.context(() => {
-      gsap.from('.hero__letter-inner', {
+      gsap.from('.hero__line-inner', {
         yPercent: 35,
         opacity: 0,
         duration: 1.2,
         ease: 'power4.out',
-        stagger: 0.09,
+        stagger: 0.12,
         delay: 0.2,
       });
       gsap.from('.hero__hi', {
@@ -273,6 +281,163 @@ export default function Hero() {
     return () => ctx.revert();
   }, [cloudCfg]);
 
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    interface Layer {
+      el: HTMLElement;
+      depth: number | (() => number);
+      x: number;
+      y: number;
+    }
+    const layers: Layer[] = [];
+    const add = (el: Element | null | undefined, depth: number | (() => number)) => {
+      if (el) layers.push({ el: el as HTMLElement, depth, x: 0, y: 0 });
+    };
+
+    add(root.querySelector('.hero__hi'), 0.35);
+    add(root.querySelector('.hero__tagline'), 0.35);
+    // DESIGN, ENGINEER, THE FEELING, THE EXPERIENCE (the man rides with his line)
+    root.querySelectorAll('.hero__line').forEach((el, i) => add(el, [0.5, 0.6, 0.9, 1.0][i] ?? 0.7));
+    // clouds: the lower their z (further back), the less they move
+    cloudRefs.current.forEach((wrap) => {
+      if (!wrap) return;
+      add(wrap, () => 0.2 + (((parseInt(wrap.style.zIndex, 10) || 25) - 15) / 20) * 0.8);
+    });
+
+    const STRENGTH = 0.016; // max shift = this * viewport width, at depth 1
+    const EASE = 0.08;
+    let tx = 0;
+    let ty = 0;
+    let raf = 0;
+
+    const tick = () => {
+      const amp = window.innerWidth * STRENGTH;
+      let moving = false;
+      for (const l of layers) {
+        const d = typeof l.depth === 'function' ? l.depth() : l.depth;
+        const gx = -tx * amp * d; // layers drift opposite to the cursor
+        const gy = -ty * amp * d * 0.7;
+        l.x += (gx - l.x) * EASE;
+        l.y += (gy - l.y) * EASE;
+        if (Math.abs(gx - l.x) > 0.05 || Math.abs(gy - l.y) > 0.05) moving = true;
+        l.el.style.translate = `${l.x.toFixed(2)}px ${l.y.toFixed(2)}px`;
+      }
+      if (kindRef.current) measure(); // keep the bubble glued to the man
+      raf = moving ? requestAnimationFrame(tick) : 0;
+    };
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    const onMove = (e: PointerEvent) => {
+      const r = root.getBoundingClientRect();
+      tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
+      kick();
+    };
+    const onLeave = () => {
+      tx = 0;
+      ty = 0;
+      kick();
+    };
+
+    root.addEventListener('pointermove', onMove);
+    root.addEventListener('pointerleave', onLeave);
+    return () => {
+      root.removeEventListener('pointermove', onMove);
+      root.removeEventListener('pointerleave', onLeave);
+      if (raf) cancelAnimationFrame(raf);
+      layers.forEach((l) => {
+        l.el.style.translate = '';
+      });
+    };
+  }, [measure]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    const svg = sigRef.current;
+    const glass = glassRef.current;
+    if (!root || !svg || !glass) return;
+    const pen = svg.querySelector<SVGPathElement>('.sig-pen');
+    if (!pen) return;
+    const stage = (root.closest('.hero-stage') as HTMLElement | null) ?? root;
+
+    let length = 0;
+
+    // CSS can't mask with a live SVG <mask>, so the glass layer gets an SVG data-URI mask
+    // (outline clipped by the dashed pen). Quantised to STEPS and cached to keep scrolling cheap.
+    const STEPS = 240;
+    const maskCache = new Map<number, string>();
+    const maskFor = (step: number) => {
+      let v = maskCache.get(step);
+      if (!v) {
+        const { width: W, height: H, penWidth, pen: penD, outline } = SIGNATURE;
+        const dash = (step / STEPS) * length;
+        const markup =
+          `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' width='${W}' height='${H}'>` +
+          `<defs><mask id='m' maskUnits='userSpaceOnUse' x='0' y='0' width='${W}' height='${H}'>` +
+          `<path d='${penD}' fill='none' stroke='white' stroke-width='${penWidth}' stroke-linecap='round' stroke-linejoin='round' stroke-dasharray='${dash} ${length * 2}'/>` +
+          `</mask></defs>` +
+          `<path d='${outline}' fill-rule='evenodd' mask='url(#m)'/></svg>`;
+        v = `url("data:image/svg+xml,${encodeURIComponent(markup)}")`;
+        maskCache.set(step, v);
+      }
+      return v;
+    };
+
+    const draw = (q: number) => {
+      if (!length) length = pen.getTotalLength();
+      const clamped = Math.min(1, Math.max(0, q));
+      const visible = clamped * length;
+      if (visible < 0.5) {
+        pen.style.visibility = 'hidden';
+        glass.style.visibility = 'hidden';
+        return;
+      }
+      pen.style.visibility = 'visible';
+      pen.style.strokeDasharray = `${visible} ${length * 2}`;
+      pen.style.strokeDashoffset = '0';
+
+      const m = maskFor(Math.round(clamped * STEPS));
+      glass.style.visibility = 'visible';
+      glass.style.setProperty('mask-image', m);
+      glass.style.setProperty('-webkit-mask-image', m);
+    };
+    const pos = { q: 0 };
+    draw(0);
+
+    const toQ = (progress: number) => Math.min(1, progress / PEN_DONE_AT);
+
+    const st = ScrollTrigger.create({
+      trigger: stage,
+      start: 'top top',
+      end: () => `+=${Math.round((window.innerHeight * HERO_SIGNATURE_SCROLL_VH) / 100)}`,
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        gsap.to(pos, {
+          q: toQ(self.progress),
+          duration: 0.25,
+          ease: 'power1.out',
+          overwrite: true,
+          onUpdate: () => draw(pos.q),
+        });
+      },
+      onRefresh: (self) => {
+        pos.q = toQ(self.progress);
+        draw(pos.q);
+      },
+    });
+
+    return () => {
+      st.kill();
+      gsap.killTweensOf(pos);
+    };
+  }, []);
+
   return (
     <section className="hero" ref={rootRef} aria-label="Introduction">
       <SkyBackground
@@ -300,21 +465,32 @@ export default function Hero() {
         </div>
       ))}
 
-      {/* Centered column: "Hi! I'm" / JEMUEL / tagline.
-          No z-index / transform / opacity on this wrapper or the h1: they must NOT form a
-          stacking context, otherwise the clouds couldn't interleave with individual letters. */}
+      {/* Centered column: Hi / title / tagline.
+          No z-index / transform / opacity on this wrapper, the h1 or the two columns: they must
+          NOT form a stacking context, otherwise the clouds couldn't interleave with the lines. */}
       <div className="hero__center">
         <p className="hero__hi" aria-hidden="true">
-          Hi! I’m
+          Hi! I’m Jemuel Malaga
         </p>
 
-        <h1 className="hero__letters" aria-label="Jemuel">
-          {LETTERS.map((ch, i) => (
-            <span key={i} className="hero__letter" style={{ zIndex: LETTER_Z0 + i * 2 }}>
-              <span className="hero__letter-inner">
-                <span aria-hidden="true">{ch}</span>
+        <h1 className="hero__title" aria-label="Design Engineer. The feeling, the experience.">
+          <span className="hero__col hero__col--l" aria-hidden="true">
+            <span className="hero__line" style={{ zIndex: 20 }}>
+              <span className="hero__line-inner">Design</span>
+            </span>
+            <span className="hero__line" style={{ zIndex: 22 }}>
+              <span className="hero__line-inner">Engineer</span>
+            </span>
+          </span>
 
-                {i === MAN_INDEX && (
+          <span className="hero__col hero__col--r" aria-hidden="true">
+            <span className="hero__line" style={{ zIndex: 24 }}>
+              <span className="hero__line-inner">The Feeling,</span>
+            </span>
+            <span className="hero__line hero__line--exp" style={{ zIndex: 26 }}>
+              <span className="hero__line-inner">
+                <span className="hero__exp">
+                  The Experience.
                   <button
                     type="button"
                     ref={manRef}
@@ -328,10 +504,10 @@ export default function Hero() {
                   >
                     <HeroMan talking={talking} paused={askOpen} />
                   </button>
-                )}
+                </span>
               </span>
             </span>
-          ))}
+          </span>
         </h1>
 
         <p className="hero__tagline hero__tagline-line">
@@ -339,12 +515,50 @@ export default function Hero() {
           <span className="hero__tagline-sep" aria-hidden="true">
             |
           </span>
-          <span>Product Design</span>
+          <span>Brand & Product Design</span>
         </p>
       </div>
 
       <Birds layer="mid" />
       <Birds layer="front" />
+
+      <div ref={glassRef} className="hero__signature-glass" aria-hidden="true" />
+
+      {/* Signature, written on scroll before the exit transition */}
+      <svg
+        ref={sigRef}
+        className="hero__signature"
+        viewBox={`0 0 ${SIGNATURE.width} ${SIGNATURE.height}`}
+        preserveAspectRatio="xMidYMid meet"
+        aria-hidden="true"
+      >
+        <defs>
+          <mask
+            id="hero-signature-reveal"
+            maskUnits="userSpaceOnUse"
+            x={0}
+            y={0}
+            width={SIGNATURE.width}
+            height={SIGNATURE.height}
+          >
+            <path
+              className="sig-pen"
+              d={SIGNATURE.pen}
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth={SIGNATURE.penWidth}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </mask>
+        </defs>
+        <path
+          className="hero__signature-ink"
+          d={SIGNATURE.outline}
+          fillRule="evenodd"
+          mask="url(#hero-signature-reveal)"
+        />
+      </svg>
 
       {bubble && (
         <ManBubble

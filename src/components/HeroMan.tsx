@@ -137,7 +137,14 @@ export default function HeroMan({ talking, paused }: HeroManProps) {
   }, [talking]);
 
   return (
-    <svg ref={svgRef} className="hero__man-svg" viewBox="0 0 235 471" aria-hidden="true" focusable="false">
+    <svg
+      ref={svgRef}
+      className="hero__man-svg"
+      viewBox="0 0 235 471"
+      aria-hidden="true"
+      focusable="false"
+      style={{ transform: 'scaleX(-1)' }}
+    >
       <defs>
         <path id="hm-shape" fillRule="evenodd" d={MAN_PATH} />
         {(Object.keys(CLIPS) as (keyof typeof CLIPS)[]).map((k) => (

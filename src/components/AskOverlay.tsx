@@ -9,16 +9,24 @@ interface AskOverlayProps {
   onSubmit: (question: string) => void;
 }
 
+const PROMPTS = ['Interested?', 'Ask anything.', 'Curious?'];
+const pickPrompt = (avoid = '') => {
+  const pool = PROMPTS.filter((p) => p !== avoid);
+  return pool[Math.floor(Math.random() * pool.length)];
+};
+
 export default function AskOverlay({ open, onClose, onSubmit }: AskOverlayProps) {
   const [mounted, setMounted] = useState(open); // stays true during the fade-out
   const [shown, setShown] = useState(false); // drives the fade/blur transition
   const [value, setValue] = useState('');
+  const [prompt, setPrompt] = useState(() => pickPrompt());
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
       setMounted(true);
       setValue('');
+      setPrompt((p) => pickPrompt(p));
       const id = requestAnimationFrame(() => setShown(true));
       return () => cancelAnimationFrame(id);
     }
@@ -73,7 +81,7 @@ export default function AskOverlay({ open, onClose, onSubmit }: AskOverlayProps)
           {!value && (
             <div className="ask__ph" aria-hidden="true">
               <span className="ask__bar" />
-              <span>Ask anything about me</span>
+              <span>{prompt}</span>
             </div>
           )}
           <input

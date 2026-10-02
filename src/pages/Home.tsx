@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Hero from '../components/Hero';
+import Hero, { HERO_SIGNATURE_SCROLL_VH } from '../components/Hero';
 import CloudSurge from '../components/CloudSurge';
 import About from '../components/About';
 import ProjectsSection from '../components/ProjectsSection';
@@ -29,9 +29,10 @@ function Home() {
         ease: 'none',
         scrollTrigger: {
           trigger: stage,
-          start: 'top top',
-          end: 'bottom bottom', // = HERO_SURGE_SCROLL_VH of scrolling, while the pin is stuck
-          scrub: 0.6, // smoothing on top of Lenis; also makes the surge reverse smoothly
+          start: () => `top+=${Math.round((window.innerHeight * HERO_SIGNATURE_SCROLL_VH) / 100)} top`,
+          end: 'bottom bottom',
+          scrub: 0.6,
+          invalidateOnRefresh: true,
         },
         onUpdate: () => {
           heroSurge.current = state.p;
@@ -56,7 +57,11 @@ function Home() {
 
   return (
     <main className="home">
-      <div className="hero-stage" ref={stageRef} style={{ height: `${100 + HERO_SURGE_SCROLL_VH}vh` }}>
+      <div
+        className="hero-stage"
+        ref={stageRef}
+        style={{ height: `${100 + HERO_SIGNATURE_SCROLL_VH + HERO_SURGE_SCROLL_VH}vh` }}
+      >
         <div className="hero-pin">
           <Hero />
           <CloudSurge progressRef={heroSurge} className="hero-pin__surge" />

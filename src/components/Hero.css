@@ -8,6 +8,10 @@
 }
 
 .hero {
+  /* --u: the sizing unit for the title. The reference is 16:9, so size by whichever of
+     width / height is the tighter fit (1vw == 1.773vh at 16:9). */
+  --u: min(1vw, 1.773vh);
+
   position: sticky;
   top: 0;
   width: 100%;
@@ -22,7 +26,7 @@
   z-index: 0;
 }
 
-/* ---- Centered column: "Hi! I'm" / JEMUEL / tagline ----
+/* ---- Centered column: Hi / title / tagline ----
    IMPORTANT: no z-index / transform / opacity / filter here (see Hero.tsx) */
 .hero__center {
   position: absolute;
@@ -34,84 +38,116 @@
   pointer-events: none;
 }
 
-/* ---- "Hi! I'm" (above the word) ---- */
+/* ---- "Hi! I'm Jemuel Malaga" ---- */
 .hero__hi {
   position: relative;
   z-index: 25;
-  margin: 0;
+  margin: 0 0 calc(1.7 * var(--u));
   font-family: 'Montserrat', sans-serif;
   font-weight: 800;
-  font-size: clamp(1rem, 2.4vw, 2.4rem);
+  font-size: clamp(0.8rem, calc(1.65 * var(--u)), 1.7rem);
   line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   color: #ffffff;
   text-align: center;
   user-select: none;
 }
 
-/* ---- Letters ----
-   Tuning knobs (all in em of the letter font-size):
-   --cap-top : distance from the top of a letter box to the top of the capitals
-   --cap-h   : cap height of Anton
-   --seat    : where the man sits on the J's hook, as a fraction of cap height
-               (0 = top of the J, 1 = baseline; bigger = lower)
-   --man-h   : height of the man                                                  */
-.hero__letters {
-  /* IMPORTANT: no z-index / transform / opacity / filter here (see Hero.tsx) */
-  --cap-top: 0.066em;
-  --cap-h: 0.85em;
-  --seat: 0.7;
-  --man-h: 0.36em;
+/* ---- Title: two columns side by side ----
+   Tuning knobs:
+   --fs-l / --fs-r : font size of the left (accent) and right (white) blocks
+   --lh-l          : line-height of the left block (tight, stacked caps)
+   --gap-r         : space between the two right lines, in em of the right font
+   --ls-l / --ls-r : letter-spacing
+   --r-shift       : nudges the right block down relative to the left block's centre
+   IMPORTANT: no z-index / transform / opacity / filter on .hero__title or the columns. */
+.hero__title {
+  --fs-l: calc(14.1 * var(--u));
+  --fs-r: calc(8.6 * var(--u));
+  --lh-l: 0.91;
+  --gap-r: 0.22em;
+  --ls-l: -0.02em;
+  --ls-r: -0.005em;
+  --r-shift: calc(1.2 * var(--u));
 
-  position: relative;
   margin: 0;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  gap: 0.012em;
+  gap: calc(1.4 * var(--u));
   font-family: 'Anton', sans-serif;
   font-weight: 400;
-  font-size: min(31vw, 60vh);
-  line-height: 1;
-  color: #ffffff;
   text-transform: uppercase;
+  white-space: nowrap;
   pointer-events: none;
   user-select: none;
 }
 
-.hero__letter {
+.hero__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero__col--l {
+  font-size: var(--fs-l);
+  line-height: var(--lh-l);
+  letter-spacing: var(--ls-l);
+  color: var(--hero-accent, #0500ff);
+  align-items: flex-end;
+}
+
+.hero__col--r {
+  font-size: var(--fs-r);
+  line-height: 1;
+  letter-spacing: var(--ls-r);
+  row-gap: var(--gap-r);
+  margin-top: var(--r-shift);
+  color: #ffffff;
+}
+
+.hero__line {
   position: relative;
   display: block;
 }
 
-.hero__letter-inner {
+.hero__line-inner {
   position: relative;
   display: block;
+  align-items: right;
   will-change: transform;
 }
 
-/* ---- The man (sitting on the left end of the J's hook) ---- */
+
+/* ---- The man (sitting on the end of "EXPERIENCE", facing left) ----
+   Tuning knobs (em of the right font):
+   --man-h : his height
+   --seat-y: distance from the line's top edge down to where he sits (his feet)
+   --man-r : distance from the end of the word to his right edge                */
+.hero__exp {
+  --man-h: 1em;
+  --seat-y: 0.39em;
+  --man-r: 0.16em;
+
+  position: relative;
+  display: inline-block;
+}
+
 .hero__man {
   position: absolute;
-  left: -0.003em;
+  right: var(--man-r);
+  top: calc(var(--seat-y) - var(--man-h));
   height: var(--man-h);
   width: calc(var(--man-h) * 235 / 471);
-  /* his seat line is ~63% down his own height */
-  top: calc(var(--cap-top) + var(--cap-h) * var(--seat) - var(--man-h) * 1);
   padding: 0;
   border: 0;
   background: none;
   font: inherit;
-  color: #0b1220;
+  color: var(--hero-accent, #0500ff);
   cursor: pointer;
   pointer-events: auto; /* the h1 is pointer-events:none; the man opts back in */
   -webkit-tap-highlight-color: transparent;
-}
-
-:root[data-theme='sunset'] .hero__man {
-  color: #2a1512;
-}
-:root[data-theme='night'] .hero__man {
-  color: #070a18;
 }
 
 .hero__man-svg {
@@ -147,19 +183,19 @@
   will-change: transform;
 }
 
-/* ---- Tagline (below the word) ---- */
+/* ---- Tagline (below the title) ---- */
 .hero__tagline {
   position: relative;
   z-index: 25; /* odd, like the clouds: they pass in front of / behind it */
-  margin: clamp(0.5rem, 1.2vw, 1.25rem) 0 0;
+  margin: calc(2.1 * var(--u)) 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 0 0.9em;
+  gap: 0 1.1em;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  font-size: clamp(0.7rem, 1.7vw, 1.7rem);
+  font-weight: 800;
+  font-size: clamp(0.7rem, calc(1.65 * var(--u)), 1.7rem);
   line-height: 1.3;
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -173,36 +209,87 @@
   font-weight: 800;
 }
 
-/* ---- Speech bubble ---- */
+/* ---- Signature (written on scroll) ---- */
+.hero__signature {
+  position: absolute;
+  left: 10;
+  top: 8%;
+  width: 100%;
+  height: 90%;
+  z-index: 50;
+  pointer-events: none;
+  overflow: visible;
+  filter: drop-shadow(0 1px 2px rgba(10, 20, 50, 0.4));
+}
+
+.hero__signature-ink {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.75);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  opacity: 1;
+}
+
+.hero__signature-glass {
+  position: absolute;
+  left: 0;
+  top: 8%;
+  width: 100%;
+  height: 90%;
+  z-index: 50;
+  pointer-events: none;
+  visibility: hidden; /* shown by Hero.tsx once the pen touches down */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08));
+  -webkit-backdrop-filter: blur(8px) brightness(1.25) saturate(1.7);
+  backdrop-filter: blur(8px) brightness(1.25) saturate(1.7);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+/* ---- Speech bubble (now on the LEFT of the man) ----
+   Hero.tsx passes x = the bubble's RIGHT edge, so it is translated -100% on both axes. */
 .hero__bubble {
   position: absolute;
   z-index: 60;
   width: max-content;
   max-width: min(260px, 70vw);
   padding: 0.7rem 1rem;
-  border-radius: 1.1rem 1.1rem 1.1rem 0.25rem;
-  background: #ffffff;
-  color: #0f172a;
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(1rem, 1.5vw, 1.3rem);
-  line-height: 1.25;
-  box-shadow: 0 10px 30px rgba(10, 20, 50, 0.18);
+  border-radius: 1.1rem 1.1rem 0.25rem 1.1rem;
+  background: rgba(12, 18, 44, 0.42);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(10px) saturate(1.3);
+  border: 1px solid rgb(255, 255, 255);
+  box-shadow: 0 10px 30px rgba(6, 10, 30, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  text-shadow: none;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: clamp(0.8rem, 1.1vw, 1rem);
+  line-height: 1.35;
   pointer-events: none;
-  transform: translateY(-100%);
-  transform-origin: left bottom;
+  transform: translate(-100%, -100%);
+  transform-origin: right bottom;
   animation: hero-bubble-in 0.28s cubic-bezier(0.2, 1.4, 0.4, 1) both;
 }
 
+/* tail: a triangle OUTSIDE the body, so the glass never double-layers */
 .hero__bubble::after {
   content: '';
   position: absolute;
-  left: 14px;
-  bottom: -6px;
-  width: 14px;
-  height: 14px;
-  background: #ffffff;
-  border-radius: 2px;
-  transform: rotate(45deg);
+  right: 14px;
+  left: auto;
+  bottom: -8px;
+  width: 16px;
+  height: 9px;
+  background: rgba(12, 18, 44, 0.42);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  border-radius: 0;
+  transform: none;
 }
 
 .hero__bubble-ghost {
@@ -225,9 +312,10 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #0f172a;
+  background: #ffffff;
   animation: hero-dot 0.9s ease-in-out infinite;
 }
+
 .hero__bubble-dots i:nth-child(2) {
   animation-delay: 0.15s;
 }
@@ -238,11 +326,11 @@
 @keyframes hero-bubble-in {
   from {
     opacity: 0;
-    transform: translateY(-100%) scale(0.7);
+    transform: translate(-100%, -100%) scale(0.7);
   }
   to {
     opacity: 1;
-    transform: translateY(-100%) scale(1);
+    transform: translate(-100%, -100%) scale(1);
   }
 }
 
@@ -266,14 +354,28 @@
   }
 }
 
+/* ---- Narrow screens: stack the two blocks ---- */
 @media (max-width: 700px) {
-  .hero__letters {
-    --man-h: 0.34em;
-    font-size: min(30vw, 55vh);
+  .hero__title {
+    --fs-l: 22vw;
+    --fs-r: 11.5vw;
+    --r-shift: 0;
+    flex-direction: column;
+    gap: 3vw;
+  }
+
+  .hero__col {
+    align-items: center;
+  }
+
+  .hero__hi {
+    font-size: clamp(0.7rem, 3.2vw, 1rem);
+    margin-bottom: 3vw;
   }
 
   .hero__tagline {
     font-size: clamp(0.6rem, 3vw, 1rem);
     gap: 0 0.6em;
+    margin-top: 4vw;
   }
 }

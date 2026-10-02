@@ -1,10 +1,23 @@
+import { useEffect, useState } from 'react';
 import Header from './components/Header';
 import Home from './pages/Home';
+import ContactPage from './pages/ContactPage';
 import SkyBackground from './components/SkyBackground';
 import ScrollThumb from './components/ScrollThumb';
 import './App.css';
 
 function App() {
+
+const [path, setPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const onNav = () => setPath(window.location.pathname);
+    window.addEventListener('popstate', onNav);
+    return () => window.removeEventListener('popstate', onNav);
+  }, []);
+
+  const isContact = path === '/contact' || path.startsWith('/contact/');
+
   return (
     <div className="app">
       <SkyBackground
@@ -20,10 +33,10 @@ function App() {
         }}
       />
       <Header />
-      <ScrollThumb />
+      {!isContact && <ScrollThumb />}
 
       <main className="app__page">
-        <Home />
+        {isContact ? <ContactPage /> : <Home />}
       </main>
     </div>
   );

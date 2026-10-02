@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import './Header.css';
 import StaggeredMenu from './StaggeredMenu';
-import ContactModal from './ContactModal';
 import { SOCIAL_LINKS, NAV_LINKS } from './SiteLinks';
 
 function Header() {
@@ -41,8 +40,6 @@ function Header() {
           onMenuClose={handleMenuClose}
         />
       </div>
-
-      <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </header>
   );
 }

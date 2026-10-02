@@ -64,19 +64,19 @@ export default function Footer() {
 
           <nav className="footer__links" aria-label="Footer">
             <ul className="footer__list">
-              {NAV_LINKS.map((n) => (
-                <li key={n.label}>
-                  <a href={n.link} aria-label={n.ariaLabel} className="footer__link">
-                    {n.label}
+              {SOCIAL_LINKS.map((s) => (
+                <li key={s.label}>
+                  <a href={s.link} target="_blank" rel="noopener noreferrer" className="footer__link">
+                    {s.label}
                   </a>
                 </li>
               ))}
             </ul>
             <ul className="footer__list">
-              {SOCIAL_LINKS.map((s) => (
-                <li key={s.label}>
-                  <a href={s.link} target="_blank" rel="noopener noreferrer" className="footer__link">
-                    {s.label}
+              {NAV_LINKS.map((n) => (
+                <li key={n.label}>
+                  <a href={n.link} aria-label={n.ariaLabel} className="footer__link">
+                    {n.label}
                   </a>
                 </li>
               ))}

@@ -1,26 +1,32 @@
-/* Instrument Serif is imported at the top of styles/Home.css; Anton is imported in App.css. */
+/* Instrument Serif is imported at the top of styles/Home.css; Anton is imported in App.css.
+   About has NO background of its own: the Hero's pinned sky shows through it. */
 
 .about {
   position: relative;
-  z-index: 6; /* above Projects (5): the exit cloud overlaps its first two screens */
+  z-index: 6; /* above Projects (5) and above the pinned Hero sky */
   width: 100%;
-  /* the fully-covered hero surge is exactly --cloud, so the hand-off has no visible seam */
-  background: var(--cloud, #e6f2ff);
-  color: var(--ink, #14233f);
+  pointer-events: none; /* the Hero underneath stays interactive until About's stage takes over */
+  color: var(--text-primary, #14233f);
 }
 
-/* ---- Sticky layer: the ABOUT watermark ---- */
-.about__stick {
+/* ---- Pinned stage (sticks for PIN_VH of scroll, set in About.tsx) ---- */
+.about__stage {
   position: sticky;
   top: 0;
-  z-index: 0;
   height: 100vh;
   height: 100svh;
+  overflow: clip;
+}
+
+/* ---- ABOUT title ---- */
+.about__title-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-bottom: 4vh; /* Anton's caps sit a little high in the line box; this centres the glyphs optically */
-  pointer-events: none;
+  padding-bottom: 4vh; /* Anton's caps sit a little high in the line box */
 }
 
 .about__title {
@@ -30,97 +36,65 @@
   font-weight: 400;
   font-size: 35vw; /* replaced by the fitted px value in About.tsx once fonts are ready */
   line-height: 1;
-  color: var(--accent, #26619c);
-  opacity: 0.92; /* GSAP scrubs this down to ~0.2 */
+  color: #ffffff; /* white, then white @ 25% opacity once settled (GSAP scrubs opacity) */
   user-select: none;
   transform-origin: 50% 50%;
   will-change: transform, opacity;
 }
 
-/* ---- Flow layer: pulled up over the sticky one ---- */
-.about__flow {
-  position: relative;
-  z-index: 1;
-  margin-top: -100vh;
-  margin-top: -100svh;
-}
-
-/* Gives the title time to settle before the first paragraph arrives */
-.about__lead {
-  height: 200vh;
-}
-
-.about__copy {
-  position: sticky; /* pins the final look (text + signature) during the hold zone */
+/* ---- Lanyard: right half of the stage. It starts at the centre (x offset by GSAP) and slides here ---- */
+.about__lanyard {
+  position: absolute;
   top: 0;
-  min-height: 100vh;
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 6vw;
+  right: 0;
+  width: 50vw;
+  height: 100%;
+  z-index: 1;
+  visibility: hidden; /* GSAP autoAlpha reveals it */
+  pointer-events: auto; /* the card is draggable */
 }
 
-/* Scroll distance the copy stays pinned (paragraphs finish, pause, signature, rest).
-   About.tsx sets the real value inline (HOLD_VH); this is only a fallback. */
-.about__hold {
-  height: 700vh;
+.about__lanyard .lanyard-wrapper {
+  height: 100%;
 }
 
-.about__text {
-  width: min(66vw, 62rem);
-  text-align: center;
+/* ---- Paragraphs: left part ---- */
+.about__copy {
+  position: absolute;
+  z-index: 2;
+  left: 6vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(40vw, 38rem);
+  text-align: left;
   font-family: 'Instrument Serif', serif;
-  color: var(--ink, #14233f);
 }
 
-.about__text .scroll-reveal {
-  margin: 3.5vh 0;
-}
-
-.about__text .scroll-reveal-text {
-  font-family: 'Instrument Serif', serif;
-  font-size: clamp(1.5rem, 2.9vw, 3.1rem);
+.about__p {
+  margin: 0 0 3vh;
+  font-size: clamp(1.4rem, 2.4vw, 2.7rem);
   line-height: 1.22;
   font-weight: 400;
-  white-space: normal;
+  will-change: transform, opacity;
 }
 
-/* Instrument Serif has no bold weight, so the highlights are the lapis lazuli colour + its italic cut */
+.about__p:last-child {
+  margin-bottom: 0;
+}
+
+/* Instrument Serif has no bold: highlights = accent colour + italic cut */
 .about__hl {
-  color: var(--accent, #26619c);
+  color: var(--hero-purple, var(--accent, #26619c));
   font-style: italic;
 }
 
-/* ---- Signature ---- */
-.about__signature {
-  position: absolute;
-  left: 5%;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-  pointer-events: none;
-  overflow: visible;
-}
-
-.about__signature-ink {
-  fill: var(--accent, #26619c);
-  opacity: 0.5; /* one path => opacity composites as a unit, no dark overlaps */
-}
-
-/* ---- Exit cloud: Hero -> About surge, reversed and inverted ---- */
-/* Absolutely positioned so it adds no height to About. It starts 100vh above About's bottom edge
-   and runs 200vh into Projects. The sticky child pins for 200vh of scroll: the first viewport
-   it is a solid cloud (same colour as About's background) while About scrolls away, the second
-   viewport it lifts off the top and reveals Projects. z-index -1 keeps it BEHIND About's own
-   title, text and signature (About is a stacking context via z-index above), yet above Projects. */
+/* ---- Exit cloud: descends over the pinned sky + About content, holds solid while About leaves,
+   then lifts off the top revealing Projects. bottom/height are set inline in About.tsx. ---- */
 .about__exit {
   position: absolute;
   left: 0;
   width: 100%;
-  bottom: -200vh;
-  height: 300vh; /* 100vh sticky + 200vh of pin */
-  z-index: -1;
+  z-index: 3;
   pointer-events: none;
 }
 
@@ -139,11 +113,20 @@
 }
 
 @media (max-width: 700px) {
-  .about__text {
-    width: 86vw;
+  .about__lanyard {
+    width: 100vw;
   }
 
-  .about__text .scroll-reveal-text {
-    font-size: clamp(1.25rem, 5.4vw, 1.8rem);
+  .about__copy {
+    top: auto;
+    bottom: 7vh;
+    left: 6vw;
+    width: 88vw;
+    transform: none;
+  }
+
+  .about__p {
+    font-size: clamp(1.1rem, 4.8vw, 1.6rem);
+    margin-bottom: 1.6vh;
   }
 }

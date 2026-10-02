@@ -15,11 +15,13 @@ import {
 } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
+import { useTheme } from './ThemeContext';
+import { allLanyardUrls, getLanyardAssets } from './lanyardThemes';
+
+import './Lanyard.css';
 
 const CARD_MODEL_URL = '/card.glb';
 const LANYARD_TEXTURE_URL = '/lanyard.png';
-
-import './Lanyard.css';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
@@ -47,6 +49,7 @@ interface LanyardProps {
   gravity?: [number, number, number];
   fov?: number;
   transparent?: boolean;
+  /** Leave undefined to use the current theme's image from lanyardThemes.ts. Pass null for "none". */
   frontImage?: string | null;
   backImage?: string | null;
   imageFit?: 'cover' | 'contain';
@@ -59,18 +62,30 @@ export default function Lanyard({
   gravity = [0, -40, 0],
   fov = 10,
   transparent = true,
-  frontImage = "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1790004010/lanyardfront2_iyxvlq.png",
-  backImage = "https://res.cloudinary.com/dxnb2ozgw/image/upload/v1790000723/lanyardback_ld232n.png",
+  frontImage,
+  backImage,
   imageFit = 'cover',
-  lanyardImage = null,
+  lanyardImage,
   lanyardWidth = 1.5
 }: LanyardProps) {
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const { resolvedTheme } = useTheme();
+
+  // Per-theme images (edit them in lanyardThemes.ts); explicit props still win.
+  const assets = getLanyardAssets(resolvedTheme);
+  const front = frontImage === undefined ? assets.front : frontImage;
+  const back = backImage === undefined ? assets.back : backImage;
+  const strap = lanyardImage === undefined ? assets.strap : lanyardImage;
 
   useEffect(() => {
     const handleResize = (): void => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Preload every theme's images so switching themes doesn't flash an empty scene
+  useEffect(() => {
+    allLanyardUrls().forEach(url => useTexture.preload(url));
   }, []);
 
   return (
@@ -85,10 +100,10 @@ export default function Lanyard({
         <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
           <Band
             isMobile={isMobile}
-            frontImage={frontImage}
-            backImage={backImage}
+            frontImage={front}
+            backImage={back}
             imageFit={imageFit}
-            lanyardImage={lanyardImage}
+            lanyardImage={strap}
             lanyardWidth={lanyardWidth}
           />
         </Physics>

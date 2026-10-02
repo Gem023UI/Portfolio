@@ -16,34 +16,15 @@ import './Hero.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ---------------------------------------------------------------------------
-// Layout (matches the reference picture):
-//   HI! I'M JEMUEL MALAGA                       (centered, small)
-//   DESIGN      | THE FEELING                   (left: accent, big / right: white, smaller)
-//   ENGINEER    | THE EXPERIENCE .              (the man sits on the end of "EXPERIENCE")
-//   FULL STACK DEVELOPER | PRODUCT DESIGN       (centered, small)
-//
-// Stacking plan (all siblings inside the hero's own stacking context):
-//   0        sky shader
-//   8        birds (far)
-//   15-35    clouds  <- random z each, so each one lands behind/between/in front of the lines
-//   20..26   title lines (DESIGN=20, ENGINEER=22, THE FEELING=24, THE EXPERIENCE=26)
-//            the man lives inside THE EXPERIENCE -> shares its z-index
-//   25       "Hi!" + tagline
-//   45 / 55  birds (mid / near)
-//   50       signature (scroll-written)
-//   60       speech bubble
-// ---------------------------------------------------------------------------
-
-/** Scroll distance (in vh) the hero stays pinned while the signature is written, BEFORE the cloud surge. */
 export const HERO_SIGNATURE_SCROLL_VH = 220;
-/** The pen finishes at this fraction of the signature phase; the rest is a calm hold. */
+export const HERO_EXIT_SCROLL_VH = 100;
+
 const PEN_DONE_AT = 0.85;
 
 const SHOW_DRIFT_CLOUDS = false;
 const CLOUD_COUNT = SHOW_DRIFT_CLOUDS ? 9 : 0;
 
-const ANSWER_HOLD_MS = 3000; // after typing finishes (typing budget is 5s => 8s max total)
+const ANSWER_HOLD_MS = 5000;
 const AMBIENT_HOLD_MS = 2800;
 
 type BubbleKind = 'ambient' | 'hover' | 'answer';
@@ -74,8 +55,8 @@ export default function Hero() {
   const manRef = useRef<HTMLButtonElement>(null);
   const sigRef = useRef<SVGSVGElement>(null);
   const glassRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  // ---- clouds ----
   const sprites = useMemo(
     () => (SHOW_DRIFT_CLOUDS ? makeCloudSprites(cloudRgb(resolvedTheme)) : []),
     [resolvedTheme]
@@ -87,15 +68,14 @@ export default function Hero() {
     () =>
       Array.from({ length: CLOUD_COUNT }, (_, i) => ({
         sprite: i,
-        width: rand(38, 80), // vw
-        top: rand(-8, 82), // % of hero height
+        width: rand(38, 80),
+        top: rand(-8, 82),
         opacity: rand(0.7, 0.95),
         z: randomCloudZ(),
       })),
     []
   );
 
-  // ---- man / bubble / ask state ----
   const [bubble, setBubble] = useState<BubbleState | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [talking, setTalking] = useState(false);
@@ -124,7 +104,7 @@ export default function Hero() {
   }, [clearHide]);
 
   const measure = useCallback(() => {
-    const root = rootRef.current;
+    const root = contentRef.current; 
     const man = manRef.current;
     if (!root || !man) return;
     const hr = root.getBoundingClientRect();
@@ -169,7 +149,7 @@ export default function Hero() {
   };
 
   const openAsk = () => {
-    askIdRef.current += 1; // cancels any answer still on its way
+    askIdRef.current += 1;
     hide();
     setAskOpen(true);
   };
@@ -186,7 +166,6 @@ export default function Hero() {
     [show]
   );
 
-  // random thoughts / facts every so often, only while nothing else is going on
   useEffect(() => {
     let t = 0;
     const loop = () => {
@@ -214,7 +193,6 @@ export default function Hero() {
     };
   }, [measure, clearHide]);
 
-  // ---- intro + cloud drift (no parallax) ----
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -300,15 +278,13 @@ export default function Hero() {
 
     add(root.querySelector('.hero__hi'), 0.35);
     add(root.querySelector('.hero__tagline'), 0.35);
-    // DESIGN, ENGINEER, THE FEELING, THE EXPERIENCE (the man rides with his line)
     root.querySelectorAll('.hero__line').forEach((el, i) => add(el, [0.5, 0.6, 0.9, 1.0][i] ?? 0.7));
-    // clouds: the lower their z (further back), the less they move
     cloudRefs.current.forEach((wrap) => {
       if (!wrap) return;
       add(wrap, () => 0.2 + (((parseInt(wrap.style.zIndex, 10) || 25) - 15) / 20) * 0.8);
     });
 
-    const STRENGTH = 0.016; // max shift = this * viewport width, at depth 1
+    const STRENGTH = 0.016;
     const EASE = 0.08;
     let tx = 0;
     let ty = 0;
@@ -319,14 +295,14 @@ export default function Hero() {
       let moving = false;
       for (const l of layers) {
         const d = typeof l.depth === 'function' ? l.depth() : l.depth;
-        const gx = -tx * amp * d; // layers drift opposite to the cursor
+        const gx = -tx * amp * d;
         const gy = -ty * amp * d * 0.7;
         l.x += (gx - l.x) * EASE;
         l.y += (gy - l.y) * EASE;
         if (Math.abs(gx - l.x) > 0.05 || Math.abs(gy - l.y) > 0.05) moving = true;
         l.el.style.translate = `${l.x.toFixed(2)}px ${l.y.toFixed(2)}px`;
       }
-      if (kindRef.current) measure(); // keep the bubble glued to the man
+      if (kindRef.current) measure();
       raf = moving ? requestAnimationFrame(tick) : 0;
     };
     const kick = () => {
@@ -368,8 +344,6 @@ export default function Hero() {
 
     let length = 0;
 
-    // CSS can't mask with a live SVG <mask>, so the glass layer gets an SVG data-URI mask
-    // (outline clipped by the dashed pen). Quantised to STEPS and cached to keep scrolling cheap.
     const STEPS = 240;
     const maskCache = new Map<number, string>();
     const maskFor = (step: number) => {
@@ -438,140 +412,156 @@ export default function Hero() {
     };
   }, []);
 
+  useEffect(() => {
+    const root = rootRef.current;
+    const content = contentRef.current;
+    if (!root || !content) return;
+    const stage = (root.closest('.hero-stage') as HTMLElement | null) ?? root;
+    const tween = gsap.to(content, {
+      y: () => -window.innerHeight,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: stage,
+        start: () => `top+=${Math.round((window.innerHeight * HERO_SIGNATURE_SCROLL_VH) / 100)} top`,
+        end: () => `+=${Math.round((window.innerHeight * HERO_EXIT_SCROLL_VH) / 100)}`,
+        scrub: true,
+        invalidateOnRefresh: true,
+      },
+    });
+    return () => {
+      tween.scrollTrigger?.kill();
+      tween.kill();
+      gsap.set(content, { clearProps: 'transform' });
+    };
+  }, []);
+
   return (
     <section className="hero" ref={rootRef} aria-label="Introduction">
-      <SkyBackground
-        className="hero__sky"
-        style={{ position: 'absolute', inset: 0, height: '100%', aspectRatio: 'auto' }}
-      />
-
-      <Birds layer="back" />
-
-      {cloudCfg.map((c, i) => (
-        <div
-          key={i}
-          className="hero__cloud"
-          ref={(el) => {
-            cloudRefs.current[i] = el;
-          }}
-          style={{ top: `${c.top}%`, zIndex: c.z }}
-        >
-          <img
-            src={sprites[c.sprite % Math.max(1, sprites.length)]}
-            alt=""
-            draggable={false}
-            style={{ width: `${c.width}vw`, opacity: c.opacity }}
-          />
-        </div>
-      ))}
-
-      {/* Centered column: Hi / title / tagline.
-          No z-index / transform / opacity on this wrapper, the h1 or the two columns: they must
-          NOT form a stacking context, otherwise the clouds couldn't interleave with the lines. */}
-      <div className="hero__center">
-        <p className="hero__hi" aria-hidden="true">
-          Hi! I’m Jemuel Malaga
-        </p>
-
-        <h1 className="hero__title" aria-label="Design Engineer. The feeling, the experience.">
-          <span className="hero__col hero__col--l" aria-hidden="true">
-            <span className="hero__line" style={{ zIndex: 20 }}>
-              <span className="hero__line-inner">Design</span>
+      <div className="hero__content" ref={contentRef}>
+        <Birds layer="back" />
+ 
+        {cloudCfg.map((c, i) => (
+          <div
+            key={i}
+            className="hero__cloud"
+            ref={(el) => {
+              cloudRefs.current[i] = el;
+            }}
+            style={{ top: `${c.top}%`, zIndex: c.z }}
+          >
+            <img
+              src={sprites[c.sprite % Math.max(1, sprites.length)]}
+              alt=""
+              draggable={false}
+              style={{ width: `${c.width}vw`, opacity: c.opacity }}
+            />
+          </div>
+        ))}
+ 
+        <div className="hero__center">
+          <p className="hero__hi" aria-hidden="true">
+            Hi! I’m Jemuel Malaga
+          </p>
+ 
+          <h1 className="hero__title" aria-label="Design Engineer. The feeling, the experience.">
+            <span className="hero__col hero__col--l" aria-hidden="true">
+              <span className="hero__line" style={{ zIndex: 20 }}>
+                <span className="hero__line-inner">Design</span>
+              </span>
+              <span className="hero__line" style={{ zIndex: 22 }}>
+                <span className="hero__line-inner">Engineer</span>
+              </span>
             </span>
-            <span className="hero__line" style={{ zIndex: 22 }}>
-              <span className="hero__line-inner">Engineer</span>
-            </span>
-          </span>
-
-          <span className="hero__col hero__col--r" aria-hidden="true">
-            <span className="hero__line" style={{ zIndex: 24 }}>
-              <span className="hero__line-inner">The Feeling,</span>
-            </span>
-            <span className="hero__line hero__line--exp" style={{ zIndex: 26 }}>
-              <span className="hero__line-inner">
-                <span className="hero__exp">
-                  The Experience.
-                  <button
-                    type="button"
-                    ref={manRef}
-                    className="hero__man"
-                    aria-label="Ask me anything about Jemuel"
-                    onPointerEnter={onManEnter}
-                    onPointerLeave={onManLeave}
-                    onFocus={onManEnter}
-                    onBlur={onManLeave}
-                    onClick={openAsk}
-                  >
-                    <HeroMan talking={talking} paused={askOpen} />
-                  </button>
+ 
+            <span className="hero__col hero__col--r" aria-hidden="true">
+              <span className="hero__line" style={{ zIndex: 24 }}>
+                <span className="hero__line-inner">The Feeling,</span>
+              </span>
+              <span className="hero__line hero__line--exp" style={{ zIndex: 26 }}>
+                <span className="hero__line-inner">
+                  <span className="hero__exp">
+                    The Experience.
+                    <button
+                      type="button"
+                      ref={manRef}
+                      className="hero__man"
+                      aria-label="Ask me anything about Jemuel"
+                      onPointerEnter={onManEnter}
+                      onPointerLeave={onManLeave}
+                      onFocus={onManEnter}
+                      onBlur={onManLeave}
+                      onClick={openAsk}
+                    >
+                      <HeroMan talking={talking} paused={askOpen} />
+                    </button>
+                  </span>
                 </span>
               </span>
             </span>
-          </span>
-        </h1>
-
-        <p className="hero__tagline hero__tagline-line">
-          <span>Full Stack Developer</span>
-          <span className="hero__tagline-sep" aria-hidden="true">
-            |
-          </span>
-          <span>Brand & Product Design</span>
-        </p>
+          </h1>
+ 
+          <p className="hero__tagline hero__tagline-line">
+            <span>Full Stack Developer</span>
+            <span className="hero__tagline-sep" aria-hidden="true">
+              |
+            </span>
+            <span>Brand & Product Design</span>
+          </p>
+        </div>
+ 
+        <Birds layer="mid" />
+        <Birds layer="front" />
+ 
+        <div ref={glassRef} className="hero__signature-glass" aria-hidden="true" />
+ 
+        <svg
+          ref={sigRef}
+          className="hero__signature"
+          viewBox={`0 0 ${SIGNATURE.width} ${SIGNATURE.height}`}
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
+          <defs>
+            <mask
+              id="hero-signature-reveal"
+              maskUnits="userSpaceOnUse"
+              x={0}
+              y={0}
+              width={SIGNATURE.width}
+              height={SIGNATURE.height}
+            >
+              <path
+                className="sig-pen"
+                d={SIGNATURE.pen}
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth={SIGNATURE.penWidth}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </mask>
+          </defs>
+          <path
+            className="hero__signature-ink"
+            d={SIGNATURE.outline}
+            fillRule="evenodd"
+            mask="url(#hero-signature-reveal)"
+          />
+        </svg>
+ 
+        {bubble && (
+          <ManBubble
+            key={bubble.key}
+            text={bubble.text}
+            typed={bubble.typed}
+            loading={bubble.loading}
+            x={pos.x}
+            y={pos.y}
+            onTyped={onTyped}
+          />
+        )}
       </div>
-
-      <Birds layer="mid" />
-      <Birds layer="front" />
-
-      <div ref={glassRef} className="hero__signature-glass" aria-hidden="true" />
-
-      {/* Signature, written on scroll before the exit transition */}
-      <svg
-        ref={sigRef}
-        className="hero__signature"
-        viewBox={`0 0 ${SIGNATURE.width} ${SIGNATURE.height}`}
-        preserveAspectRatio="xMidYMid meet"
-        aria-hidden="true"
-      >
-        <defs>
-          <mask
-            id="hero-signature-reveal"
-            maskUnits="userSpaceOnUse"
-            x={0}
-            y={0}
-            width={SIGNATURE.width}
-            height={SIGNATURE.height}
-          >
-            <path
-              className="sig-pen"
-              d={SIGNATURE.pen}
-              fill="none"
-              stroke="#ffffff"
-              strokeWidth={SIGNATURE.penWidth}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </mask>
-        </defs>
-        <path
-          className="hero__signature-ink"
-          d={SIGNATURE.outline}
-          fillRule="evenodd"
-          mask="url(#hero-signature-reveal)"
-        />
-      </svg>
-
-      {bubble && (
-        <ManBubble
-          key={bubble.key}
-          text={bubble.text}
-          typed={bubble.typed}
-          loading={bubble.loading}
-          x={pos.x}
-          y={pos.y}
-          onTyped={onTyped}
-        />
-      )}
-
+ 
       <AskOverlay open={askOpen} onClose={() => setAskOpen(false)} onSubmit={handleAsk} />
     </section>
   );

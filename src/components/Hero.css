@@ -4,12 +4,16 @@
 .hero-stage {
   position: relative;
   width: 100%;
-  height: 100vh;
+}
+
+.hero__content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  will-change: transform;
 }
 
 .hero {
-  /* --u: the sizing unit for the title. The reference is 16:9, so size by whichever of
-     width / height is the tighter fit (1vw == 1.773vh at 16:9). */
   --u: min(1vw, 1.773vh);
 
   position: sticky;

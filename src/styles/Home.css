@@ -1,17 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 
-/* Full replacement of the old Home.css (all of its tile-grid / about / projects / certifications
-   rules belonged to the previous design and are no longer used). */
-
 .home {
   width: 100%;
 }
 
-/* ---- Hero stage: hero is pinned while the cloud surge scrolls in over it ---- */
+/* ---- Hero stage: Hero + About share it. Height comes from About's own scroll length. ---- */
 .hero-stage {
   position: relative;
   width: 100%;
-  /* height is set inline in Home.tsx: 100vh + the surge scroll distance */
 }
 
 .hero-pin {
@@ -27,13 +23,4 @@
   position: absolute;
   inset: 0;
   height: 100%;
-}
-
-.hero-pin__surge {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 100; /* above every hero layer (highest is the front birds at 55) */
-  pointer-events: none;
 }

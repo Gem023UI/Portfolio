@@ -1,11 +1,8 @@
-import { useState } from 'react';
 import './Header.css';
 import StaggeredMenu from './StaggeredMenu';
 import { SOCIAL_LINKS, NAV_LINKS } from './SiteLinks';
 
 function Header() {
-  const [contactOpen, setContactOpen] = useState(false);
-
   const handleMenuOpen = () => {
     document.body.classList.add('staggered-menu-open');
   };
@@ -14,9 +11,13 @@ function Header() {
     document.body.classList.remove('staggered-menu-open');
   };
 
-  // Same list Footer renders; Contact gets its modal-opening behaviour added here.
+  const openContactPage = () => {
+    window.history.pushState({}, '', '/contact');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
   const menuItems = NAV_LINKS.map((item) =>
-    item.label === 'Contact' ? { ...item, onClick: () => setContactOpen(true) } : item
+    item.label === 'Contact' ? { ...item, onClick: openContactPage } : item
   );
 
   return (
@@ -30,11 +31,10 @@ function Header() {
           socialItems={SOCIAL_LINKS}
           displaySocials
           displayItemNumbering
-          menuButtonColor="#111111"
-          openMenuButtonColor="#111111"
+          menuButtonColor="var(--ink)"
+          openMenuButtonColor="var(--ink)"
           changeMenuColorOnOpen
-          colors={['#734dff', '#5fcb3c']}
-          accentColor="#734dff"
+          accentColor="var(--hero-accent)"
           isFixed
           onMenuOpen={handleMenuOpen}
           onMenuClose={handleMenuClose}

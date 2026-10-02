@@ -1,11 +1,11 @@
-/* Instrument Serif is imported at the top of styles/Home.css */
+/* Instrument Serif is imported at the top of styles/Home.css.
+   No background of its own: the app-level sky (App.tsx) shows through. */
 
 .certifications {
   position: relative;
   z-index: 4;
   width: 100%;
-  /* same background as About: the Projects exit surge ends as solid --cloud, so the hand-off has no seam */
-  background: var(--cloud, #e6f2ff);
+  background: transparent;
   color: var(--ink, #14233f);
 }
 
@@ -20,7 +20,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--cloud, #e6f2ff);
+  background: transparent;
 }
 
 /* Centred without a CSS transform, so GSAP's scale is the only transform on it */
@@ -37,7 +37,7 @@
   font-size: 20vw; /* replaced by the fitted px value once the font is ready */
   line-height: 1;
   letter-spacing: 0.01em;
-  color: var(--accent, #26619c); /* white would vanish on the cloud background */
+  color: var(--on-sky, #ffffff); /* sits on the sky now (was --accent on the cloud background) */
   opacity: 0.95; /* visible on entry; GSAP scrubs it down to ~0.22 */
   user-select: none;
   pointer-events: none;
@@ -62,29 +62,4 @@
   width: max-content;
   opacity: 0; /* hidden until the title has settled; GSAP fades it in as it slides in */
   will-change: transform, opacity;
-}
-
-/* ---- Exit cloud: pinned over the first two viewports of the Footer, BEHIND the section's content ---- */
-.certifications__exit {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  bottom: -200vh;
-  height: 300vh; /* 100vh sticky + 200vh of pin */
-  z-index: -1;
-  pointer-events: none;
-}
-
-.certifications__exit-stick {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-}
-
-.certifications__exit-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
 }

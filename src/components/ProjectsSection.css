@@ -1,4 +1,5 @@
-/* Instrument Serif is imported at the top of styles/Home.css */
+/* Instrument Serif is imported at the top of styles/Home.css.
+   No background of its own: the app-level sky (App.tsx) shows through. */
 
 .projects {
   position: relative;
@@ -18,7 +19,7 @@
   align-items: center;
   justify-content: center;
   padding-bottom: 3vh; /* optical centring of the serif caps */
-  background: var(--sky-low, #6699e6);
+  background: transparent;
   pointer-events: none;
 }
 
@@ -37,40 +38,6 @@
   user-select: none;
   transform-origin: 50% 50%;
   will-change: transform, opacity;
-}
-
-/* ---- Cloud fringe ---- */
-.projects__fringe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 130vh; /* was 80vh: the canvas ended before the cloud did, which cut it off */
-  z-index: 1;
-  pointer-events: none;
-  /* safety net: if a billow ever reaches the canvas bottom it feathers instead of cutting */
-  -webkit-mask-image: linear-gradient(to bottom, #000 85%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 85%, transparent 100%);
-}
-
-
-/* solid strip guarantees the very top edge is fully cloud-coloured (== About background) */
-.projects__fringe::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 6vh;
-  background: var(--cloud, #e6f2ff);
-  z-index: 1;
-}
-
-.projects__fringe-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
 }
 
 /* ---- Flow layer ---- */
@@ -94,26 +61,4 @@
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
-}
-
-.projects__exit {
-  position: relative;
-  z-index: 3;
-  height: 200vh;
-  margin-top: -100vh;
-  pointer-events: none;
-}
-
-.projects__exit-stick {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-}
-
-.projects__exit-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
 }

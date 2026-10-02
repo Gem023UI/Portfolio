@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import CertificateCard from './CertificateCard';
-import CloudSurge from './CloudSurge';
 import { useFitTitle } from './UseFitTitle';
 import './CertificationsSection.css';
 
@@ -16,14 +15,12 @@ const CERTIFICATES = [
   { title: 'Certification Title', date: 'Date' },
 ];
 
-// One pinned viewport (timeline is normalised to 0..1):
+// One pinned viewport (timeline is normalised to 0..1). The app-level sky (App.tsx) is the
+// background; there are no cloud transitions.
 //   0 -> 0.25      CERTIFICATIONS settles from 90vw to 80vw at the centre (cards still hidden)
 //   0.25 -> 0.85   cards fade in at the right edge, then pan right -> left; the last card stops
 //                  flush inside the viewport
-//   0.85 -> 1      REST: header + cards sit still, then the pin releases and the whole section
-//                  scrolls away together over a SOLID cloud (same colour as this section's background,
-//                  so there is no seam). Then the cloud lifts off the top (Hero -> About surge played
-//                  backwards and inverted) and reveals the pinned Footer. Same as About -> Projects.
+//   0.85 -> 1      REST: header + cards sit still, then the pin releases and the section scrolls away
 const TITLE_SETTLED_VW = 80;
 const TITLE_INTRO_VW = 90;
 const TITLE_SETTLED_OPACITY = 0.22;
@@ -36,8 +33,6 @@ export default function CertificationsSection() {
   const titleRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const exitRef = useRef<HTMLDivElement>(null);
-  const exitSurge = useRef(1); // starts fully covered; scrubbed 1 -> 0
 
   useFitTitle(titleRef, TITLE_SETTLED_VW, '100px "Instrument Serif"');
 
@@ -46,8 +41,7 @@ export default function CertificationsSection() {
     const title = titleRef.current;
     const viewport = viewportRef.current;
     const track = trackRef.current;
-    const exit = exitRef.current;
-    if (!section || !title || !viewport || !track || !exit) return;
+    if (!section || !title || !viewport || !track) return;
 
     const ctx = gsap.context(() => {
       const pad = () => parseFloat(getComputedStyle(viewport).paddingLeft) || 0;
@@ -76,23 +70,6 @@ export default function CertificationsSection() {
       tl.fromTo(track, { opacity: 0 }, { opacity: 1, duration: 0.06 }, TITLE_END);
       tl.fromTo(track, { x: startX }, { x: () => -maxX(), duration: PAN_END - TITLE_END }, TITLE_END);
       tl.to({}, { duration: 1 - PAN_END }, PAN_END); // rest before the pin releases
-
-      // ---- Exit cloud: pinned for two viewports of scroll, starting when this section's pin releases ----
-      //   first viewport   p stays 1: solid cloud while the section scrolls away and the Footer arrives
-      //   second viewport  p goes 1 -> 0: the cloud lifts off the top, revealing the pinned Footer
-      const exitState = { p: 1 };
-      const exitTl = gsap.timeline({
-        defaults: { ease: 'none' },
-        scrollTrigger: { trigger: exit, start: 'top top', end: 'max', scrub: 0.3 },
-      });
-      exitTl.to({}, { duration: 1 });
-      exitTl.to(exitState, {
-        p: 0,
-        duration: 1,
-        onUpdate: () => {
-          exitSurge.current = exitState.p;
-        },
-      });
     }, section);
 
     const onResize = () => ScrollTrigger.refresh();
@@ -123,13 +100,6 @@ export default function CertificationsSection() {
               <CertificateCard key={i} title={cert.title} date={cert.date} />
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* Exit cloud: pinned over the first two viewports of the Footer, BEHIND this section's content */}
-      <div className="certifications__exit" ref={exitRef} aria-hidden="true">
-        <div className="certifications__exit-stick">
-          <CloudSurge progressRef={exitSurge} fromTop timeOffset={43} className="certifications__exit-canvas" />
         </div>
       </div>
     </section>

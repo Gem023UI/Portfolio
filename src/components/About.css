@@ -1,11 +1,11 @@
-/* Instrument Serif is imported at the top of styles/Home.css; Anton is imported in App.css.
-   About has NO background of its own: the Hero's pinned sky shows through it. */
+/* Instrument Serif is imported at the top of styles/Home.css; Anton and Montserrat are imported in App.css.
+   About has NO background of its own: the app-level sky (App.tsx) shows through it. */
 
 .about {
   position: relative;
-  z-index: 6; /* above Projects (5) and above the pinned Hero sky */
+  z-index: 6; /* above Projects (5) */
   width: 100%;
-  pointer-events: none; /* the Hero underneath stays interactive until About's stage takes over */
+  pointer-events: none;
   color: var(--text-primary, #14233f);
 }
 
@@ -42,20 +42,22 @@
   will-change: transform, opacity;
 }
 
-/* ---- Lanyard: right half of the stage. It starts at the centre (x offset by GSAP) and slides here ---- */
-.about__lanyard {
+/* ---- Tilted card: right half of the stage, card centred in it.
+   It starts at the middle of the screen (x offset by GSAP) and slides to the right half. ---- */
+.about__card {
+  --card-size: min(31vw, 55vh);
+
   position: absolute;
   top: 0;
   right: 0;
   width: 50vw;
   height: 100%;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   visibility: hidden; /* GSAP autoAlpha reveals it */
-  pointer-events: auto; /* the card is draggable */
-}
-
-.about__lanyard .lanyard-wrapper {
-  height: 100%;
+  pointer-events: none; /* the tilt listens on the window, so nothing needs to catch events here */
 }
 
 /* ---- Paragraphs: left part ---- */
@@ -67,14 +69,14 @@
   transform: translateY(-50%);
   width: min(40vw, 38rem);
   text-align: left;
-  font-family: 'Instrument Serif', serif;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .about__p {
   margin: 0 0 3vh;
-  font-size: clamp(1.4rem, 2.4vw, 2.7rem);
-  line-height: 1.22;
-  font-weight: 400;
+  font-size: clamp(1rem, 1.55vw, 1.7rem);
+  line-height: 1.55;
+  font-weight: 600;
   will-change: transform, opacity;
 }
 
@@ -82,38 +84,17 @@
   margin-bottom: 0;
 }
 
-/* Instrument Serif has no bold: highlights = accent colour + italic cut */
+/* highlight colour follows the global theme (lapis / rust / pale blue) */
 .about__hl {
   color: var(--hero-purple, var(--accent, #26619c));
   font-style: italic;
-}
-
-/* ---- Exit cloud: descends over the pinned sky + About content, holds solid while About leaves,
-   then lifts off the top revealing Projects. bottom/height are set inline in About.tsx. ---- */
-.about__exit {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  z-index: 3;
-  pointer-events: none;
-}
-
-.about__exit-stick {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-}
-
-.about__exit-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  font-weight: 700;
 }
 
 @media (max-width: 700px) {
-  .about__lanyard {
+  .about__card {
+    --card-size: min(70vw, 40vh);
+
     width: 100vw;
   }
 
@@ -126,7 +107,7 @@
   }
 
   .about__p {
-    font-size: clamp(1.1rem, 4.8vw, 1.6rem);
+    font-size: clamp(0.9rem, 3.8vw, 1.15rem);
     margin-bottom: 1.6vh;
   }
 }

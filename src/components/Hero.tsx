@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SkyBackground from './SkyBackground';
 import Birds from './Birds';
 import HeroMan from './HeroMan';
 import ManBubble from './ManBubble';

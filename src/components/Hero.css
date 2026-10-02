@@ -23,7 +23,7 @@
   height: 100svh;
   overflow: hidden;
   isolation: isolate;
-  background: var(--sky-main, #b3d9ff);
+  background: transparent;
 }
 
 .hero__sky {

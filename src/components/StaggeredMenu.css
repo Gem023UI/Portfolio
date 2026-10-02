@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument Serif:wght@400;500;600;700&display=swap');
 
 :root[data-theme='morning'],
 :root[data-theme='sunset'] {
@@ -71,7 +71,7 @@
   cursor: pointer;
   color: var(--ink, #14233f);
   font-weight: 500;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Instrument Serif', sans-serif;
   line-height: 1;
   overflow: visible;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -216,7 +216,7 @@
 
 .sm-socials-title {
   margin: 0;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Instrument Serif', sans-serif;
   font-style: normal;
   font-size: 1.1rem;
   font-weight: 600;
@@ -261,7 +261,7 @@
 }
 
 .sm-socials-link {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Instrument Serif', sans-serif;
   font-size: 0.95rem;
   font-weight: 500;
   color: var(--text-primary);
@@ -305,7 +305,7 @@
 }
 
 .sm-visitor-label {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Instrument Serif', sans-serif;
   font-size: 0.9rem;
   font-weight: 400;
   text-transform: uppercase;
@@ -315,7 +315,7 @@
 
 .sm-panel-title {
   margin: 0;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Instrument Serif', sans-serif;
   font-size: 1rem;
   font-weight: 400;
   color: var(--text-primary);
@@ -334,7 +334,7 @@
 .sm-panel-item {
   position: relative;
   color: var(--text-primary);
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Instrument Serif', sans-serif;
   font-weight: 600;
   font-size: 2.1rem;
   cursor: pointer;

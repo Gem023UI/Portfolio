@@ -49,7 +49,7 @@ body {
   --text-primary: #4A2418; --text-secondary: #8a5a45;
   --hero-purple: var(--accent); --hero-purple-strong: #8a3520;
   --hero-green: #5fcb3c; --contrib-dot-empty: #ecd3b0;
-  --hero-accent: #ffcc55;
+  --hero-accent: #ffdd00;
   color-scheme: light;
 }
 :root[data-theme='night'] {

@@ -7,19 +7,6 @@ import './About.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// The app-level sky (App.tsx) is the background for both Hero and About; About is transparent.
-// Scroll map, in vh, measured from the top of the shared .hero-stage:
-//   0   -> 220  Hero signature is written                          (Hero.tsx)
-//   220 -> 320  all Hero content scrolls away                      (Hero.tsx)
-//   320 -> 400  empty sky (ABOUT_GAP_VH)
-//   400 ->      About rises in and pins; T = scroll since it pinned:
-//     T   0 ->  50  ABOUT settles 90vw -> 80vw
-//     T  50 ->  80  ABOUT goes white -> white @ 25%
-//     T  80 -> 110  card appears in the middle
-//     T 110 -> 190  card slides right and settles; paragraphs fade upward on the left
-//     T 190 -> 250  calm, then the pin releases and About scrolls away normally
-// Everything is scroll-scrubbed, so scrolling back up plays it in reverse.
-
 const TITLE_SETTLED_VW = 80;
 const TITLE_INTRO_VW = 90;
 const TITLE_SETTLED_OPACITY = 0.25;

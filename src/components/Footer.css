@@ -100,7 +100,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6em;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Instrument Serif', sans-serif;
   font-weight: 600;
   font-size: clamp(0.9rem, 1.1vw, 1.05rem);
   color: var(--on-sky, #ffffff);

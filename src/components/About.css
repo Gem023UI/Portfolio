@@ -1,4 +1,4 @@
-/* Instrument Serif is imported at the top of styles/Home.css; Anton and Montserrat are imported in App.css.
+/* Instrument Serif is imported at the top of styles/Home.css; Anton and Instrument Serif are imported in App.css.
    About has NO background of its own: the app-level sky (App.tsx) shows through it. */
 
 .about {
@@ -69,7 +69,7 @@
   transform: translateY(-50%);
   width: min(40vw, 38rem);
   text-align: left;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Instrument Serif', sans-serif;
 }
 
 .about__p {
@@ -84,9 +84,8 @@
   margin-bottom: 0;
 }
 
-/* highlight colour follows the global theme (lapis / rust / pale blue) */
 .about__hl {
-  color: var(--hero-purple, var(--accent, #26619c));
+  color: var(--hero-purple, var(--hero-accent, #26619c));
   font-style: italic;
   font-weight: 700;
 }

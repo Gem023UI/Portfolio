@@ -37,7 +37,7 @@ const springValues: SpringOptions = {
 export default function TiltedCard({
   imageSrc,
   altText = 'Tilted card image',
-  captionText = 'Designer / Developer',
+  captionText = '',
   containerHeight = '300px',
   containerWidth = '100%',
   imageHeight = '300px',

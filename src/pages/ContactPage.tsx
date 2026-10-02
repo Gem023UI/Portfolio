@@ -120,6 +120,13 @@ export default function ContactPage() {
     setSent(true);
   };
 
+  const allEmpty = !values.name && !values.email && !values.message;
+
+  const handleClear = () => {
+    setValues({ name: '', email: '', message: '' });
+    setSent(false);
+  };
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(CONTACT_EMAIL);
@@ -172,9 +179,14 @@ export default function ContactPage() {
             {hint('message')}
           </div>
 
-          <button type="submit" className="contact-page__submit" disabled={!allValid}>
-            Open in Gmail ↗
-          </button>
+          <div className="contact-page__actions">
+            <button type="submit" className="contact-page__submit" disabled={!allValid}>
+              Open in Gmail ↗
+            </button>
+            <button type="button" className="contact-page__clear" onClick={handleClear} disabled={allEmpty}>
+              Clear entry
+            </button>
+          </div>
           <p className="contact-page__status" aria-live="polite">
             {sent ? 'Gmail opened in a new tab — hit send from there.' : ''}
           </p>

@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import Header from './components/Header';
 import Home from './pages/Home';
 import ContactPage from './pages/ContactPage';
 import SkyBackground from './components/SkyBackground';
 import ScrollThumb from './components/ScrollThumb';
+import LoadingScreen from './components/LoadingScreen';
 import './App.css';
 
 function App() {
@@ -17,9 +18,12 @@ const [path, setPath] = useState(window.location.pathname);
   }, []);
 
   const isContact = path === '/contact' || path.startsWith('/contact/');
+  const [loading, setLoading] = useState(true)
+  const handleLoadingDone = useCallback(() => setLoading(false), [])
 
   return (
     <div className="app">
+      {loading && <LoadingScreen onDone={handleLoadingDone} />}
       <SkyBackground
         className="app__sky"
         style={{

@@ -1,9 +1,5 @@
 import { useEffect, useCallback, useState } from 'react';
-import Header from './components/layout/Header';
 import Home from './pages/Home';
-import ContactPage from './pages/ContactPage';
-import SkyBackground from './components/SkyBackground';
-import ScrollThumb from './components/ScrollThumb';
 import LoadingScreen from './components/LoadingScreen';
 import './App.css';
 
@@ -24,23 +20,9 @@ const [path, setPath] = useState(window.location.pathname);
   return (
     <div className="app">
       {loading && <LoadingScreen onDone={handleLoadingDone} />}
-      <SkyBackground
-        className="app__sky"
-        style={{
-          position: 'fixed',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          aspectRatio: 'auto',
-          zIndex: -1,
-          pointerEvents: 'none',
-        }}
-      />
-      <Header />
-      {!isContact && <ScrollThumb />}
 
       <main className="app__page">
-        {isContact ? <ContactPage /> : <Home />}
+        <Home />
       </main>
     </div>
   );

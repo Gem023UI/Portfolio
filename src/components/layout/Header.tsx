@@ -1,6 +1,6 @@
 import './Header.css';
-import StaggeredMenu from './StaggeredMenu';
-import { SOCIAL_LINKS, NAV_LINKS } from './SiteLinks';
+import StaggeredMenu from '../StaggeredMenu';
+import { SOCIAL_LINKS, NAV_LINKS } from '../SiteLinks';
 
 function Header() {
   const handleMenuOpen = () => {

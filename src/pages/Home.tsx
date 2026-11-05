@@ -1,11 +1,7 @@
 import { useEffect } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { gsap } from 'gsap';
-import Hero from '../components/Hero';
-import About from '../components/About';
-import ProjectsSection from '../components/ProjectsSection';
-import CertificationsSection from '../components/CertificationsSection';
-import Footer from '../components/Footer';
+import Hero from '../components/sections/Hero';
 import '../styles/Home.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -27,12 +23,7 @@ function Home() {
         <div className="hero-pin">
           <Hero />
         </div>
-        <About />
       </div>
-
-      <ProjectsSection />
-      <CertificationsSection />
-      <Footer />
     </main>
   );
 }

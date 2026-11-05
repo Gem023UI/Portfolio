@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState } from 'react';
-import Header from './components/Header';
+import Header from './components/layout/Header';
 import Home from './pages/Home';
 import ContactPage from './pages/ContactPage';
 import SkyBackground from './components/SkyBackground';

@@ -1,49 +1,87 @@
-import { useEffect, useState } from 'react'
-import './LoadingScreen.css'
 
-const MIN_DURATION_MS = 3000
-const FADE_MS = 600
+import { useEffect, useState } from 'react';
+import './LoadingScreen.css';
+
+const MESSAGE_DURATION_MS = 3000;
+const FADE_MS = 600;
+
+const MESSAGES = [
+  'Great design comes from curiosity.',
+  "And you're right where you need to be.",
+  "Name's Jem, welcome aboard.",
+];
 
 interface LoadingScreenProps {
-  onDone: () => void
+  onDone: () => void;
 }
 
 export default function LoadingScreen({ onDone }: LoadingScreenProps) {
-  const [leaving, setLeaving] = useState(false)
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [leaving, setLeaving] = useState(false);
 
-  // Lock scroll while the screen is up
+  // Lock scroll while loading
   useEffect(() => {
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     return () => {
-      document.body.style.overflow = prev
-    }
-  }, [])
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
-  // Wait for BOTH the 3s minimum and the window load, then fade out
+  // Sequential messages, followed by the exit animation
   useEffect(() => {
-    const minTimer = new Promise<void>((resolve) =>
-      window.setTimeout(resolve, MIN_DURATION_MS),
-    )
+    const timers: number[] = [];
+
     const pageLoaded = new Promise<void>((resolve) => {
-      if (document.readyState === 'complete') resolve()
-      else window.addEventListener('load', () => resolve(), { once: true })
-    })
+      if (document.readyState === 'complete') {
+        resolve();
+      } else {
+        window.addEventListener('load', () => resolve(), {
+          once: true,
+        });
+      }
+    });
 
-    let fadeTimer: number | undefined
-    let cancelled = false
+    MESSAGES.forEach((_, index) => {
+      if (index === 0) return;
 
-    Promise.all([minTimer, pageLoaded]).then(() => {
-      if (cancelled) return
-      setLeaving(true)
-      fadeTimer = window.setTimeout(onDone, FADE_MS)
-    })
+      timers.push(
+        window.setTimeout(() => {
+          setMessageIndex(index);
+        }, MESSAGE_DURATION_MS * index),
+      );
+    });
+
+    const sequenceComplete = new Promise<void>((resolve) => {
+      timers.push(
+        window.setTimeout(resolve, MESSAGE_DURATION_MS * MESSAGES.length),
+      );
+    });
+
+    let fadeTimer: number | undefined;
+    let cancelled = false;
+
+    Promise.all([sequenceComplete, pageLoaded]).then(() => {
+      if (cancelled) return;
+
+      setLeaving(true);
+
+      fadeTimer = window.setTimeout(() => {
+        if (!cancelled) onDone();
+      }, FADE_MS);
+    });
 
     return () => {
-      cancelled = true
-      if (fadeTimer) window.clearTimeout(fadeTimer)
-    }
-  }, [onDone])
+      cancelled = true;
+
+      timers.forEach(window.clearTimeout);
+
+      if (fadeTimer !== undefined) {
+        window.clearTimeout(fadeTimer);
+      }
+    };
+  }, [onDone]);
 
   return (
     <div
@@ -51,10 +89,12 @@ export default function LoadingScreen({ onDone }: LoadingScreenProps) {
       role="status"
       aria-live="polite"
     >
-      <p className="loading-screen__text">
-        Great design comes from curiosity. And you&apos;re right where you need to
-        be. Name&apos;s Jem, welcome aboard.
+      <p
+        key={messageIndex}
+        className="loading-screen__text"
+      >
+        {MESSAGES[messageIndex]}
       </p>
     </div>
-  )
+  );
 }

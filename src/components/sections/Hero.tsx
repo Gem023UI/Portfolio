@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lanyard from '../Lanyard';
@@ -6,18 +6,11 @@ import './Hero.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* Kept so other sections that read these keep working */
-export const HERO_SIGNATURE_SCROLL_VH = 220;
-export const HERO_EXIT_SCROLL_VH = 100;
+export const LANYARD_DELAY_MS = 500;
+const TEXT_ENTRANCE_S = 2;
+const ASSET_ENTRANCE_S = 4;
 
-/* ---- Tuning knobs ---- */
-/** Delay (ms) between the text blocks finishing their entrance and the lanyard appearing. */
-export const LANYARD_DELAY_MS = 400;
-/** Duration (s) of the text blocks' entrance. */
-const TEXT_ENTRANCE_S = 1.6;
-/** Paste the card images here (leave '' for a plain white card). */
-/** Paste the card images here (leave '' for a plain white card). */
-const LANYARD_FRONT_IMAGE = '';
+const LANYARD_FRONT_IMAGE = '/coloredID.jpg';
 const LANYARD_BACK_IMAGE = '';
 const LANYARD_STRAP_IMAGE = '';
 
@@ -26,9 +19,11 @@ export default function Hero() {
   const contentRef = useRef<HTMLDivElement>(null);
   const designRef = useRef<HTMLDivElement>(null);
   const cloudRef = useRef<HTMLDivElement>(null);
+  const laptopRef = useRef<HTMLDivElement>(null);
+  const coffeeRef = useRef<HTMLDivElement>(null);
+  const notebookRef = useRef<HTMLDivElement>(null);
   const [showLanyard, setShowLanyard] = useState(false);
 
-  /* Entrance: text blocks slide in together, then the lanyard after LANYARD_DELAY_MS */
   useLayoutEffect(() => {
     const design = designRef.current;
     const cloud = cloudRef.current;
@@ -69,37 +64,58 @@ export default function Hero() {
     };
   }, []);
 
-  /* Hero content scrolls away after the hold period */
-  useEffect(() => {
-    const root = rootRef.current;
-    const content = contentRef.current;
-    if (!root || !content) return;
-    const stage = (root.closest('.hero-stage') as HTMLElement | null) ?? root;
-    const tween = gsap.to(content, {
-      y: () => -window.innerHeight,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: stage,
-        start: () => `top+=${Math.round((window.innerHeight * HERO_SIGNATURE_SCROLL_VH) / 100)} top`,
-        end: () => `+=${Math.round((window.innerHeight * HERO_EXIT_SCROLL_VH) / 100)}`,
-        scrub: true,
-        invalidateOnRefresh: true,
-      },
-    });
+  useLayoutEffect(() => {
+    const laptop = laptopRef.current;
+    const coffee = coffeeRef.current;
+    const notebook = notebookRef.current;
+    if (!laptop || !coffee) return;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let timer: number | undefined;
+
+    if (reduce) {
+      setShowLanyard(true);
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        onComplete: () => {
+          timer = window.setTimeout(() => setShowLanyard(true), LANYARD_DELAY_MS);
+        },
+      });
+      tl.from(laptop, {
+        x: () => -window.innerWidth,
+        duration: ASSET_ENTRANCE_S,
+        ease: 'power3.out',
+      }).from(
+        coffee,
+        {
+          x: () => window.innerWidth,
+          duration: ASSET_ENTRANCE_S,
+          ease: 'power3.out',
+        },
+        0
+      ).from(
+        notebook,
+        {
+          y: () => window.innerHeight,
+          duration: ASSET_ENTRANCE_S,
+          ease: 'power3.out',
+        },
+        0
+      );
+    }, rootRef);
+
     return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-      gsap.set(content, { clearProps: 'transform' });
+      window.clearTimeout(timer);
+      ctx.revert();
     };
   }, []);
 
   return (
     <section className="hero" ref={rootRef} aria-label="Introduction">
       <div className="hero__content" ref={contentRef}>
-        <h1 className="visually-hidden" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>
-          UI/UX Design. Cloud Engineer.
-        </h1>
-
         <div className="hero__frame" aria-hidden="true">
           <div className="hero__design" ref={designRef}>
             <p className="hero__uiux">UI/UX</p>
@@ -112,6 +128,16 @@ export default function Hero() {
           </div>
         </div>
 
+        <div className="hero__laptop" ref={laptopRef}>
+          <img src="/laptop.png" alt="Laptop" className="hero__laptop" />
+        </div>
+        <div className="hero__coffee" ref={coffeeRef}>
+          <img src="/coffee.png" alt="Coffee" className="hero__coffee" />
+        </div>
+        <div className="hero__notebook" ref={notebookRef}>
+          <img src="/notebook.png" alt="Notebook" className="hero__notebook" />
+        </div>
+
         <div className={`hero__lanyard${showLanyard ? ' is-visible' : ''}`}>
           {showLanyard && (
             <Lanyard
@@ -119,11 +145,11 @@ export default function Hero() {
               backImage={LANYARD_BACK_IMAGE || undefined}
               strapImage={LANYARD_STRAP_IMAGE || undefined}
               imageFit="cover"
-              cardColor="#ffffff"
+              cardColor="#323232"
               orientation="portrait"
-              finish="glossy"
+              finish="metallic"
               cornerRadius={0.3}
-              size={0.54}
+              size={0.5}
               anchor="center"
               strapLength={0.4}
               strapColor="#111111"
@@ -136,7 +162,7 @@ export default function Hero() {
               interactive
               intro
             />
-          )}
+          )} 
         </div>
       </div>
     </section>

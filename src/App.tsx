@@ -19,7 +19,7 @@ const [path, setPath] = useState(window.location.pathname);
 
   return (
     <div className="app">
-      {loading && <LoadingScreen onDone={handleLoadingDone} />}
+      {/* {loading && <LoadingScreen onDone={handleLoadingDone} />} */}
 
       <main className="app__page">
         <Home />

@@ -1,112 +1,46 @@
-/* Poppins is imported at the top of styles/Home.css; Anton and Poppins are imported in App.css.
-   About has NO background of its own: the app-level sky (App.tsx) shows through it. */
-
 .about {
-  position: relative;
-  z-index: 6; /* above Projects (5) */
-  width: 100%;
-  pointer-events: none;
-  color: var(--text-primary, #14233f);
-}
-
-/* ---- Pinned stage (sticks for PIN_VH of scroll, set in About.tsx) ---- */
-.about__stage {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  height: 100svh;
-  overflow: clip;
-}
-
-/* ---- ABOUT title ---- */
-.about__title-wrap {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-bottom: 4vh; /* Anton's caps sit a little high in the line box */
-}
-
-.about__title {
-  display: inline-block;
-  white-space: nowrap;
-  font-family: 'Anton', sans-serif;
-  font-weight: 400;
-  font-size: 35vw; /* replaced by the fitted px value in About.tsx once fonts are ready */
-  line-height: 1;
-  color: #ffffff; /* white, then white @ 25% opacity once settled (GSAP scrubs opacity) */
-  user-select: none;
-  transform-origin: 50% 50%;
-  will-change: transform, opacity;
-}
-
-/* ---- Tilted card: right half of the stage, card centred in it.
-   It starts at the middle of the screen (x offset by GSAP) and slides to the right half. ---- */
-.about__card {
-  --card-size: min(31vw, 55vh);
-
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 50vw;
-  height: 100%;
+  min-height: 100vh;
+  padding: 80px 24px;
+  background-color: transparent;
+  font-family: "Instrument Serif", serif;
+  box-sizing: border-box;
   z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  visibility: hidden; /* GSAP autoAlpha reveals it */
-  pointer-events: none; /* the tilt listens on the window, so nothing needs to catch events here */
 }
 
-/* ---- Paragraphs: left part ---- */
-.about__copy {
-  position: absolute;
-  z-index: 2;
-  left: 6vw;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(40vw, 38rem);
-  text-align: left;
-  font-family: 'Poppins', sans-serif;
+.about__text {
+  max-width: 880px;
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.35;
+  text-align: center;
+  color: #111;
+  opacity: 0;
 }
 
-.about__p {
-  margin: 0 0 3vh;
-  font-size: clamp(1rem, 1.55vw, 1.7rem);
-  line-height: 1.55;
-  font-weight: 600;
-  will-change: transform, opacity;
-}
-
-.about__p:last-child {
-  margin-bottom: 0;
-}
-
-.about__hl {
-  color: var(--hero-purple, var(--hero-accent, #26619c));
-  font-style: italic;
-  font-weight: 700;
-}
-
-@media (max-width: 700px) {
-  .about__card {
-    --card-size: min(70vw, 40vh);
-
-    width: 100vw;
+/* @keyframes about-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
   }
-
-  .about__copy {
-    top: auto;
-    bottom: 7vh;
-    left: 6vw;
-    width: 88vw;
-    transform: none;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+} */
 
-  .about__p {
-    font-size: clamp(0.9rem, 3.8vw, 1.15rem);
-    margin-bottom: 1.6vh;
+@media (max-width: 768px) {
+  .about__text {
+    font-size: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about__text,
+  .about__text--visible {
+    opacity: 1;
+    animation: none;
   }
 }

@@ -9,7 +9,7 @@
   height: 85px;
   padding: 0 76px 0 56px;
   background-color: transparent;
-  font-family: "Instrument Serif", serif;
+  font-family: "League Spartan", serif;
   box-sizing: border-box;
   z-index: 10000;
 }
@@ -41,8 +41,8 @@
 }
 
 .site-header__link {
-  font-size: 22px;
-  line-height: 1;
+  font-size: 20px;
+  line-height: 0.8;
   color: #111;
   text-decoration: none;
   transition: opacity 0.2s ease;

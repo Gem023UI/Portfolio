@@ -1,12 +1,12 @@
 import "./Header.css";
 
 const NAV_LINKS = [
-  { label: "About", href: "#about" },
-  { label: "UI/UX", href: "#ui-ux" },
-  { label: "Cloud", href: "#cloud" },
-  { label: "Certifications", href: "#certifications" },
-  { label: "Community", href: "#community" },
-  { label: "Contact", href: "#contact" },
+  { label: "about", href: "#about" },
+  { label: "ui/ux", href: "#ui-ux" },
+  { label: "cloud", href: "#cloud" },
+  { label: "certifications", href: "#certifications" },
+  { label: "community", href: "#community" },
+  { label: "contact", href: "#contact" },
 ];
 
 export default function Header() {

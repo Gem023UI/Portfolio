@@ -9,16 +9,6 @@ import '../styles/Home.css';
 gsap.registerPlugin(ScrollTrigger);
 
 function Home() {
-  useEffect(() => {
-    let cancelled = false;
-    document.fonts?.ready.then(() => {
-      if (!cancelled) ScrollTrigger.refresh();
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   return (
     <main className="home">
       <Header />

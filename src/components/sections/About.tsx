@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import TiltedCard from './TiltedCard';
-import { HERO_SIGNATURE_SCROLL_VH, HERO_EXIT_SCROLL_VH } from './Hero';
+import TiltedCard from '../TiltedCard';
 import './About.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -13,10 +12,8 @@ const TITLE_SETTLED_OPACITY = 0.25;
 const CARD_SHIFT_VW = 25; // card box is the right half, so centre -> right-half centre = 25vw
 
 const PIN_VH = 250; // how long the About stage stays pinned
-const ABOUT_GAP_VH = 80; // empty sky after the hero is gone, before ABOUT rises in
 
 // Space above the pinned stage
-const LEAD_VH = HERO_SIGNATURE_SCROLL_VH + HERO_EXIT_SCROLL_VH + ABOUT_GAP_VH;
 
 export default function About() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -133,7 +130,7 @@ export default function About() {
   return (
     <section className="about" aria-label="About">
       {/* Space while the Hero writes its signature, scrolls away, and the sky rests */}
-      <div className="about__lead" style={{ height: `${LEAD_VH}vh` }} aria-hidden="true" />
+      <div className="about__lead" style={{ height: `vh` }} aria-hidden="true" />
 
       {/* id lives here so "#about" lands on the settled start of About, not mid-signature */}
       <div className="about__track" id="about" ref={trackRef} style={{ height: `${PIN_VH + 100}vh` }}>

@@ -127,10 +127,10 @@
 
 .hero__notebook {
   position: absolute;
-  left: calc(50% + 9 * var(--u));
-  top: calc(50% - 34 * var(--u));
+  left: calc(50% + 10 * var(--u));
+  top: calc(50% - 31 * var(--u));
   z-index: 2;
-  width: calc(25 * var(--u));
+  width: calc(23 * var(--u));
   height: auto;
   will-change: transform;
   transform: rotate(100deg);

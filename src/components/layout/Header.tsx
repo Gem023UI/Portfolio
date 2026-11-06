@@ -1,47 +1,36 @@
-import './Header.css';
-import StaggeredMenu from '../StaggeredMenu';
-import { SOCIAL_LINKS, NAV_LINKS } from '../SiteLinks';
+import "./Header.css";
 
-function Header() {
-  const handleMenuOpen = () => {
-    document.body.classList.add('staggered-menu-open');
-  };
+const NAV_LINKS = [
+  { label: "About", href: "#about" },
+  { label: "UI/UX", href: "#ui-ux" },
+  { label: "Cloud", href: "#cloud" },
+  { label: "Certifications", href: "#certifications" },
+  { label: "Community", href: "#community" },
+  { label: "Contact", href: "#contact" },
+];
 
-  const handleMenuClose = () => {
-    document.body.classList.remove('staggered-menu-open');
-  };
-
-  const openContactPage = () => {
-    window.history.pushState({}, '', '/contact');
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  };
-
-  const menuItems = NAV_LINKS.map((item) =>
-    item.label === 'Contact' ? { ...item, onClick: openContactPage } : item
-  );
-
+export default function Header() {
   return (
-    <header className="header">
-      <a href="/" className="header__logo" aria-label="Jemuel Malaga"></a>
+    <header className="site-header">
+      <a href="#" className="site-header__logo" aria-label="Home">
+        <img src="/coffee.png" alt="" width={50} height={50} />
+      </a>
 
-      <div className="header__menu">
-        <StaggeredMenu
-          position="left"
-          items={menuItems}
-          socialItems={SOCIAL_LINKS}
-          displaySocials
-          displayItemNumbering
-          menuButtonColor="var(--ink)"
-          openMenuButtonColor="var(--ink)"
-          changeMenuColorOnOpen
-          accentColor="var(--hero-accent)"
-          isFixed
-          onMenuOpen={handleMenuOpen}
-          onMenuClose={handleMenuClose}
-        />
-      </div>
+      <nav className="site-header__nav" aria-label="Primary">
+        <ul className="site-header__list">
+          {NAV_LINKS.map(({ label, href }, i) => (
+            <li
+              key={label}
+              className="site-header__item"
+              style={{ animationDelay: `${0.15 + i * 0.08}s` }}
+            >
+              <a href={href} className="site-header__link">
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </header>
   );
 }
-
-export default Header;

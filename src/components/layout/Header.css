@@ -50,6 +50,7 @@
 
 .site-header__link:hover {
   opacity: 0.6;
+  scale: 1.05;
 }
 
 @keyframes header-fade-in-up {

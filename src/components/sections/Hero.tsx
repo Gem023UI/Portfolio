@@ -10,6 +10,17 @@ export const LANYARD_DELAY_MS = 500;
 const TEXT_ENTRANCE_S = 2;
 const ASSET_ENTRANCE_S = 4;
 
+// Parallax: upward travel per element, as a fraction of one viewport height,
+// scrubbed over the first viewport of scroll. Larger = nearer layer.
+const PARALLAX: { selector: string; rate: number }[] = [
+  { selector: '.hero__design', rate: 0.08 },
+  { selector: '.hero__cloud-block', rate: 0.15 },
+  { selector: 'img.hero__laptop', rate: 0.3 },
+  { selector: 'img.hero__coffee', rate: 0.45 },
+  { selector: 'img.hero__notebook', rate: 0.2 },
+  { selector: '.hero__lanyard', rate: 0.75 },
+];
+
 const LANYARD_FRONT_IMAGE = '/coloredID.jpg';
 const LANYARD_BACK_IMAGE = '';
 const LANYARD_STRAP_IMAGE = '';
@@ -111,6 +122,35 @@ export default function Hero() {
       window.clearTimeout(timer);
       ctx.revert();
     };
+  }, []);
+
+  // Scroll parallax. Uses `y` only (entrances use `x`, and the notebook's
+  // entrance `y` lives on its wrapper while this targets the inner <img>),
+  // so it never fights the entrance tweens.
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        defaults: { ease: 'none', duration: 1 },
+        scrollTrigger: {
+          trigger: root.parentElement ?? root,
+          start: 'top top',
+          end: () => `+=${window.innerHeight}`,
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      PARALLAX.forEach(({ selector, rate }) => {
+        const el = root.querySelector(selector);
+        if (el) tl.to(el, { y: () => -rate * window.innerHeight }, 0);
+      });
+    }, root);
+
+    return () => ctx.revert();
   }, []);
 
   return (

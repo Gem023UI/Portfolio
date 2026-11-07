@@ -1,16 +1,21 @@
 .about {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 100vh;
   min-height: 100vh;
   padding: 80px 24px;
   background-color: transparent;
   font-family: "Instrument Serif", serif;
   box-sizing: border-box;
+  overflow: hidden;
   z-index: 1;
 }
 
 .about__text {
+  position: relative;
+  z-index: 1; /* above frame 1, below frames 2 & 3 */
   max-width: 880px;
   margin: 0;
   font-size: 34px;
@@ -20,26 +25,84 @@
   opacity: 0;
 }
 
-/* @keyframes about-fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-} */
+/* ---------- Frames ---------- */
+
+.about__frame {
+  position: absolute;
+  top: 1;
+  box-sizing: border-box;
+  padding: 8px 8px 44px;
+  background-color: #e8e7e5;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.about__frame-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+/* Frame 1 — behind text, translucent, upper right */
+.about__frame--1 {
+  z-index: 0;
+  top: 8%;
+  right: 15%;
+  width: clamp(160px, 20vw, 330px);
+  opacity: 0.5;
+  rotate: 10deg;
+}
+
+/* Frame 2 — above text, lower left */
+.about__frame--2 {
+  z-index: 2;
+  top: 55%;
+  left: 15%;
+  width: clamp(190px, 25vw, 390px);
+  rotate: -7deg;
+}
+
+/* Frame 3 — above text, lower center-right, largest */
+.about__frame--3 {
+  z-index: 2;
+  top: 60%;
+  left: 52%;
+  width: clamp(250px, 32vw, 460px);
+  rotate: 3deg;
+}
 
 @media (max-width: 768px) {
   .about__text {
     font-size: 24px;
   }
+
+  .about__frame--1 {
+    right: 4%;
+    width: 120px;
+  }
+
+  .about__frame--2 {
+    left: 4%;
+    width: 150px;
+  }
+
+  .about__frame--3 {
+    left: 40%;
+    width: 180px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .about__text,
-  .about__text--visible {
+  .about {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .about__text {
     opacity: 1;
     animation: none;
   }

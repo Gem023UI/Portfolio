@@ -70,7 +70,7 @@
 .about__frame--3 {
   z-index: 2;
   top: 60%;
-  left: 52%;
+  left: 40%;
   width: clamp(250px, 32vw, 460px);
   rotate: 3deg;
 }

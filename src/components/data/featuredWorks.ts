@@ -12,7 +12,6 @@ export interface FeaturedProject {
 
 export const FEATURED_TITLE = 'Featured Works';
 
-// Drop final assets into /public/featured/ and update the paths below.
 export const featuredProjects: FeaturedProject[] = [
   {
     id: 'project-1',

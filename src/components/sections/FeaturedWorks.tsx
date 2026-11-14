@@ -6,6 +6,7 @@ import laptopSrc from '../../assets/laptopsvg.svg';
 import laptopFrontSrc from '../../assets/laptopfront.svg';
 import { FEATURED_TITLE, featuredProjects } from '../data/featuredWorks';
 import { laptopShared, layoutBox, renderLaptop } from '../data/laptopWarp';
+import { useSectionScroll } from '../data/useSectionScroll';
 import './FeaturedWorks.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -15,6 +16,7 @@ const hideBroken = (e: SyntheticEvent<HTMLElement>) => {
 };
 
 export default function FeaturedWorks() {
+  useSectionScroll('#featured-works', '#cloud-projects');
   const rootRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);

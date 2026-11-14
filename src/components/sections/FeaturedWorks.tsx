@@ -3,67 +3,16 @@ import type { ElementType, SyntheticEvent } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import laptopSrc from '../../assets/laptopsvg.svg';
+import laptopFrontSrc from '../../assets/laptopfront.svg';
 import { FEATURED_TITLE, featuredProjects } from '../data/featuredWorks';
+import { laptopShared, layoutBox, renderLaptop } from '../data/laptopWarp';
 import './FeaturedWorks.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// laptopsvg.svg is transparent where the display is, and the media sits on a layer
-// beneath it. These numbers describe that SVG (viewBox 1461x822).
-const LAPTOP_VIEWBOX = { w: 1461, h: 822 } as const;
-
-// Corners of the transparent screen hole (TL, TR, BR, BL), pushed outward ~2.5
-// units so the media tucks under the bezel instead of leaving a hairline gap.
-// If you swap the SVG, re-measure these four points.
-const LAPTOP_SCREEN_QUAD: ReadonlyArray<readonly [number, number]> = [
-  [159, 7.5],
-  [978, 25.6],
-  [977.9, 670.7],
-  [159.8, 717.2],
-];
-
-// Size of the flat .fw-screen surface in FeaturedWorks.css (16:10).
-const SRC_W = 960;
-const SRC_H = 600;
-
 const hideBroken = (e: SyntheticEvent<HTMLElement>) => {
   e.currentTarget.style.visibility = 'hidden';
 };
-
-// Builds a matrix3d that maps the flat SRC_W x SRC_H screen onto the glass quad
-// of the laptop SVG (unit square -> quad homography), scaled to the rendered size.
-function screenMatrix(boxW: number, boxH: number) {
-  const sx = boxW / LAPTOP_VIEWBOX.w;
-  const sy = boxH / LAPTOP_VIEWBOX.h;
-  const [[x0, y0], [x1, y1], [x2, y2], [x3, y3]] = LAPTOP_SCREEN_QUAD.map(
-    ([x, y]) => [x * sx, y * sy] as const,
-  );
-
-  const dx1 = x1 - x2;
-  const dx2 = x3 - x2;
-  const dx3 = x0 - x1 + x2 - x3;
-  const dy1 = y1 - y2;
-  const dy2 = y3 - y2;
-  const dy3 = y0 - y1 + y2 - y3;
-  const den = dx1 * dy2 - dy1 * dx2;
-  const g = (dx3 * dy2 - dy3 * dx2) / den;
-  const h = (dx1 * dy3 - dy1 * dx3) / den;
-
-  const a = x1 - x0 + g * x1;
-  const b = x3 - x0 + h * x3;
-  const d = y1 - y0 + g * y1;
-  const e = y3 - y0 + h * y3;
-
-  // normalized (u, v) -> pixel space of the SRC_W x SRC_H element
-  const A = a / SRC_W;
-  const B = b / SRC_H;
-  const D = d / SRC_W;
-  const E = e / SRC_H;
-  const G = g / SRC_W;
-  const H = h / SRC_H;
-
-  return `matrix3d(${A},${D},0,${G},${B},${E},0,${H},0,0,1,0,${x0},${y0},0,1)`;
-}
 
 export default function FeaturedWorks() {
   const rootRef = useRef<HTMLElement>(null);
@@ -73,8 +22,14 @@ export default function FeaturedWorks() {
   const laptopRef = useRef<HTMLDivElement>(null);
   const laptopBoxRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
+  const sideArtRef = useRef<HTMLImageElement>(null);
+  const frontArtRef = useRef<HTMLImageElement>(null);
   const worksRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+
+  // 0 = angled laptop, 1 = front-facing. Scrubbed by the timeline below.
+  const warp = useRef({ t: 0 });
+  const applyWarp = useRef<() => void>(() => {});
 
   // hovered drives title scale + description; screenIndex drives the laptop
   // display and stays on the last hovered project after the cursor leaves.
@@ -82,20 +37,21 @@ export default function FeaturedWorks() {
   const [screenIndex, setScreenIndex] = useState(0);
 
   const activate = (i: number) => {
+    laptopShared.index = i;
     setHovered(i);
     setScreenIndex(i);
   };
 
-  // Keep the display glued to the laptop glass at any rendered size.
+  // Keep the display glued to the laptop glass at any rendered size / warp state.
   useLayoutEffect(() => {
     const box = laptopBoxRef.current;
     const screen = screenRef.current;
-    if (!box || !screen) return;
+    const sideArt = sideArtRef.current;
+    const frontArt = frontArtRef.current;
+    if (!box || !screen || !sideArt || !frontArt) return;
 
-    const apply = () => {
-      if (!box.clientWidth || !box.clientHeight) return;
-      screen.style.transform = screenMatrix(box.clientWidth, box.clientHeight);
-    };
+    const apply = () => renderLaptop({ box, screen, sideArt, frontArt }, warp.current.t);
+    applyWarp.current = apply;
     apply();
 
     const ro = new ResizeObserver(apply);
@@ -112,7 +68,8 @@ export default function FeaturedWorks() {
     });
   }, [screenIndex]);
 
-  // Frame 1 -> frame 2 -> reveal, all scrubbed inside one pin.
+  // Frame 1 -> frame 2 -> reveal -> hand the laptop off to CloudProjects,
+  // all scrubbed inside one pin.
   useEffect(() => {
     const pin = pinRef.current;
     const title = titleRef.current;
@@ -124,15 +81,28 @@ export default function FeaturedWorks() {
     const ctx = gsap.context(() => {
       gsap.set(title, { xPercent: -50, yPercent: -50 });
       gsap.set(laptop, { x: -80 });
-      gsap.set(works, { x: 80 });
+      gsap.set([works, slot], { autoAlpha: 0, x: 80 });
 
-      // Offset from the pin's center to the center of the slot above the list.
-      const toSlot = () => {
-        const p = pin.getBoundingClientRect();
-        const s = slot.getBoundingClientRect();
+      // CloudProjects renders the identical front-facing laptop at its rest pose.
+      // Looked up lazily so it also works when that section mounts after this one
+      // (CloudProjects calls ScrollTrigger.refresh() once it has mounted).
+      const cloud = () => {
+        const el = document.querySelector<HTMLElement>('.cp-laptop');
+        const cpPin = el?.closest<HTMLElement>('.cp-pin') ?? null;
+        return el && cpPin ? { el, pin: cpPin } : null;
+      };
+
+      // Move/scale needed so this laptop lands exactly on CloudProjects' laptop.
+      // Both are measured from layout (no transforms), relative to their own pin.
+      const toCloud = () => {
+        const c = cloud();
+        if (!c) return { x: 0, y: 0, s: 1 };
+        const a = layoutBox(laptop, pin);
+        const b = layoutBox(c.el, c.pin);
         return {
-          x: s.left + s.width / 2 - (p.left + p.width / 2),
-          y: s.top + s.height / 2 - (p.top + p.height / 2),
+          x: b.x + b.w / 2 - (a.x + a.w / 2),
+          y: b.y + b.h / 2 - (a.y + a.h / 2),
+          s: b.w / a.w,
         };
       };
 
@@ -141,7 +111,7 @@ export default function FeaturedWorks() {
         scrollTrigger: {
           trigger: pin,
           start: 'top top',
-          end: '+=180%',
+          end: '+=300%',
           pin: true,
           scrub: true,
           anticipatePin: 1,
@@ -150,17 +120,38 @@ export default function FeaturedWorks() {
         },
       });
 
-      tl.to(title, {
-        scale: () => slot.offsetWidth / title.offsetWidth,
-        x: () => toSlot().x,
-        y: () => toSlot().y,
-        ease: 'power2.inOut',
-        duration: 1,
-        delay: 0.25,
-      })
-        .to(laptop, { autoAlpha: 1, x: 0, ease: 'power2.out', duration: 0.6 }, '>-0.1')
-        .to(works, { autoAlpha: 1, x: 0, ease: 'power2.out', duration: 0.6 }, '<')
-        .to({}, { duration: 0.4 }); // short hold before the pin releases
+      // 1) big title sits settled in the middle
+      tl.to({}, { duration: 0.5 })
+        // 2) it drops behind and dims
+        .set(title, { zIndex: 0 })
+        .to(title, { opacity: 0.12, ease: 'power1.inOut', duration: 0.6 })
+        // 3) on further scroll the section appears: laptop, small title + list
+        .to(laptop, { autoAlpha: 1, x: 0, ease: 'power2.out', duration: 0.6 })
+        .to([works, slot], { autoAlpha: 1, x: 0, ease: 'power2.out', duration: 0.6 }, '<')
+        .to({}, { duration: 0.4 }) // short hold
+        // 4) hand-off to CloudProjects: titles + list leave...
+        .to([title, works, slot], { autoAlpha: 0, ease: 'power1.in', duration: 0.5 })
+        // ...laptop travels to the Cloud position...
+        .to(
+          laptop,
+          {
+            x: () => toCloud().x,
+            y: () => toCloud().y,
+            scale: () => toCloud().s,
+            ease: 'power2.inOut',
+            duration: 1,
+          },
+          '<',
+        )
+        // ...while turning to face the viewer
+        .to(
+          warp.current,
+          { t: 1, ease: 'power2.inOut', duration: 1, onUpdate: () => applyWarp.current() },
+          '<',
+        )
+        .to({}, { duration: 0.3 }) // settle
+        // CloudProjects' identical laptop takes over on the same frame
+        .set(laptop, { autoAlpha: () => (cloud() ? 0 : 1) });
     }, rootRef);
 
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
@@ -209,10 +200,19 @@ export default function FeaturedWorks() {
                   </div>
                 ))}
               </div>
-              {/* upper layer: transparent-background laptop image */}
+              {/* upper layers: transparent-background laptop art (angled, then front) */}
               <img
                 className="fw-laptop-svg"
+                ref={sideArtRef}
                 src={laptopSrc}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+              />
+              <img
+                className="fw-laptop-svg fw-laptop-svg--front"
+                ref={frontArtRef}
+                src={laptopFrontSrc}
                 alt=""
                 aria-hidden="true"
                 draggable={false}
@@ -221,7 +221,7 @@ export default function FeaturedWorks() {
           </div>
 
           <div className="fw-side">
-            {/* reserves the title's final position; the real title animates onto it */}
+            {/* small title: same font, enters together with the list */}
             <div className="fw-title-slot" ref={slotRef} aria-hidden="true">
               {FEATURED_TITLE}
             </div>

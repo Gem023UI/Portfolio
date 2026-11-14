@@ -34,11 +34,11 @@ export const SRC_H = 600;
  *                projectively warped so its glass lands on FRONT_QUAD.
  */
 export type LaptopMode = 'crossfade' | 'morph';
-export const LAPTOP_MODE: LaptopMode = 'morph';
+export const LAPTOP_MODE: LaptopMode = 'crossfade';
 
 // crossfade window inside the 0..1 morph progress
-const FADE_FROM = 0.35;
-const FADE_TO = 0.65;
+const FADE_FROM = 0.4;
+const FADE_TO = 0.7; // screen quad has fully reached FRONT_QUAD by here
 
 // last project shown on the Featured laptop, so Cloud's laptop opens on the same one
 export const laptopShared = { index: 0 };
@@ -112,7 +112,9 @@ export function renderLaptop(p: LaptopParts, t: number, mode: LaptopMode = LAPTO
   const sy = h / LAPTOP_VIEWBOX.h;
   const side = scaleQuad(SIDE_QUAD, sx, sy);
   const front = scaleQuad(FRONT_QUAD, sx, sy);
-  const q = lerpQuad(side, front, t);
+  // in crossfade mode the glass finishes moving exactly when the front art is fully opaque
+  const qt = mode === 'crossfade' ? clamp01(t / FADE_TO) : t;
+  const q = lerpQuad(side, front, qt);
 
   // flat SRC_W x SRC_H surface -> current glass quad
   p.screen.style.transform = toCss(mul(squareToQuad(q), [1 / SRC_W, 0, 0, 0, 1 / SRC_H, 0, 0, 0, 1]));

@@ -79,6 +79,7 @@ export default function CloudProjects() {
         trigger: root,
         start: 'top top+=2',
         toggleClass: { targets: laptop, className: 'is-live' },
+        refreshPriority: -3, // measure after both pins (Featured -1, Cloud -2) exist
         onEnter: () => {
           setScreenIndex(laptopShared.index);
           setHovered(laptopShared.index);
@@ -103,6 +104,9 @@ export default function CloudProjects() {
         .to(title, { autoAlpha: 1, x: 0, ease: 'power2.out', duration: 0.6 })
         .to(works, { autoAlpha: 1, x: 0, ease: 'power2.out', duration: 0.6 }, '<0.1')
         .to({}, { duration: 0.8 });
+
+      // Featured Works measures this section's laptop, so re-measure now that it exists.
+      ScrollTrigger.refresh();
     }, rootRef);
 
     return () => ctx.revert();

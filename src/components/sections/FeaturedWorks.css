@@ -76,6 +76,8 @@
   aspect-ratio: 1461 / 822; /* matches LAPTOP_VIEWBOX */
 }
 
+.fw-stage { z-index: 1; }
+
 .fw-laptop-svg {
   position: absolute;
   inset: 0;

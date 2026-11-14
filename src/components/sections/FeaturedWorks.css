@@ -84,6 +84,12 @@
   height: 100%;
   pointer-events: none;
   user-select: none;
+  transform-origin: 0 0;
+  will-change: transform, opacity;
+}
+
+.fw-laptop-svg--front {
+  opacity: 0;
 }
 
 .fw-screen {

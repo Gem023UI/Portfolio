@@ -1,0 +1,89 @@
+/* Cloud Projects: same .fw-* hover styling, mirrored layout (list left, laptop right).
+   Sits underneath Featured Works' last screen so the pinned laptop hands off in place. */
+
+.fw.cp {
+  z-index: 1;
+  margin-top: -100vh;
+  margin-top: -100svh;
+}
+
+.cp-stage {
+  position: absolute;
+  inset: 14vh 6vw 6vh 10vw; /* mirror of .fw-stage */
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  align-items: center;
+  column-gap: 3vw;
+}
+
+.cp-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.cp-title {
+  margin: 0 0 2.4vh;
+  white-space: nowrap;
+  line-height: 1;
+  font-family: var(--font-display, 'Instrument Serif', 'Playfair Display', Georgia, serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 3.6vw, 3.6rem);
+}
+
+/* hover list: same markup/styles as Featured Works, left-aligned */
+.fw.cp .fw-list {
+  align-items: flex-start;
+  text-align: left;
+}
+.fw.cp .fw-title-row {
+  justify-content: flex-start;
+  transform-origin: left center;
+}
+.fw.cp .fw-desc p {
+  margin: 0;
+}
+
+/* same footprint as .fw-laptop, but visible only after the hand-off */
+.cp-laptop {
+  width: min(100%, 104vh);
+  justify-self: end;
+  visibility: hidden;
+}
+.cp-laptop.is-live {
+  visibility: visible;
+}
+
+@media (max-width: 820px) {
+  .cp-stage {
+    inset: 18vh 5vw 4vh 5vw;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    row-gap: 3vh;
+    align-items: start;
+  }
+  .cp-laptop {
+    order: -1;
+    width: min(100%, 60vh);
+    justify-self: center;
+  }
+  .cp-side {
+    align-items: center;
+  }
+  .fw.cp .fw-list {
+    align-items: center;
+    text-align: center;
+  }
+  .fw.cp .fw-title-row {
+    justify-content: center;
+    transform-origin: center;
+  }
+  .fw.cp .fw-item.is-active .fw-title-row {
+    transform: scale(1.2);
+  }
+  .fw.cp .fw-desc p {
+    margin-inline: auto;
+  }
+}
